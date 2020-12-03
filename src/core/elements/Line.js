@@ -1,53 +1,58 @@
-import { Element, types } from "../Element";
+import { Element, typeEnum } from "../Element";
 import { Polyline } from "zrender";
 import { lineAutoBreak, lineVertexFollow, lineVertexNextFollow } from "../handler/rectMove";
-import { EventFulZR } from "../event/EventFulZR";
-import { mixin } from "../helpers";
+import { platformEnum } from "../Event";
+import { extend } from "../helpers";
 
-export class Line extends Element {
-  constructor(opts) {
-    super(opts);
-    this.type = types.line;
-    EventFulZR.call(this);
-  }
+export function Line(opts) {
+  opts.platform = platformEnum.zr;
+  Element.call(this, opts);
+  this.type = typeEnum.line;
+  this.shape = {
+    points: [[0, 0]],
+    ...this.shape
+  };
+  this.style = {
+    lineWidth: 1,
+    stroke: "#000",
+    text: "",
+    fontSize: 16,
+    textFill: "#999",
+    ...this.style
+  };
+}
 
-  init() {
-    this.shape = {
-      points: [[0, 0]]
-    };
-    this.style = {
-      lineWidth: 1,
-      stroke: "#000",
-      text: "",
-      fontSize: 16,
-      textFill: "#999"
-    };
-  }
+Line.prototype = {
+  constructor: Line,
 
   render() {
-    super.render();
     this.el = new Polyline({
       shape: this.shape,
       style: this.style
     });
-  }
+  },
 
-  addToRoot(root) {
-    super.addToRoot(root);
+  mount(root) {
+    Element.prototype.mount.call(this, root);
     root.zr.add(this.el);
-  }
+  },
 
-  removeFromRoot(root) {
-    super.removeFromRoot(root);
+  unmount(root) {
+    Element.prototype.unmount.call(this, root);
     root.zr.remove(this.el);
-  }
+  },
 
   setShape(shape) {
-    super.setShape(shape);
+    Element.prototype.setShape.call(this, shape);
     this.el.setShape(this.shape);
-  }
+  },
 
   follow(offset) {
+    console.log(offset);
+    // super.follow(offset);
+  },
+
+  followHost(offset) {
     const points = this.shape.points;
 
     lineVertexFollow(this, offset);
@@ -62,6 +67,6 @@ export class Line extends Element {
       points: points
     });
   }
-}
+};
 
-mixin(Line, EventFulZR);
+extend(Line, Element);

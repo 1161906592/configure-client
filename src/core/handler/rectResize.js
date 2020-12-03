@@ -1,35 +1,4 @@
-import { rootState } from "../Root";
-import { types } from "../Element";
 import { makeRectVertexes } from "../helpers";
-
-export function startRectResize(root) {
-  if (root.state === rootState.rectResize) return;
-  root.state = rootState.rectResize;
-  root.elements.forEach(element => {
-    element.type === types.rect && element.startResize();
-  });
-}
-
-export function endRectResize(root) {
-  if (root.state !== rootState.rectResize) return;
-  root.state = rootState.off;
-  root.elements.forEach(element => {
-    element.type === types.rect && element.endResize();
-  });
-}
-
-export function addRectResize(rect) {
-  rect.on("click", click);
-
-  function click() {
-    if (rect.vertexes.length) return;
-    rect.addVertexes();
-  }
-
-  return () => {
-    rect.off("click", click);
-  };
-}
 
 export function addVertexResize(vertex) {
   const root = vertex.root;
@@ -48,7 +17,7 @@ export function addVertexResize(vertex) {
         x: e.offsetX - prevEvent.offsetX,
         y: e.offsetY - prevEvent.offsetY
       };
-      vertex.follow(offset);
+      vertex.followHost(offset);
       prevEvent = e;
     }
 
@@ -71,8 +40,8 @@ export function vertexFollowElement(element) {
   let circleArr = makeRectVertexes(element);
   circleArr.forEach((point, index) => {
     element.vertexes[index].setShape({
-      cx: point[0],
-      cy: point[1]
+      x: point[0],
+      y: point[1]
     });
   });
 }
@@ -152,12 +121,12 @@ function lineFollowLT(rect, offset) {
     const points = line.shape.points;
     const point = item.isStart ? points[0] : points[points.length - 1];
     if (line.isStartVertical || line.isEndVertical) {
-      line.follow({
+      line.followHost({
         x: point[0] < rect.shape.x || point[0] > rect.shape.x + rect.shape.width ? offset.x : 0,
         y: item.isBottom ? 0 : offset.y
       });
     } else {
-      line.follow({
+      line.followHost({
         x: item.isRight ? 0 : offset.x,
         y: point[1] < rect.shape.y || point[1] > rect.shape.y + rect.shape.height ? offset.y : 0
       });
@@ -172,14 +141,14 @@ function lineFollowT(rect, offset) {
     const line = elementMap[item.id];
     line.isFollowStart = item.isStart;
     if (line.isStartVertical || line.isEndVertical) {
-      line.follow({
+      line.followHost({
         x: 0,
         y: item.isBottom ? 0 : offset.y
       });
     } else {
       const points = line.shape.points;
       const point = item.isStart ? points[0] : points[points.length - 1];
-      line.follow({
+      line.followHost({
         x: 0,
         y: point[1] < rect.shape.y || point[1] > rect.shape.y + rect.shape.height ? offset.y : 0
       });
@@ -196,12 +165,12 @@ function lineFollowRT(rect, offset) {
     const points = line.shape.points;
     const point = item.isStart ? points[0] : points[points.length - 1];
     if (line.isStartVertical || line.isEndVertical) {
-      line.follow({
+      line.followHost({
         x: point[0] < rect.shape.x || point[0] > rect.shape.x + rect.shape.width ? offset.x : 0,
         y: item.isBottom ? 0 : offset.y
       });
     } else {
-      line.follow({
+      line.followHost({
         x: item.isRight ? offset.x : 0,
         y: point[1] < rect.shape.y || point[1] > rect.shape.y + rect.shape.height ? offset.y : 0
       });
@@ -216,14 +185,14 @@ function lineFollowR(rect, offset) {
     const line = elementMap[item.id];
     line.isFollowStart = item.isStart;
     if (!line.isStartVertical && !line.isEndVertical) {
-      line.follow({
+      line.followHost({
         x: item.isRight ? offset.x : 0,
         y: 0
       });
     } else {
       const points = line.shape.points;
       const point = item.isStart ? points[0] : points[points.length - 1];
-      line.follow({
+      line.followHost({
         x: point[0] < rect.shape.x || point[0] > rect.shape.x + rect.shape.width ? offset.x : 0,
         y: 0
       });
@@ -240,12 +209,12 @@ function lineFollowRB(rect, offset) {
     const points = line.shape.points;
     const point = item.isStart ? points[0] : points[points.length - 1];
     if (line.isStartVertical || line.isEndVertical) {
-      line.follow({
+      line.followHost({
         x: point[0] < rect.shape.x || point[0] > rect.shape.x + rect.shape.width ? offset.x : 0,
         y: item.isBottom ? offset.y : 0
       });
     } else {
-      line.follow({
+      line.followHost({
         x: item.isRight ? offset.x : 0,
         y: point[1] < rect.shape.y || point[1] > rect.shape.y + rect.shape.height ? offset.y : 0
       });
@@ -260,14 +229,14 @@ function lineFollowB(rect, offset) {
     const line = elementMap[item.id];
     line.isFollowStart = item.isStart;
     if (line.isStartVertical || line.isEndVertical) {
-      line.follow({
+      line.followHost({
         x: 0,
         y: item.isBottom ? offset.y : 0
       });
     } else {
       const points = line.shape.points;
       const point = item.isStart ? points[0] : points[points.length - 1];
-      line.follow({
+      line.followHost({
         x: 0,
         y: point[1] < rect.shape.y || point[1] > rect.shape.y + rect.shape.height ? offset.y : 0
       });
@@ -284,12 +253,12 @@ function lineFollowLB(rect, offset) {
     const points = line.shape.points;
     const point = item.isStart ? points[0] : points[points.length - 1];
     if (line.isStartVertical || line.isEndVertical) {
-      line.follow({
+      line.followHost({
         x: point[0] < rect.shape.x || point[0] > rect.shape.x + rect.shape.width ? offset.x : 0,
         y: item.isBottom ? offset.y : 0
       });
     } else {
-      line.follow({
+      line.followHost({
         x: item.isRight ? 0 : offset.x,
         y: point[1] < rect.shape.y || point[1] > rect.shape.y + rect.shape.height ? offset.y : 0
       });
@@ -304,14 +273,14 @@ function lineFollowL(rect, offset) {
     const line = elementMap[item.id];
     line.isFollowStart = item.isStart;
     if (!line.isStartVertical && !line.isEndVertical) {
-      line.follow({
+      line.followHost({
         x: item.isRight ? 0 : offset.x,
         y: 0
       });
     } else {
       const points = line.shape.points;
       const point = item.isStart ? points[0] : points[points.length - 1];
-      line.follow({
+      line.followHost({
         x: point[0] < rect.shape.x || point[0] > rect.shape.x + rect.shape.width ? offset.x : 0,
         y: 0
       });

@@ -1,66 +1,56 @@
-import { rootState } from "../Root";
-import { Line } from "../elements/Line";
-import { types } from "../Element";
+import { Line } from "..";
 
-export function startDrawLine(root) {
-  if (root.state === rootState.drawLine) return;
-  root.state = rootState.drawLine;
-  root.elements.forEach(element => {
-    element.type === types.rect && element.startDrawLine();
-  });
+export function DrawLine() {
+  this.drawLineable = true;
 }
 
-export function endDrawLine(root) {
-  if (root.state !== rootState.drawLine) return;
-  root.state = rootState.off;
-  root.elements.forEach(element => {
-    element.type === types.rect && element.endDrawLine();
-  });
-}
+DrawLine.prototype = {
+  constructor: DrawLine,
+  addDrawLine() {
+    const root = this.root;
 
-export function addDrawLine(rect) {
-  const root = rect.root;
-  rect.on("click", click);
+    const click = e => {
+      e.event.stopPropagation();
 
-  function click(e) {
-    e.event.stopPropagation();
-    if (root.curDrawLine) {
-      clickToEnd(rect);
-      root.off("mousemove", mousemove);
-      root.off("click", clickRoot);
-    } else {
-      clickToStart(e, rect);
-      root.on("mousemove", mousemove);
-      root.on("click", clickRoot);
-    }
+      // 鼠标移动绘制线段
+      const mousemove = e => {
+        const curDrawLine = root.curDrawLine;
+        if (!curDrawLine) return;
+        const points = curDrawLine.shape.points;
+        if (root.isNewPoint) {
+          root.isNewPoint = false;
+          points.push([~~e.offsetX + 0.5, ~~e.offsetY + 0.5]);
+        } else {
+          const last = points[points.length - 2];
+          curDrawLine.isVertical = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]);
+          points[points.length - 1] = curDrawLine.isVertical ? [last[0], ~~e.offsetY + 0.5] : [~~e.offsetX + 0.5, last[1]];
+        }
+        curDrawLine.setShape({
+          points
+        });
+      };
+
+      const clickRoot = () => {
+        root.isNewPoint = true;
+      };
+      if (root.curDrawLine) {
+        clickToEnd(this);
+        root.off("mousemove", mousemove);
+        root.off("click", clickRoot);
+      } else {
+        clickToStart(e, this);
+        root.on("mousemove", mousemove);
+        root.on("click", clickRoot);
+      }
+    };
+
+    this.on("click", click);
+
+    this.removeDrawLine = () => {
+      this.off("click", click);
+    };
   }
-
-  // 鼠标移动绘制线段
-  function mousemove(e) {
-    const curDrawLine = root.curDrawLine;
-    if (!curDrawLine) return;
-    const points = curDrawLine.shape.points;
-    if (root.isNewPoint) {
-      root.isNewPoint = false;
-      points.push([~~e.offsetX + 0.5, ~~e.offsetY + 0.5]);
-    } else {
-      const last = points[points.length - 2];
-      curDrawLine.isVertical = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]);
-      points[points.length - 1] = curDrawLine.isVertical ? [last[0], ~~e.offsetY + 0.5] : [~~e.offsetX + 0.5, last[1]];
-    }
-    curDrawLine.setShape({
-      points
-    });
-  }
-
-  function clickRoot() {
-    root.isNewPoint = true;
-  }
-
-  return () => {
-    rect.off("click", click);
-  };
-}
+};
 
 // 开始画线
 function clickToStart(e, rect) {
@@ -101,8 +91,8 @@ function clickToStart(e, rect) {
       points: [point]
     }
   });
-  line.el.silent = true;
   root.add(line);
+  line.el.silent = true;
 
   root.curDrawLine = line;
   rect.lines.push({

@@ -1,8 +1,10 @@
 <template>
   <div>
     <div class="header">
-      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('div')">div元素 </el-button>
-      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('canvas')">canvas元素 </el-button>
+      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'dom')">dom矩形</el-button>
+      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'zr')">canvas矩形</el-button>
+      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'dom')">dom圆</el-button>
+      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'zr')">canvas圆</el-button>
       <el-button type="primary" size="small" @click="handleStartDrawLine">画线</el-button>
       <el-button type="primary" size="small" @click="handleStartRectMove">移动</el-button>
       <el-button type="primary" size="small" @click="handleStartRectResize">缩放</el-button>
@@ -18,7 +20,7 @@
 </template>
 
 <script>
-import { RectDOM, RectZR, Root } from "../core";
+import { Root, createElement } from "../core";
 
 export default {
   name: "Home",
@@ -39,45 +41,26 @@ export default {
     });
   },
   methods: {
-    handleDragstart(type) {
+    handleDragstart(type, platform) {
       this.type = type;
+      this.platform = platform;
     },
     handleDrop(e) {
-      let rect;
-      switch (this.type) {
-        case "div":
-          rect = new RectDOM({
-            shape: {
-              x: e.offsetX,
-              y: e.offsetY
-            },
-            children: [
-              {
-                shape: {
-                  x: e.offsetX + 20,
-                  y: e.offsetY + 20,
-                  width: 100
-                }
-              }
-            ]
-          });
-          break;
-        case "canvas":
-          rect = new RectZR({
-            shape: {
-              x: e.offsetX,
-              y: e.offsetY
-            }
-          });
-          break;
-      }
-      this.root.add(rect);
+      let element = createElement({
+        type: this.type,
+        platform: this.platform,
+        shape: {
+          x: e.offsetX,
+          y: e.offsetY
+        }
+      });
+      this.root.add(element);
     },
     handleStartDrawLine() {
       this.root.startDrawLine();
     },
     handleStartRectMove() {
-      this.root.startRectMove();
+      this.root.startElementMove();
     },
     handleStartRectResize() {
       this.root.startRectResize();
@@ -102,6 +85,24 @@ export default {
           name: "设置背景",
           handler: () => {
             item.setImage("/1.png");
+            this.style = null;
+          }
+        },
+        {
+          name: "添加子元素",
+          handler: () => {
+            const element = createElement({
+              type: item.type,
+              platform: item.platform,
+              shape: {
+                x: item.shape.x + 20,
+                y: item.shape.y + 20,
+                width: item.shape.width,
+                height: item.shape.height
+              }
+            });
+            item.addChild(element);
+            this.root.add(element);
             this.style = null;
           }
         }

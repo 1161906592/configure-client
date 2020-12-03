@@ -1,31 +1,27 @@
-import { Rect } from "../Rect";
-import { platforms } from "../../Root";
-import { EventFulZR } from "../../event/EventFulZR";
-import { mixin } from "../../helpers";
+import { BaseRect } from "../BaseRect";
+import { platformEnum } from "../../Event";
 import { Rect as ZRRect, Image as ZRImage } from "zrender";
-import { RectVertexZR } from "./RectVertexZR";
+import { VertexZR } from "./VertexZR";
+import { extend } from "../../helpers";
 
-export class RectZR extends Rect {
-  constructor(opts) {
-    super(opts);
-    this.platform = platforms.zr;
-    EventFulZR.call(this);
-  }
+export function RectZR(opts) {
+  opts.platform = platformEnum.zr;
+  BaseRect.call(this, opts);
+  this.style = {
+    lineWidth: 1,
+    stroke: "#000",
+    text: "",
+    fontSize: 16,
+    textFill: "#999",
+    fill: "rgba(0,0,0,0)",
+    ...this.style
+  };
+}
 
-  init() {
-    super.init();
-    this.style = {
-      lineWidth: 1,
-      stroke: "#000",
-      text: "",
-      fontSize: 16,
-      textFill: "#999",
-      fill: "rgba(0,0,0,0)"
-    };
-  }
+RectZR.prototype = {
+  constructor: RectZR,
 
   render() {
-    super.render();
     this.shape.x = ~~this.shape.x + 0.5;
     this.shape.y = ~~this.shape.y + 0.5;
     this.el = this.image
@@ -39,24 +35,23 @@ export class RectZR extends Rect {
           shape: this.shape,
           style: this.style
         });
-  }
+  },
 
   setShape(shape) {
-    super.setShape(shape);
+    BaseRect.prototype.setShape.call(this, shape);
     this.image ? this.el.setStyle(this.shape) : this.el.setShape(this.shape);
-  }
+  },
 
   makeVertex(opts) {
-    super.makeVertex(opts);
-    return new RectVertexZR(opts);
-  }
+    return new VertexZR(opts);
+  },
 
   setImage(image) {
-    super.setImage(image);
+    BaseRect.prototype.setImage.call(this, image);
     this.root.remove(this);
     this.render();
     this.root.add(this);
   }
-}
+};
 
-mixin(RectZR, EventFulZR);
+extend(RectZR, BaseRect);

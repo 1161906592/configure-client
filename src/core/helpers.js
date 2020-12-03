@@ -1,17 +1,36 @@
-export function defaults(target, source, overlay) {
-  for (var key in source) {
-    if (hasOwnProperty(source, key) && (overlay ? source[key] != null : target[key] == null)) {
-      target[key] = source[key];
-    }
-  }
-  return target;
-}
-
 export function mixin(target, source, overlay) {
   target = "prototype" in target ? target.prototype : target;
   source = "prototype" in source ? source.prototype : source;
 
   defaults(target, source, overlay);
+
+  function defaults(target, source, overlay) {
+    for (var key in source) {
+      if (hasOwnProperty(source, key) && (overlay ? source[key] != null : target[key] == null)) {
+        target[key] = source[key];
+      }
+    }
+    return target;
+  }
+}
+
+export function extend(subClass, superClass) {
+  const subPrototype = subClass.prototype;
+
+  subClass.prototype = Object.create(superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+
+  eachObj(subPrototype, (value, prop) => {
+    subClass.prototype[prop] = value;
+  });
+
+  setPrototypeOf(subClass, superClass);
 }
 
 export function guid() {
@@ -46,6 +65,13 @@ export function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
+export const setPrototypeOf =
+  Object.setPrototypeOf ||
+  function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
 export function eachObj(obj, fn) {
   for (let key in obj) {
     if (hasOwnProperty(obj, key)) {
@@ -64,7 +90,7 @@ export function copyProperties(from, props) {
   return to;
 }
 
-export function domOffset(el) {
+export function calcDOMOffset(el) {
   let offset = {
     left: 0,
     top: 0
@@ -76,4 +102,12 @@ export function domOffset(el) {
     el = el.offsetParent;
   }
   return offset;
+}
+
+export function makeMap(list, fn) {
+  const map = {};
+  list.forEach((item, index) => {
+    fn(map, item, index);
+  });
+  return map;
 }

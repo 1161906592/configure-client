@@ -1,10 +1,7 @@
 import { init } from "zrender";
-import { copyProperties, domOffset, hasOwnProperty, mixin } from "./helpers";
-import { EventFulDOM } from "./event/EventFulDOM";
-import { endRectMove, startRectMove } from "./handler/rectMove";
-import { endDrawLine, startDrawLine } from "./handler/drawLine";
-import { endRectResize, startRectResize } from "./handler/rectResize";
-import { types } from "./Element";
+import { copyProperties, calcDOMOffset, extend } from "./helpers";
+import { typeEnum } from "./Element";
+import { Event, platformEnum } from "./Event";
 
 export const rootState = {
   off: 1,
@@ -13,113 +10,115 @@ export const rootState = {
   drawLine: 4
 };
 
-export const platforms = {
-  dom: 1,
-  zr: 2
-};
+export function Root(opts) {
+  opts.platform = platformEnum.dom;
+  Event.call(this, opts);
+  const el = opts.el;
+  el.style.position = "relative";
+  this.el = el;
+  this.zr = init(el);
+  this.oncontextmenu = opts.oncontextmenu;
+  this.elements = [];
+  this.elementMap = {};
+  this.root = this;
+  this.offset = calcDOMOffset(el);
+  this.state = rootState.rectMove;
+  // 画连接线
+  this.curDrawLine = null;
+  this.curDrawLineStartRect = null;
+  this.isNewPoint = false;
+  // 缩放
+  this.curResizeElement = null;
+}
 
-export class Root {
-  constructor(opts) {
-    EventFulDOM.call(this);
-    for (var name in opts) {
-      if (hasOwnProperty(opts, name)) {
-        this[name] = opts[name];
-      }
-    }
-    const el = opts.el;
-    el.style.position = "relative";
-    this.el = el;
-    this.zr = init(el);
-    this.elements = [];
-    this.elementMap = {};
-    this.root = this;
-    this.offset = domOffset(el);
-    this.state = rootState.rectMove;
-    // 画连接线
-    this.curDrawLine = null;
-    this.curDrawLineStartRect = null;
-    this.isNewPoint = false;
-    // 缩放
-    this.curResizeElement = null;
-  }
-
+Root.prototype = {
+  constructor: Root,
   add(element) {
-    switch (element.platform) {
-      case platforms.dom:
-        this.el.appendChild(element.el);
-        break;
-      case platforms.zr:
-        this.zr.add(element.el);
-        break;
-    }
-    element.addToRoot(this);
+    console.log(element);
+    element.mount(this);
     this.elements.push(element);
     this.elementMap[element.id] = element;
-  }
+  },
 
   remove(element) {
-    switch (element.platform) {
-      case platforms.dom:
-        this.el.removeChild(element.el);
-        break;
-      case platforms.zr:
-        this.zr.remove(element.el);
-        break;
-    }
-    element.removeFromRoot(this);
+    element.unmount(this);
     const idx = this.elements.findIndex(d => d === element);
     if (idx !== -1) {
       this.elements.splice(idx, 1);
       delete this.elementMap[element.id];
     }
-  }
+  },
 
   clearHandler() {
     this.endDrawLine();
     this.endRectMove();
     this.endRectResize();
-  }
+  },
 
   // 移动方块
-  startRectMove() {
+  startElementMove() {
+    if (this.state === rootState.rectMove) return;
     this.clearHandler();
-    startRectMove(this);
-  }
+    this.state = rootState.rectMove;
+    this.elements.forEach(element => {
+      element.addMove();
+    });
+  },
 
   endRectMove() {
-    endRectMove(this);
-  }
+    if (this.state !== rootState.rectMove) return;
+    this.state = rootState.off;
+    this.elements.forEach(element => {
+      element.removeMove();
+    });
+  },
 
   // 画线
   startDrawLine() {
+    if (this.state === rootState.drawLine) return;
     this.clearHandler();
-    startDrawLine(this);
-  }
+    this.state = rootState.drawLine;
+    this.elements.forEach(element => {
+      element.addDrawLine?.();
+    });
+  },
 
   endDrawLine() {
-    endDrawLine(this);
-  }
+    if (this.state !== rootState.drawLine) return;
+    this.state = rootState.off;
+    this.elements.forEach(element => {
+      element.removeDrawLine?.();
+    });
+  },
 
   // 缩放
   startRectResize() {
+    if (this.state === rootState.rectResize) return;
     this.clearHandler();
-    startRectResize(this);
-  }
+    this.state = rootState.rectResize;
+    this.elements.forEach(element => {
+      element.addResize();
+    });
+  },
 
   endRectResize() {
-    endRectResize(this);
-  }
+    if (this.state !== rootState.rectResize) return;
+    this.state = rootState.off;
+    this.elements.forEach(element => {
+      element.removeResize();
+    });
+  },
 
   getResult() {
     return this.elements
       .map(element => {
         let result;
         switch (element.type) {
-          case types.rect:
+          case typeEnum.rect:
             result = copyProperties(element, ["id", "type", "shape", "lines", "platform", "image", "data"]);
             result.shape = copyProperties(result.shape, ["x", "y", "width", "height"]);
             return result;
-          case types.line:
+          case typeEnum.line:
             result = copyProperties(element, ["id", "type", "shape", "lines", "platform", "isStartVertical", "isEndVertical", "data"]);
             result.shape = copyProperties(result.shape, ["points"]);
             return result;
@@ -127,6 +126,6 @@ export class Root {
       })
       .filter(Boolean);
   }
-}
+};
 
-mixin(Root, EventFulDOM);
+extend(Root, Event);
