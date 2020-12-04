@@ -6,8 +6,7 @@
       <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'dom')">dom圆</el-button>
       <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'zr')">canvas圆</el-button>
       <el-button type="primary" size="small" @click="handleStartDrawLine">画线</el-button>
-      <el-button type="primary" size="small" @click="handleStartRectMove">移动</el-button>
-      <el-button type="primary" size="small" @click="handleStartRectResize">缩放</el-button>
+      <el-button type="primary" size="small" @click="handleStartFocus">选中</el-button>
       <el-button type="primary" size="small" @click="handleClearHandler">清除状态</el-button>
     </div>
     <div class="bottom">
@@ -59,11 +58,8 @@ export default {
     handleStartDrawLine() {
       this.root.startDrawLine();
     },
-    handleStartRectMove() {
-      this.root.startElementMove();
-    },
-    handleStartRectResize() {
-      this.root.startRectResize();
+    handleStartFocus() {
+      this.root.startFocus();
     },
     handleClearHandler() {
       this.root.clearHandler();

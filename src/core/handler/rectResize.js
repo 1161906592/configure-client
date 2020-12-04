@@ -1,57 +1,5 @@
-import { makeRectVertexes } from "../helpers";
-
-export function addVertexResize(vertex) {
-  const root = vertex.root;
-  vertex.on("mousedown", mousedown);
-
-  let prevEvent;
-
-  function mousedown(e) {
-    if (e.event.button !== 0) return;
-    prevEvent = e;
-    root.on("mousemove", mousemove);
-    root.on("mouseup", mouseup);
-
-    function mousemove(e) {
-      const offset = {
-        x: e.offsetX - prevEvent.offsetX,
-        y: e.offsetY - prevEvent.offsetY
-      };
-      vertex.followHost(offset);
-      prevEvent = e;
-    }
-
-    function mouseup() {
-      root.off("mousemove", mousemove);
-      root.off("mouseup", mouseup);
-    }
-  }
-
-  return () => {
-    root.off("mousedown", mousedown);
-  };
-}
-
-export function elementFollowResize(element, vertex, offset) {
-  [resizeRectLT, resizeRectT, resizeRectRT, resizeRectR, resizeRectRB, resizeRectB, resizeRectLB, resizeRectL][vertex.index](element, offset);
-}
-
-export function vertexFollowElement(element) {
-  let circleArr = makeRectVertexes(element);
-  circleArr.forEach((point, index) => {
-    element.vertexes[index].setShape({
-      x: point[0],
-      y: point[1]
-    });
-  });
-}
-
-export function lineFollowElement(element, vertex, offset) {
-  [lineFollowLT, lineFollowT, lineFollowRT, lineFollowR, lineFollowRB, lineFollowB, lineFollowLB, lineFollowL][vertex.index](element, offset);
-}
-
 // 左上
-function resizeRectLT(rect, offset) {
+export function resizeRectLT(rect, offset) {
   const shape = rect.shape;
   shape.x += offset.x;
   shape.y += offset.y;
@@ -60,14 +8,14 @@ function resizeRectLT(rect, offset) {
 }
 
 // 上
-function resizeRectT(rect, offset) {
+export function resizeRectT(rect, offset) {
   const shape = rect.shape;
   shape.y += offset.y;
   shape.height -= offset.y;
 }
 
 // 右上
-function resizeRectRT(rect, offset) {
+export function resizeRectRT(rect, offset) {
   const shape = rect.shape;
   // shape.x -= offset.x;
   shape.width += offset.x;
@@ -76,14 +24,14 @@ function resizeRectRT(rect, offset) {
 }
 
 // 右
-function resizeRectR(rect, offset) {
+export function resizeRectR(rect, offset) {
   const shape = rect.shape;
   // shape.x -= offset.x;
   shape.width += offset.x;
 }
 
 // 右下
-function resizeRectRB(rect, offset) {
+export function resizeRectRB(rect, offset) {
   const shape = rect.shape;
   // shape.x -= offset.x;
   shape.width += offset.x;
@@ -91,14 +39,14 @@ function resizeRectRB(rect, offset) {
 }
 
 // 下
-function resizeRectB(rect, offset) {
+export function resizeRectB(rect, offset) {
   const shape = rect.shape;
   // shape.y -= offset.y;
   shape.height += offset.y;
 }
 
 // 左下
-function resizeRectLB(rect, offset) {
+export function resizeRectLB(rect, offset) {
   const shape = rect.shape;
   shape.x += offset.x;
   shape.width -= offset.x;
@@ -106,14 +54,14 @@ function resizeRectLB(rect, offset) {
 }
 
 // 左
-function resizeRectL(rect, offset) {
+export function resizeRectL(rect, offset) {
   const shape = rect.shape;
   shape.x += offset.x;
   shape.width -= offset.x;
 }
 
 // 左上
-function lineFollowLT(rect, offset) {
+export function lineFollowRectLT(rect, offset) {
   const elementMap = rect.root.elementMap;
   rect.lines.forEach(item => {
     const line = elementMap[item.id];
@@ -135,7 +83,7 @@ function lineFollowLT(rect, offset) {
 }
 
 // 上
-function lineFollowT(rect, offset) {
+export function lineFollowRectT(rect, offset) {
   const elementMap = rect.root.elementMap;
   rect.lines.forEach(item => {
     const line = elementMap[item.id];
@@ -157,7 +105,7 @@ function lineFollowT(rect, offset) {
 }
 
 // 右上
-function lineFollowRT(rect, offset) {
+export function lineFollowRectRT(rect, offset) {
   const elementMap = rect.root.elementMap;
   rect.lines.forEach(item => {
     const line = elementMap[item.id];
@@ -179,7 +127,7 @@ function lineFollowRT(rect, offset) {
 }
 
 // 右
-function lineFollowR(rect, offset) {
+export function lineFollowRectR(rect, offset) {
   const elementMap = rect.root.elementMap;
   rect.lines.forEach(item => {
     const line = elementMap[item.id];
@@ -201,7 +149,7 @@ function lineFollowR(rect, offset) {
 }
 
 // 右下
-function lineFollowRB(rect, offset) {
+export function lineFollowRectRB(rect, offset) {
   const elementMap = rect.root.elementMap;
   rect.lines.forEach(item => {
     const line = elementMap[item.id];
@@ -223,7 +171,7 @@ function lineFollowRB(rect, offset) {
 }
 
 // 下
-function lineFollowB(rect, offset) {
+export function lineFollowRectB(rect, offset) {
   const elementMap = rect.root.elementMap;
   rect.lines.forEach(item => {
     const line = elementMap[item.id];
@@ -245,7 +193,7 @@ function lineFollowB(rect, offset) {
 }
 
 // 左下
-function lineFollowLB(rect, offset) {
+export function lineFollowRectLB(rect, offset) {
   const elementMap = rect.root.elementMap;
   rect.lines.forEach(item => {
     const line = elementMap[item.id];
@@ -267,7 +215,7 @@ function lineFollowLB(rect, offset) {
 }
 
 // 左
-function lineFollowL(rect, offset) {
+export function lineFollowRectL(rect, offset) {
   const elementMap = rect.root.elementMap;
   rect.lines.forEach(item => {
     const line = elementMap[item.id];

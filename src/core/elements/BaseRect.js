@@ -1,12 +1,30 @@
 import { Element, typeEnum } from "../Element";
-import { rootState } from "../Root";
-import { extend, makeRectVertexes, mixin } from "../helpers";
-import { elementFollowResize, lineFollowElement, vertexFollowElement } from "../handler/rectResize";
+import { extend, mixin } from "../helpers";
+import {
+  resizeRectLT,
+  resizeRectT,
+  resizeRectRT,
+  resizeRectR,
+  resizeRectRB,
+  resizeRectB,
+  resizeRectLB,
+  resizeRectL,
+  lineFollowRectLT,
+  lineFollowRectT,
+  lineFollowRectRT,
+  lineFollowRectR,
+  lineFollowRectRB,
+  lineFollowRectB,
+  lineFollowRectLB,
+  lineFollowRectL
+} from "../handler/rectResize";
 import { DrawLine } from "../mixins/DrawLine";
+import { Resize } from "../mixins/Resize";
 
 export function BaseRect(opts) {
   Element.call(this, opts);
   DrawLine.call(this, opts);
+  Resize.call(this, opts);
   this.type = typeEnum.rect;
   this.shape = {
     x: 0,
@@ -23,24 +41,9 @@ export function BaseRect(opts) {
 BaseRect.prototype = {
   constructor: BaseRect,
 
-  mount(root) {
-    Element.prototype.mount.call(this, root);
-    switch (root.state) {
-      case rootState.drawLine:
-        this.addDrawLine();
-        break;
-    }
-  },
-
-  unmount(root) {
-    Element.prototype.unmount.call(this, root);
-    this.removeDrawLine();
-  },
-
-  // 跟随鼠标
   follow(offset) {
     Element.prototype.follow.call(this, offset);
-
+    Resize.prototype.follow.call(this, offset);
     const elementMap = this.root.elementMap;
     this.lines.forEach(item => {
       const line = elementMap[item.id];
@@ -49,34 +52,32 @@ BaseRect.prototype = {
     });
   },
 
-  // 添加顶点
-  addVertexes() {
-    makeRectVertexes(this).forEach((point, index) => {
-      const vertex = this.makeVertex({
-        shape: {
-          x: point[0],
-          y: point[1]
-        }
-      });
-      vertex.addToHost(this, index);
-      this.vertexes.push(vertex);
-    });
+  makeRectVertexes() {
+    const shape = this.shape;
+    const halfW = shape.width / 2;
+    const halfH = shape.height / 2;
+    return [
+      [shape.x, shape.y],
+      [shape.x + halfW, shape.y],
+      [shape.x + shape.width, shape.y],
+      [shape.x + shape.width, shape.y + halfH],
+      [shape.x + shape.width, shape.y + shape.height],
+      [shape.x + halfW, shape.y + shape.height],
+      [shape.x, shape.y + shape.height],
+      [shape.x, shape.y + halfH]
+    ];
   },
-
-  removeVertexes() {
-    this.vertexes.forEach(vertex => {
-      vertex.removeFromHost();
-    });
-    this.vertexes = [];
-  },
-
-  makeVertex() {},
 
   followVertex(vertex, offset) {
-    elementFollowResize(this, vertex, offset);
+    Resize.prototype.followVertex.call(this, vertex, offset);
+    [lineFollowRectLT, lineFollowRectT, lineFollowRectRT, lineFollowRectR, lineFollowRectRB, lineFollowRectB, lineFollowRectLB, lineFollowRectL][
+      vertex.index
+    ](this, offset);
+  },
+
+  updateShape(vertex, offset) {
+    [resizeRectLT, resizeRectT, resizeRectRT, resizeRectR, resizeRectRB, resizeRectB, resizeRectLB, resizeRectL][vertex.index](this, offset);
     this.setShape(this.shape);
-    vertexFollowElement(this);
-    lineFollowElement(this, vertex, offset);
   },
 
   setImage(image) {
@@ -86,3 +87,4 @@ BaseRect.prototype = {
 
 extend(BaseRect, Element);
 mixin(BaseRect, DrawLine);
+mixin(BaseRect, Resize);

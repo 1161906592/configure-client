@@ -3,16 +3,17 @@ export const platformEnum = {
   zr: "zr"
 };
 
-export function Event(opts) {
-  this.platform = opts.platform;
-  if (this.platform === platformEnum.dom) {
-    this.eventFns = [];
-    this.eventWrapperFns = [];
-  }
-}
+export function Event() {}
 
 Event.prototype = {
   constructor: Event,
+  initEvent() {
+    if (this.platform === platformEnum.dom) {
+      this.eventFns = [];
+      this.eventWrapperFns = [];
+    }
+  },
+
   on(type, fn) {
     switch (this.platform) {
       case platformEnum.dom:

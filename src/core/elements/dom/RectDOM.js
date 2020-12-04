@@ -4,8 +4,8 @@ import { eachObj, extend } from "../../helpers";
 import { VertexDOM } from "./VertexDOM";
 
 export function RectDOM(opts) {
-  opts.platform = platformEnum.dom;
   BaseRect.call(this, opts);
+  this.platform = platformEnum.dom;
   this.style = {
     position: "absolute",
     left: "0px",
@@ -40,12 +40,11 @@ RectDOM.prototype = {
   },
 
   makeVertex(opts) {
-    BaseRect.prototype.makeVertex.call(this, opts);
     return new VertexDOM(opts);
   },
 
   setImage(image) {
-    BaseRect.prototype.makeVertex.setImage.call(this, image);
+    BaseRect.prototype.setImage.call(this, image);
     this.el.style.background = `url(${this.image}) center/100% 100%`;
   }
 };

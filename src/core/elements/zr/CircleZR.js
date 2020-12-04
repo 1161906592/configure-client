@@ -1,44 +1,28 @@
 import { platformEnum } from "../../Event";
-import { Circle as ZRCircle } from "zrender";
-import { extend } from "../../helpers";
+import { extend, mixin } from "../../helpers";
 import { BaseCircle } from "../BaseCircle";
+import { VertexZR } from "./VertexZR";
+import { CircleImplZR } from "../../mixins/CircleImplZR";
 
 export function CircleZR(opts) {
-  opts.platform = platformEnum.zr;
   BaseCircle.call(this, opts);
-  this.style = {
-    lineWidth: 1,
-    stroke: "#000",
-    text: "",
-    fontSize: 16,
-    textFill: "#999",
-    fill: "rgba(0, 0, 0, 0)",
-    ...this.style
-  };
+  CircleImplZR.call(this, opts);
+  this.platform = platformEnum.zr;
+  this.fill = "rgba(0, 0, 0, 0)";
 }
 
 CircleZR.prototype = {
   constructor: CircleZR,
 
-  render() {
-    this.el = new ZRCircle({
-      shape: {
-        cx: this.shape.x,
-        cy: this.shape.y,
-        r: this.shape.r
-      },
-      style: this.style
-    });
-  },
-
   setShape(shape) {
     BaseCircle.prototype.setShape.call(this, shape);
-    this.el.setShape({
-      cx: this.shape.x,
-      cy: this.shape.y,
-      r: this.shape.r
-    });
+    CircleImplZR.prototype.setShape.call(this, shape);
+  },
+
+  makeVertex(opts) {
+    return new VertexZR(opts);
   }
 };
 
 extend(CircleZR, BaseCircle);
+mixin(CircleZR, CircleImplZR);

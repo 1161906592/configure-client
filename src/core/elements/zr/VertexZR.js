@@ -1,13 +1,22 @@
-import { Vertex } from "../Vertex";
+import { BaseVertex } from "../BaseVertex";
 import { extend, mixin } from "../../helpers";
-import { CircleZR } from "./CircleZR";
+import { CircleImplZR } from "../../mixins/CircleImplZR";
+import { platformEnum } from "../../Event";
 
 export function VertexZR(opts) {
-  CircleZR.call(this, opts);
-  Vertex.call(this, opts);
-
-  this.style.fill = "#fff";
+  BaseVertex.call(this, opts);
+  CircleImplZR.call(this, opts);
+  this.platform = platformEnum.zr;
+  this.fill = "#fff";
 }
 
-extend(VertexZR, CircleZR);
-mixin(VertexZR, Vertex);
+VertexZR.prototype = {
+  constructor: VertexZR,
+  setShape(shape) {
+    BaseVertex.prototype.setShape.call(this, shape);
+    CircleImplZR.prototype.setShape.call(this, shape);
+  }
+};
+
+extend(VertexZR, BaseVertex);
+mixin(VertexZR, CircleImplZR);

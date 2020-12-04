@@ -5,8 +5,8 @@ import { VertexZR } from "./VertexZR";
 import { extend } from "../../helpers";
 
 export function RectZR(opts) {
-  opts.platform = platformEnum.zr;
   BaseRect.call(this, opts);
+  this.platform = platformEnum.zr;
   this.style = {
     lineWidth: 1,
     stroke: "#000",

@@ -6,7 +6,7 @@ export function mixin(target, source, overlay) {
 
   function defaults(target, source, overlay) {
     for (var key in source) {
-      if (hasOwnProperty(source, key) && (overlay ? source[key] != null : target[key] == null)) {
+      if (hasOwnProperty(source, key) && (overlay ? hasOwnProperty(source, key) : !hasOwnProperty(target, key))) {
         target[key] = source[key];
       }
     }
@@ -43,22 +43,6 @@ export function guid() {
 
 export function lastItem(list, index = 1) {
   return list[list.length - index];
-}
-
-export function makeRectVertexes(rect) {
-  const shape = rect.shape;
-  const halfW = shape.width / 2;
-  const halfH = shape.height / 2;
-  return [
-    [shape.x, shape.y],
-    [shape.x + halfW, shape.y],
-    [shape.x + shape.width, shape.y],
-    [shape.x + shape.width, shape.y + halfH],
-    [shape.x + shape.width, shape.y + shape.height],
-    [shape.x + halfW, shape.y + shape.height],
-    [shape.x, shape.y + shape.height],
-    [shape.x, shape.y + halfH]
-  ];
 }
 
 export function hasOwnProperty(obj, prop) {

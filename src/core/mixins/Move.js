@@ -26,7 +26,6 @@ Move.prototype = {
       root.on("mousemove", mousemove);
       root.on("mouseup", mouseup);
     };
-
     this.on("mousedown", mousedown);
     this.removeMove = () => {
       this.off("mousedown", mousedown);

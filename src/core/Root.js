@@ -5,14 +5,13 @@ import { Event, platformEnum } from "./Event";
 
 export const rootState = {
   off: 1,
-  rectMove: 2,
-  rectResize: 3,
-  drawLine: 4
+  focus: 2,
+  drawLine: 3
 };
 
 export function Root(opts) {
-  opts.platform = platformEnum.dom;
   Event.call(this, opts);
+  this.platform = platformEnum.dom;
   const el = opts.el;
   el.style.position = "relative";
   this.el = el;
@@ -27,8 +26,7 @@ export function Root(opts) {
   this.curDrawLine = null;
   this.curDrawLineStartRect = null;
   this.isNewPoint = false;
-  // 缩放
-  this.curResizeElement = null;
+  this.initEvent();
 }
 
 Root.prototype = {
@@ -36,12 +34,29 @@ Root.prototype = {
   add(element) {
     console.log(element);
     element.mount(this);
+    switch (this.state) {
+      case rootState.focus:
+        element.addMove();
+        element.addResize?.();
+        break;
+      case rootState.drawLine:
+        element.addDrawLine?.();
+        break;
+      // case rootState.rectResize:
+      //   element.addResize();
+      //   break;
+    }
+    element.addContextmenu();
     this.elements.push(element);
     this.elementMap[element.id] = element;
   },
 
   remove(element) {
     element.unmount(this);
+    element.removeMove?.();
+    element.removeResize?.();
+    element.removeDrawLine?.();
+    element.offContextmenu?.();
     const idx = this.elements.findIndex(d => d === element);
     if (idx !== -1) {
       this.elements.splice(idx, 1);
@@ -51,25 +66,25 @@ Root.prototype = {
 
   clearHandler() {
     this.endDrawLine();
-    this.endRectMove();
-    this.endRectResize();
+    this.endRectFocus();
   },
 
-  // 移动方块
-  startElementMove() {
-    if (this.state === rootState.rectMove) return;
+  startFocus() {
+    if (this.state === rootState.focus) return;
     this.clearHandler();
-    this.state = rootState.rectMove;
+    this.state = rootState.focus;
     this.elements.forEach(element => {
       element.addMove();
+      element.addResize?.();
     });
   },
 
-  endRectMove() {
-    if (this.state !== rootState.rectMove) return;
+  endRectFocus() {
+    if (this.state !== rootState.focus) return;
     this.state = rootState.off;
     this.elements.forEach(element => {
       element.removeMove();
+      element.removeResize();
     });
   },
 
@@ -88,24 +103,6 @@ Root.prototype = {
     this.state = rootState.off;
     this.elements.forEach(element => {
       element.removeDrawLine?.();
-    });
-  },
-
-  // 缩放
-  startRectResize() {
-    if (this.state === rootState.rectResize) return;
-    this.clearHandler();
-    this.state = rootState.rectResize;
-    this.elements.forEach(element => {
-      element.addResize();
-    });
-  },
-
-  endRectResize() {
-    if (this.state !== rootState.rectResize) return;
-    this.state = rootState.off;
-    this.elements.forEach(element => {
-      element.removeResize();
     });
   },
 

@@ -1,9 +1,7 @@
 import { extend, guid, mixin } from "./helpers";
 import { Contextmenu } from "./mixins/Contextmenu";
 import { Event, platformEnum } from "./Event";
-import { rootState } from "./Root";
 import { Move } from "./mixins/Move";
-import { Resize } from "./mixins/Resize";
 /**
  * @description 所有元素的抽象类
  **/
@@ -12,10 +10,9 @@ export function Element(opts) {
   Event.call(this, opts);
   Contextmenu.call(this, opts);
   Move.call(this, opts);
-  Resize.call(this, opts);
   this.id = guid();
-  this.shape = opts.shape;
-  this.style = opts.style;
+  this.shape = opts.shape || this.shape || {};
+  this.style = opts.style || this.shape || {};
   this.children = [];
 }
 
@@ -26,6 +23,7 @@ Element.prototype = {
   render() {},
 
   mount(root) {
+    this.initEvent();
     this.render();
     this.root = root;
     switch (this.platform) {
@@ -36,18 +34,6 @@ Element.prototype = {
         root.zr.add(this.el);
         break;
     }
-    switch (root.state) {
-      case rootState.rectMove:
-        this.addMove();
-        break;
-      case rootState.drawLine:
-        this.addDrawLine?.();
-        break;
-      case rootState.rectResize:
-        this.addResize();
-        break;
-    }
-    this.addContextmenu();
     this.children.forEach(element => {
       root.add(element);
     });
@@ -62,10 +48,6 @@ Element.prototype = {
         root.zr.remove(this.el);
         break;
     }
-    this.removeMove?.();
-    this.removeResize()?.();
-    this.removeDrawLine()?.();
-    this.offContextmenu?.();
     this.children.forEach(element => {
       root.remove(element);
     });
@@ -103,7 +85,6 @@ Element.prototype = {
 extend(Element, Event);
 mixin(Element, Contextmenu);
 mixin(Element, Move);
-mixin(Element, Resize);
 
 export const typeEnum = {
   rect: "rect",
