@@ -18,10 +18,8 @@ Resize.prototype = {
   addVertexes() {
     this.makeRectVertexes().forEach((point, index) => {
       const vertex = this.makeVertex({
-        shape: {
-          x: point[0],
-          y: point[1]
-        },
+        x: point[0],
+        y: point[1],
         index
       });
       vertex.addToHost(this);
@@ -49,11 +47,12 @@ Resize.prototype = {
   // Interface
   updateShape() {},
   updateVertexes() {
+    if (!this.vertexes.length) return;
     this.makeRectVertexes().forEach((point, index) => {
-      this.vertexes[index].setShape({
-        x: point[0],
-        y: point[1]
-      });
+      const item = this.vertexes[index];
+      item.x = point[0];
+      item.y = point[1];
+      item.dirty();
     });
   }
 };

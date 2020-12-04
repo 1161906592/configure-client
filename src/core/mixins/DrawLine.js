@@ -16,7 +16,7 @@ DrawLine.prototype = {
       const mousemove = e => {
         const curDrawLine = root.curDrawLine;
         if (!curDrawLine) return;
-        const points = curDrawLine.shape.points;
+        const points = curDrawLine.points;
         if (root.isNewPoint) {
           root.isNewPoint = false;
           points.push([~~e.offsetX + 0.5, ~~e.offsetY + 0.5]);
@@ -25,9 +25,7 @@ DrawLine.prototype = {
           curDrawLine.isVertical = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]);
           points[points.length - 1] = curDrawLine.isVertical ? [last[0], ~~e.offsetY + 0.5] : [~~e.offsetX + 0.5, last[1]];
         }
-        curDrawLine.setShape({
-          points
-        });
+        curDrawLine.dirty();
       };
 
       const clickRoot = () => {
@@ -54,7 +52,6 @@ DrawLine.prototype = {
 
 // 开始画线
 function clickToStart(e, rect) {
-  const shape = rect.shape;
   const root = rect.root;
   root.curDrawLineStartRect = rect;
 
@@ -63,23 +60,23 @@ function clickToStart(e, rect) {
   const near = [
     {
       isRight: false,
-      value: x - shape.x,
-      point: [shape.x, y]
+      value: x - rect.x,
+      point: [rect.x, y]
     },
     {
       isRight: true,
-      value: shape.x + shape.width - x,
-      point: [shape.x + shape.width, y]
+      value: rect.x + rect.width - x,
+      point: [rect.x + rect.width, y]
     },
     {
       isBottom: false,
-      value: y - shape.y,
-      point: [x, shape.y]
+      value: y - rect.y,
+      point: [x, rect.y]
     },
     {
       isBottom: true,
-      value: shape.y + shape.height - y,
-      point: [x, shape.y + shape.height]
+      value: rect.y + rect.height - y,
+      point: [x, rect.y + rect.height]
     }
   ];
   const min = Math.min(...near.map(d => d.value));
@@ -87,9 +84,7 @@ function clickToStart(e, rect) {
   const point = nearInfo.point;
 
   let line = new Line({
-    shape: {
-      points: [point]
-    }
+    points: [point]
   });
   root.add(line);
   line.el.silent = true;
@@ -112,34 +107,31 @@ function clickToEnd(rect) {
     // root.curDrawLine
   }
   const curDrawLine = root.curDrawLine;
-  const shape = rect.shape;
-  const points = curDrawLine.shape.points;
+  const points = curDrawLine.points;
   const last = points[points.length - 2];
   let point;
   let isBottom = false;
   let isRight = false;
   let arrowDirection;
   if (curDrawLine.isVertical) {
-    point = [last[0], shape.y];
+    point = [last[0], rect.y];
     arrowDirection = "B";
-    if (last[1] > shape.y) {
+    if (last[1] > rect.y) {
       isBottom = true;
       arrowDirection = "T";
-      point[1] += shape.height;
+      point[1] += rect.height;
     }
   } else {
-    point = [shape.x, last[1]];
+    point = [rect.x, last[1]];
     arrowDirection = "R";
-    if (last[0] > shape.x) {
+    if (last[0] > rect.x) {
       isRight = true;
       arrowDirection = "L";
-      point[0] += shape.width;
+      point[0] += rect.width;
     }
   }
   points[points.length - 1] = point;
-  curDrawLine.setShape({
-    points
-  });
+  curDrawLine.dirty();
   rect.lines.push({
     id: curDrawLine.id,
     isStart: false,

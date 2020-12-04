@@ -14,9 +14,9 @@ export function CircleZR(opts) {
 CircleZR.prototype = {
   constructor: CircleZR,
 
-  setShape(shape) {
-    BaseCircle.prototype.setShape.call(this, shape);
-    CircleImplZR.prototype.setShape.call(this, shape);
+  dirty(shape) {
+    BaseCircle.prototype.dirty.call(this, shape);
+    CircleImplZR.prototype.dirty.call(this, shape);
   },
 
   makeVertex(opts) {

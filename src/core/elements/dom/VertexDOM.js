@@ -12,9 +12,9 @@ export function VertexDOM(opts) {
 VertexDOM.prototype = {
   constructor: VertexDOM,
 
-  setShape(shape) {
-    BaseVertex.prototype.setShape.call(this, shape);
-    CircleImplDOM.prototype.setShape.call(this, shape);
+  dirty(shape) {
+    BaseVertex.prototype.dirty.call(this, shape);
+    CircleImplDOM.prototype.dirty.call(this, shape);
   }
 };
 

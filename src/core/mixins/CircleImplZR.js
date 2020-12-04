@@ -6,9 +6,9 @@ CircleImplZR.prototype = {
   render() {
     this.el = new ZRCircle({
       shape: {
-        cx: this.shape.x,
-        cy: this.shape.y,
-        r: this.shape.r
+        cx: this.x,
+        cy: this.y,
+        r: this.r
       },
       style: {
         lineWidth: 1,
@@ -21,11 +21,11 @@ CircleImplZR.prototype = {
     });
   },
 
-  setShape() {
+  dirty() {
     this.el.setShape({
-      cx: this.shape.x,
-      cy: this.shape.y,
-      r: this.shape.r
+      cx: this.x,
+      cy: this.y,
+      r: this.r
     });
   }
 };

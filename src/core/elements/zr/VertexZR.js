@@ -12,9 +12,9 @@ export function VertexZR(opts) {
 
 VertexZR.prototype = {
   constructor: VertexZR,
-  setShape(shape) {
-    BaseVertex.prototype.setShape.call(this, shape);
-    CircleImplZR.prototype.setShape.call(this, shape);
+  dirty(shape) {
+    BaseVertex.prototype.dirty.call(this, shape);
+    CircleImplZR.prototype.dirty.call(this, shape);
   }
 };
 

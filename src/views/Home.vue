@@ -6,7 +6,7 @@
       <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'dom')">dom圆</el-button>
       <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'zr')">canvas圆</el-button>
       <el-button type="primary" size="small" @click="handleStartDrawLine">画线</el-button>
-      <el-button type="primary" size="small" @click="handleStartFocus">选中</el-button>
+      <el-button type="primary" size="small" @click="handleStartFocus">选择</el-button>
       <el-button type="primary" size="small" @click="handleClearHandler">清除状态</el-button>
     </div>
     <div class="bottom">
@@ -48,10 +48,8 @@ export default {
       let element = createElement({
         type: this.type,
         platform: this.platform,
-        shape: {
-          x: e.offsetX,
-          y: e.offsetY
-        }
+        x: e.offsetX,
+        y: e.offsetY
       });
       this.root.add(element);
     },
@@ -80,7 +78,8 @@ export default {
         {
           name: "设置背景",
           handler: () => {
-            item.setImage("/1.png");
+            item.image = "/1.png";
+            item.dirty();
             this.style = null;
           }
         },
@@ -90,12 +89,10 @@ export default {
             const element = createElement({
               type: item.type,
               platform: item.platform,
-              shape: {
-                x: item.shape.x + 20,
-                y: item.shape.y + 20,
-                width: item.shape.width,
-                height: item.shape.height
-              }
+              x: item.x + 20,
+              y: item.y + 20,
+              width: item.width,
+              height: item.height
             });
             item.addChild(element);
             this.root.add(element);

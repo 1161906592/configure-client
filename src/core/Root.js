@@ -84,7 +84,7 @@ Root.prototype = {
     this.state = rootState.off;
     this.elements.forEach(element => {
       element.removeMove();
-      element.removeResize();
+      element.removeResize?.();
     });
   },
 

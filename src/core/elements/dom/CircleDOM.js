@@ -13,9 +13,9 @@ export function CircleDOM(opts) {
 CircleDOM.prototype = {
   constructor: CircleDOM,
 
-  setShape(shape) {
-    BaseCircle.prototype.setShape.call(this, shape);
-    CircleImplDOM.prototype.setShape.call(this, shape);
+  dirty(shape) {
+    BaseCircle.prototype.dirty.call(this, shape);
+    CircleImplDOM.prototype.dirty.call(this, shape);
   },
 
   makeVertex(opts) {

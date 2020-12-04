@@ -3,7 +3,7 @@ import { extend } from "../helpers";
 export function BaseVertex(opts) {
   Element.call(this, opts);
   this.type = typeEnum.vertex;
-  this.shape.r = 4;
+  this.r = 4;
   this.fill = "#fff";
   this.index = opts.index;
 }

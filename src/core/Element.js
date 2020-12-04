@@ -11,8 +11,8 @@ export function Element(opts) {
   Contextmenu.call(this, opts);
   Move.call(this, opts);
   this.id = guid();
-  this.shape = opts.shape || this.shape || {};
-  this.style = opts.style || this.shape || {};
+  this.x = opts.x || 0;
+  this.y = opts.y || 0;
   this.children = [];
 }
 
@@ -55,9 +55,9 @@ Element.prototype = {
 
   // Interface
   follow(offset) {
-    this.shape.x += offset.x;
-    this.shape.y += offset.y;
-    this.setShape(this.shape);
+    this.x += offset.x;
+    this.y += offset.y;
+    this.dirty();
 
     this.children.forEach(element => {
       element.follow(offset);
@@ -65,12 +65,7 @@ Element.prototype = {
   },
 
   // Interface
-  setShape(shape) {
-    this.shape = {
-      ...this.shape,
-      ...shape
-    };
-  },
+  dirty() {},
 
   addChild(child) {
     child.parent = this;

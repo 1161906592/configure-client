@@ -6,12 +6,7 @@ export function BaseCircle(opts) {
   Element.call(this, opts);
   Resize.call(this, opts);
   this.type = typeEnum.circle;
-  this.shape = {
-    x: 0,
-    y: 0,
-    r: 32,
-    ...this.shape
-  };
+  this.r = opts.r || 32;
 }
 
 BaseCircle.prototype = {
@@ -23,12 +18,11 @@ BaseCircle.prototype = {
   },
 
   makeRectVertexes() {
-    const shape = this.shape;
     return [
-      [shape.x, shape.y - shape.r],
-      [shape.x + shape.r, shape.y],
-      [shape.x, shape.y + shape.r],
-      [shape.x - shape.r, shape.y]
+      [this.x, this.y - this.r],
+      [this.x + this.r, this.y],
+      [this.x, this.y + this.r],
+      [this.x - this.r, this.y]
     ];
   },
 
@@ -38,7 +32,7 @@ BaseCircle.prototype = {
 
   updateShape(vertex, offset) {
     [resizeT, resizeR, resizeB, resizeL][vertex.index](this, offset);
-    this.setShape(this.shape);
+    this.dirty();
   }
 };
 
@@ -46,25 +40,21 @@ extend(BaseCircle, Element);
 mixin(BaseCircle, Resize);
 
 function resizeT(circle, offset) {
-  const shape = circle.shape;
-  shape.y += offset.y / 2;
-  shape.r -= offset.y / 2;
+  circle.y += offset.y / 2;
+  circle.r -= offset.y / 2;
 }
 
 function resizeR(circle, offset) {
-  const shape = circle.shape;
-  shape.x += offset.x / 2;
-  shape.r += offset.x / 2;
+  circle.x += offset.x / 2;
+  circle.r += offset.x / 2;
 }
 
 function resizeB(circle, offset) {
-  const shape = circle.shape;
-  shape.y += offset.y / 2;
-  shape.r += offset.y / 2;
+  circle.y += offset.y / 2;
+  circle.r += offset.y / 2;
 }
 
 function resizeL(circle, offset) {
-  const shape = circle.shape;
-  shape.x += offset.x / 2;
-  shape.r -= offset.x / 2;
+  circle.x += offset.x / 2;
+  circle.r -= offset.x / 2;
 }
