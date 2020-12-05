@@ -1,4 +1,5 @@
-import { Element, typeEnum } from "../Element";
+import { Element } from "../Element";
+import { typeEnum } from "../enums";
 import { extend, mixin } from "../helpers";
 import { DrawLine } from "../mixins/DrawLine";
 import { Resizable } from "../mixins/Resizable";
@@ -21,6 +22,10 @@ BaseRect.prototype = {
   height: 100,
 
   r: 4,
+
+  update() {
+    Resizable.prototype.updateVertexes.call(this);
+  },
 
   follow(offset) {
     Draggable.prototype.follow.call(this, offset);

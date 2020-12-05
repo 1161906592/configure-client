@@ -1,6 +1,7 @@
-import { Element, typeEnum } from "../Element";
+import { Element } from "../Element";
+import { typeEnum } from "../enums";
 import { Polyline } from "zrender";
-import { platformEnum } from "../platform";
+import { platformEnum } from "../enums";
 import { extend, lastItem } from "../helpers";
 import { createElement } from "../createElement";
 
@@ -16,6 +17,8 @@ Line.prototype = {
 
   points: [[0, 0]],
 
+  useArrow: false,
+
   create() {
     this.el = new Polyline({
       shape: {
@@ -29,7 +32,7 @@ Line.prototype = {
         textFill: "#999"
       }
     });
-    this.hasArrow && this.addArrow();
+    this.useArrow && this.addArrow();
   },
 
   mount(root) {
@@ -41,7 +44,7 @@ Line.prototype = {
     Element.prototype.unmount.call(this, root);
     this.startRect.removeLine(this);
     this.endRect.removeLine(this);
-    this.arrow && this.root.remove(this.arrow);
+    this.removeArrow();
   },
 
   update() {
@@ -50,6 +53,7 @@ Line.prototype = {
         points: this.points
       }
     });
+    this.useArrow && this.addArrow();
   },
 
   followHost(offset) {
@@ -73,11 +77,12 @@ Line.prototype = {
       isStartVertical: this.isStartVertical,
       isEndVertical: this.isEndVertical,
       direction: this.direction,
-      hasArrow: !!this.arrow
+      useArrow: this.useArrow
     };
   },
 
   addArrow() {
+    if (this.arrow) return;
     const last = lastItem(this.points);
     this.arrow = createElement({
       type: typeEnum.arrow,
@@ -87,6 +92,11 @@ Line.prototype = {
       direction: this.direction
     });
     this.isMounted && this.root.add(this.arrow);
+  },
+
+  removeArrow() {
+    if (!this.arrow || this.arrow.isMounted) return;
+    this.root.remove(this.arrow);
   }
 };
 

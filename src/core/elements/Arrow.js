@@ -1,6 +1,7 @@
-import { Element, typeEnum } from "../Element";
+import { Element } from "../Element";
+import { typeEnum } from "../enums";
 import { extend, makeMap } from "../helpers";
-import { platformEnum } from "../platform";
+import { platformEnum } from "../enums";
 import { Isogon } from "zrender";
 
 export const arrowDirectionEnum = {

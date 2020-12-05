@@ -1,13 +1,7 @@
 import { Storage } from "./Storage";
 import { Painter } from "./Painter";
-import { typeEnum } from "./Element";
+import { typeEnum, rootStateEnum } from "./enums";
 import { HandlerProxy } from "./Handler";
-
-export const rootStateEnum = {
-  off: 1,
-  focus: 2,
-  drawLine: 3
-};
 
 function Root(opts) {
   this.el = opts.el;
@@ -26,7 +20,7 @@ function Root(opts) {
 Root.prototype = {
   constructor: Root,
   add(element) {
-    console.log(element);
+    // console.log(element);
     element.mount(this);
     this.painter.add(element);
     this.storage.add(element);

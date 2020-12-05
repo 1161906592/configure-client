@@ -1,7 +1,7 @@
 import { BaseVertex } from "../BaseVertex";
 import { extend, mixin } from "../../helpers";
 import { CircleImplDOM } from "../../mixins/CircleImplDOM";
-import { platformEnum } from "../../platform";
+import { platformEnum } from "../../enums";
 
 function VertexDOM(opts) {
   BaseVertex.call(this, opts);

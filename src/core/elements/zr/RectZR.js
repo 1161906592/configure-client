@@ -1,10 +1,11 @@
 import { BaseRect } from "../BaseRect";
-import { platformEnum } from "../../platform";
+import { platformEnum } from "../../enums";
 import { Rect as ZRRect, Image as ZRImage } from "zrender";
 import { extend } from "../../helpers";
 
 function RectZR(opts) {
   BaseRect.call(this, opts);
+  this.typeHandlerMap = new Map();
 }
 
 RectZR.prototype = {
@@ -13,15 +14,23 @@ RectZR.prototype = {
   platform: platformEnum.zr,
 
   create() {
-    const x = ~~this.x + 0.5;
-    const y = ~~this.y + 0.5;
+    let x = ~~this.x + 0.5;
+    let y = ~~this.y + 0.5;
+    let width = this.width - 1;
+    let height = this.height - 1;
+    if (this.image) {
+      x--;
+      y--;
+      width++;
+      height++;
+    }
     this.el = this.image
       ? new ZRImage({
           style: {
             x: x,
             y: y,
-            width: this.width,
-            height: this.height,
+            width: width,
+            height: height,
             image: this.image
           }
         })
@@ -29,8 +38,8 @@ RectZR.prototype = {
           shape: {
             x: x,
             y: y,
-            width: this.width,
-            height: this.height
+            width: width,
+            height: height
           },
           style: {
             lineWidth: 1,
@@ -46,6 +55,7 @@ RectZR.prototype = {
   },
 
   update() {
+    BaseRect.prototype.update.call(this);
     if (this.hasImage !== !!this.image) {
       this.toggleImage();
       return;
@@ -66,10 +76,39 @@ RectZR.prototype = {
       : this.el.setShape(shape);
   },
 
+  on(type, handler) {
+    BaseRect.prototype.on.call(this, type, handler);
+    // 记录当前元素添加过的事件 用于图片切换之后把事件重新添加到新的元素上
+    if (!this.typeHandlerMap.get(type)) {
+      this.typeHandlerMap.set(type, []);
+    }
+    this.typeHandlerMap.get(type).push(handler);
+  },
+
+  off(type, handler) {
+    BaseRect.prototype.off.call(this, type, handler);
+    const handlers = this.typeHandlerMap.get(type);
+    if (!handlers || !handlers.length) return;
+    const idx = handlers?.findIndex(d => d === handler);
+    if (idx !== -1) {
+      handlers.splice(idx, 1);
+    }
+  },
+
   toggleImage() {
-    this.root.remove(this);
+    this.root.painter.zrRoot.remove(this.el);
+    this.typeHandlerMap.forEach((handlers, type) => {
+      handlers.forEach(handler => {
+        BaseRect.prototype.off.call(this, type, handler);
+      });
+    });
     this.create();
-    this.root.add(this);
+    this.root.painter.zrRoot.add(this.el);
+    this.typeHandlerMap.forEach((handlers, type) => {
+      handlers.forEach(handler => {
+        BaseRect.prototype.on.call(this, type, handler);
+      });
+    });
   }
 };
 

@@ -1,5 +1,5 @@
 import { BaseRect } from "../BaseRect";
-import { platformEnum } from "../../platform";
+import { platformEnum } from "../../enums";
 import { eachObj, extend } from "../../helpers";
 
 function RectDOM(opts) {
@@ -33,6 +33,7 @@ RectDOM.prototype = {
   },
 
   update() {
+    BaseRect.prototype.update.call(this);
     this.el.style.transform = `translate3d(${this.x + (this.width < 0 ? this.width : 0)}px, ${this.y + (this.height < 0 ? this.height : 0)}px, 0)`;
     this.el.style.width = `${Math.abs(this.width)}px`;
     this.el.style.height = `${Math.abs(this.height)}px`;

@@ -1,8 +1,8 @@
 import { Line } from "./elements/Line";
 import { RectDOM } from "./elements/dom/RectDOM";
 import { RectZR } from "./elements/zr/RectZR";
-import { typeEnum } from "./Element";
-import { platformEnum } from "./platform";
+import { typeEnum } from "./enums";
+import { platformEnum } from "./enums";
 import { makeMap } from "./helpers";
 import { CircleDOM } from "./elements/dom/CircleDOM";
 import { CircleZR } from "./elements/zr/CircleZR";

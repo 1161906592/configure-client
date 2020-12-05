@@ -1,11 +1,11 @@
 export { Root } from "./Root";
-export * from "./createElement";
 export { Line } from "./elements/Line";
 export { RectDOM } from "./elements/dom/RectDOM";
 export { RectZR } from "./elements/zr/RectZR";
-export { typeEnum } from "./Element";
-export { platformEnum } from "./platform";
 export { CircleDOM } from "./elements/dom/CircleDOM";
 export { CircleZR } from "./elements/zr/CircleZR";
 export { VertexDOM } from "./elements/dom/VertexDOM";
 export { VertexZR } from "./elements/zr/VertexZR";
+export * from "./enums";
+export * from "./createElement";
+export * from "./configurable";

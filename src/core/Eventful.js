@@ -1,4 +1,4 @@
-import { platformEnum } from "./platform";
+import { platformEnum } from "./enums";
 
 function Eventful() {
   if (this.platform === platformEnum.dom) {

@@ -21,6 +21,8 @@ Element.prototype = {
 
   y: 0,
 
+  data: {},
+
   isMounted: false,
 
   // Interface
@@ -54,10 +56,10 @@ Element.prototype = {
   },
 
   removeChild(child) {
-    this.children.splice(
-      this.children.findIndex(d => d === child),
-      1
-    );
+    const idx = this.children.findIndex(d => d === child);
+    if (idx !== -1) {
+      this.children.splice(idx, 1);
+    }
   },
 
   exportStruct() {
@@ -67,6 +69,7 @@ Element.prototype = {
       id: this.id,
       x: this.x,
       y: this.y,
+      data: this.data,
       children: this.children.map(element => {
         return element.exportStruct();
       })
@@ -77,11 +80,3 @@ Element.prototype = {
 extend(Element, Eventful);
 
 export { Element };
-
-export const typeEnum = {
-  rect: "rect",
-  line: "line",
-  circle: "circle",
-  vertex: "vertex",
-  arrow: "arrow"
-};

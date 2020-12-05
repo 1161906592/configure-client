@@ -1,4 +1,4 @@
-import { platformEnum } from "./platform";
+import { platformEnum } from "./enums";
 import { init } from "zrender";
 
 function Painter(root) {

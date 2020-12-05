@@ -1,4 +1,4 @@
-import { platformEnum } from "../../platform";
+import { platformEnum } from "../../enums";
 import { extend, mixin } from "../../helpers";
 import { BaseCircle } from "../BaseCircle";
 import { CircleImplZR } from "../../mixins/CircleImplZR";

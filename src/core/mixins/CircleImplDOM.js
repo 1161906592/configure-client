@@ -23,18 +23,24 @@ CircleImplDOM.prototype = {
     );
 
     div.style.transform = `translate3d(${this.x - this.r}px, ${this.y - this.r}px, 0)`;
-    div.style.width = `${this.r * 2}px`;
-    div.style.height = `${this.r * 2}px`;
+    const r = fixCircleRadius(this) + "px";
+    div.style.width = r;
+    div.style.height = r;
 
     div.style.background = this.fill;
     this.el = div;
   },
 
   update() {
+    const r = fixCircleRadius(this) + "px";
     this.el.style.transform = `translate3d(${this.x - this.r}px, ${this.y - this.r}px, 0)`;
-    this.el.style.width = `${this.r * 2}px`;
-    this.el.style.height = `${this.r * 2}px`;
+    this.el.style.width = r;
+    this.el.style.height = r;
   }
 };
+
+function fixCircleRadius(circle) {
+  return circle.r * 2 + circle.borderWidth / 2;
+}
 
 export { CircleImplDOM };

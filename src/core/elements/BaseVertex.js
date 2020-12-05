@@ -1,4 +1,5 @@
-import { Element, typeEnum } from "../Element";
+import { Element } from "../Element";
+import { typeEnum } from "../enums";
 import { extend, mixin } from "../helpers";
 import { Draggable } from "../mixins/Draggable";
 function BaseVertex(opts) {
@@ -12,6 +13,8 @@ BaseVertex.prototype = {
   type: typeEnum.vertex,
 
   r: 4,
+
+  borderWidth: 1,
 
   fill: "#fff",
 

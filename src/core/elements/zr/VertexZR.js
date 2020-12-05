@@ -1,7 +1,7 @@
 import { BaseVertex } from "../BaseVertex";
 import { extend, mixin } from "../../helpers";
 import { CircleImplZR } from "../../mixins/CircleImplZR";
-import { platformEnum } from "../../platform";
+import { platformEnum } from "../../enums";
 
 function VertexZR(opts) {
   BaseVertex.call(this, opts);

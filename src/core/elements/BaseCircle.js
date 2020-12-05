@@ -1,4 +1,5 @@
-import { Element, typeEnum } from "../Element";
+import { Element } from "../Element";
+import { typeEnum } from "../enums";
 import { extend, mixin } from "../helpers";
 import { Resizable } from "../mixins/Resizable";
 import { Draggable } from "../mixins/Draggable";
@@ -16,6 +17,7 @@ BaseCircle.prototype = {
   type: typeEnum.circle,
 
   r: 30,
+  borderWidth: 1,
 
   follow(offset) {
     Draggable.prototype.follow.call(this, offset);

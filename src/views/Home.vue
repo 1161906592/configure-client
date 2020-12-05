@@ -7,7 +7,7 @@
       <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'zr')">canvas圆</el-button>
       <el-button type="primary" size="small" @click="handleStartDrawLine">画线</el-button>
       <el-button type="primary" size="small" @click="handleStartFocus">选择</el-button>
-      <el-button type="primary" size="small" @click="handleClearHandler">清除状态</el-button>
+      <el-button type="primary" size="small" @click="handleClearHandler">配置</el-button>
       <el-button type="primary" size="small" @click="handleSave">保存</el-button>
     </div>
     <div class="bottom">
@@ -16,12 +16,42 @@
         <div v-for="(item, index) in contextmenu" :key="index" @click="item.handler">{{ item.name }}</div>
       </div>
     </div>
+    <el-drawer title="配置元素" :visible.sync="panelVisible" size="400px">
+      <el-form size="mini">
+        <el-form-item v-for="item in form.items" :key="item.prop" :label="item.label">
+          <el-input v-model="item.value" v-if="item.type === fieldTypeEnum.text" />
+          <el-input v-model="item.value" v-else-if="item.type === fieldTypeEnum.number" type="number" />
+          <el-select v-model="item.value" v-else-if="item.type === fieldTypeEnum.select" style="width: 100%;">
+            <el-option v-for="(item, index) in item.options" :key="index" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <div class="sub-title">
+          <span>自定义数据</span>
+          <el-button class="icon-btn" type="primary" size="mini" @click="form.dataList.push({})" icon="el-icon-plus"></el-button>
+        </div>
+        <div v-for="(item, index) in form.dataList" :key="index" class="data-item">
+          <el-form-item label="key">
+            <el-input v-model="item.key" />
+          </el-form-item>
+          <el-form-item label="value">
+            <el-input v-model="item.value" />
+          </el-form-item>
+          <div class="remove-btn">
+            <el-button class="icon-btn" type="primary" size="mini" @click="form.dataList.splice(index, 1)" icon="el-icon-minus"></el-button>
+          </div>
+        </div>
+      </el-form>
+      <div class="footer">
+        <el-button size="small" @click="panelVisible = false">取消</el-button>
+        <el-button size="small" type="primary" @click="handleSure">确定</el-button>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
 <script>
-import { Root, createElement, structRender } from "../core";
-import { rootStateEnum } from "../core/Root";
+import { Root, createElement, structRender, rootStateEnum, configurableMap, fieldTypeEnum } from "../core";
+import { eachObj, makeMap } from "../core/helpers";
 
 export default {
   name: "Home",
@@ -29,7 +59,13 @@ export default {
     return {
       contextmenu: [],
       style: null,
-      data: Object.freeze(JSON.parse(localStorage.getItem("data")) || [])
+      data: Object.freeze(JSON.parse(localStorage.getItem("data")) || []),
+      panelVisible: false,
+      form: {
+        items: [],
+        dataList: []
+      },
+      fieldTypeEnum: Object.freeze(fieldTypeEnum)
     };
   },
   mounted() {
@@ -42,8 +78,26 @@ export default {
       this.style = null;
     });
 
-    this.root.on("click", e => {
-      console.log(1111, e);
+    this.root.on("click", item => {
+      if (this.root.state !== rootStateEnum.off) return;
+      this.panelVisible = true;
+      this.curElement = item;
+      const dataList = [];
+      eachObj(item.data, (value, key) => {
+        dataList.push({ key, value });
+      });
+      if (!dataList.length) {
+        dataList.push({});
+      }
+      this.form = {
+        dataList: dataList,
+        items: configurableMap[item.type][item.platform].items.map(d => {
+          return {
+            ...d,
+            value: item[d.prop]
+          };
+        })
+      };
     });
 
     this.root.on("contextmenu", this.handleContextmenu);
@@ -78,6 +132,23 @@ export default {
       console.log(data);
       localStorage.setItem("data", JSON.stringify(data));
     },
+    handleSure() {
+      this.form.items.forEach(item => {
+        let value = item.value;
+        if (item.type === fieldTypeEnum.number) {
+          value = Number(value);
+        }
+        this.curElement[item.prop] = value;
+      });
+      this.curElement.data = makeMap(
+        this.form.dataList.filter(d => d.key),
+        (map, item) => {
+          map[item.key] = item.value;
+        }
+      );
+      this.curElement.update();
+      // this.panelVisible = false;
+    },
     handleContextmenu(item, e) {
       e.event.preventDefault();
       this.style = {
@@ -89,14 +160,6 @@ export default {
           name: "删除",
           handler: () => {
             item.root.remove(item);
-            this.style = null;
-          }
-        },
-        {
-          name: "设置背景",
-          handler: () => {
-            item.image = "/1.png";
-            item.update();
             this.style = null;
           }
         },
@@ -153,5 +216,35 @@ export default {
       color: #365be4;
     }
   }
+}
+.sub-title {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.icon-btn {
+  padding: 3px;
+}
+.data-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  ::v-deep {
+    > .el-form-item {
+      flex: 1;
+      margin-right: 10px;
+      margin-bottom: 12px;
+    }
+  }
+  .remove-btn {
+    margin-bottom: 12px;
+    line-height: 28px;
+  }
+}
+.footer {
+  margin-top: 16px;
+  text-align: center;
 }
 </style>

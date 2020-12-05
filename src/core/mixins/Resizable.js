@@ -1,4 +1,5 @@
-import { createElement, typeEnum } from "../index";
+import { createElement } from "../index";
+import { typeEnum } from "../enums";
 
 function Resizable() {
   this.vertexes = [];

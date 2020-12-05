@@ -6,8 +6,8 @@ CircleImplZR.prototype = {
   create() {
     this.el = new ZRCircle({
       shape: {
-        cx: this.x,
-        cy: this.y,
+        cx: this.x + 0.5,
+        cy: this.y + 0.5,
         r: this.r
       },
       style: {
@@ -23,8 +23,8 @@ CircleImplZR.prototype = {
 
   update() {
     this.el.setShape({
-      cx: this.x,
-      cy: this.y,
+      cx: this.x + 0.5,
+      cy: this.y + 0.5,
       r: this.r
     });
   }

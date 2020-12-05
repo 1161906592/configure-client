@@ -57,15 +57,14 @@ DrawLine.prototype = {
   },
 
   clearLine() {
-    this.lines.forEach(item => {
-      this.root.remove(item.line);
-    });
-    this.lines = [];
+    while (this.lines.length) {
+      this.root.remove(this.lines[0].line);
+    }
   },
 
   removeLine(line) {
     this.lines.splice(
-      this.lines.findIndex(d => d.id === line.id),
+      this.lines.findIndex(d => d.line === line),
       1
     );
   },
@@ -178,8 +177,6 @@ function clickToEnd(rect) {
   curDrawLine.isStartVertical = points[0][1] !== points[1][1];
   curDrawLine.isEndVertical = root.isCurLineVertical;
   curDrawLine.el.silent = false;
-
-  curDrawLine.addArrow();
 
   root.curDrawLine = null;
 }
