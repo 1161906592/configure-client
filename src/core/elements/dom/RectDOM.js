@@ -28,7 +28,9 @@ RectDOM.prototype = {
     div.style.transform = `translate3d(${this.x}px, ${this.y}px, 0)`;
     div.style.width = `${this.width}px`;
     div.style.height = `${this.height}px`;
-    div.style.background = `url(${this.image}) center/100% 100%`;
+    if (this.image) {
+      div.style.background = `url(${this.image}) center/100% 100%`;
+    }
     this.el = div;
   },
 
@@ -37,7 +39,9 @@ RectDOM.prototype = {
     this.el.style.transform = `translate3d(${this.x + (this.width < 0 ? this.width : 0)}px, ${this.y + (this.height < 0 ? this.height : 0)}px, 0)`;
     this.el.style.width = `${Math.abs(this.width)}px`;
     this.el.style.height = `${Math.abs(this.height)}px`;
-    this.el.style.background = `url(${this.image}) center/100% 100%`;
+    if (this.image) {
+      this.el.style.background = `url(${this.image}) center/100% 100%`;
+    }
   }
 };
 

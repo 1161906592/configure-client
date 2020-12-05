@@ -1,9 +1,8 @@
 import { Element } from "../Element";
 import { typeEnum } from "../enums";
 import { extend, mixin } from "../helpers";
-import { Resizable } from "../mixins/Resizable";
 import { Draggable } from "../mixins/Draggable";
-import { BaseRect } from "./BaseRect";
+import { Resizable } from "../mixins/Resizable";
 
 function BaseCircle(opts) {
   Element.call(this, opts);
@@ -51,7 +50,7 @@ BaseCircle.prototype = {
 };
 
 extend(BaseCircle, Element);
-mixin(BaseRect, Draggable);
+mixin(BaseCircle, Draggable);
 mixin(BaseCircle, Resizable);
 
 function resizeT(circle, offset) {
