@@ -13,9 +13,9 @@ VertexDOM.prototype = {
 
   platform: platformEnum.dom,
 
-  dirty(shape) {
-    BaseVertex.prototype.dirty.call(this, shape);
-    CircleImplDOM.prototype.dirty.call(this, shape);
+  update(shape) {
+    BaseVertex.prototype.update.call(this, shape);
+    CircleImplDOM.prototype.update.call(this, shape);
   }
 };
 

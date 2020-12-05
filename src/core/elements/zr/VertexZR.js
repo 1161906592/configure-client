@@ -15,9 +15,9 @@ VertexZR.prototype = {
 
   fill: "#fff",
 
-  dirty(shape) {
-    BaseVertex.prototype.dirty.call(this, shape);
-    CircleImplZR.prototype.dirty.call(this, shape);
+  update(shape) {
+    BaseVertex.prototype.update.call(this, shape);
+    CircleImplZR.prototype.update.call(this, shape);
   }
 };
 

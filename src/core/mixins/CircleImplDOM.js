@@ -30,7 +30,7 @@ CircleImplDOM.prototype = {
     this.el = div;
   },
 
-  dirty() {
+  update() {
     this.el.style.transform = `translate3d(${this.x - this.r}px, ${this.y - this.r}px, 0)`;
     this.el.style.width = `${this.r * 2}px`;
     this.el.style.height = `${this.r * 2}px`;

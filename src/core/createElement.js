@@ -8,6 +8,7 @@ import { CircleDOM } from "./elements/dom/CircleDOM";
 import { CircleZR } from "./elements/zr/CircleZR";
 import { VertexDOM } from "./elements/dom/VertexDOM";
 import { VertexZR } from "./elements/zr/VertexZR";
+import { Arrow } from "./elements/Arrow";
 
 const implList = [
   { type: typeEnum.rect, platform: platformEnum.dom, Constructor: RectDOM },
@@ -16,7 +17,8 @@ const implList = [
   { type: typeEnum.circle, platform: platformEnum.dom, Constructor: CircleDOM },
   { type: typeEnum.circle, platform: platformEnum.zr, Constructor: CircleZR },
   { type: typeEnum.vertex, platform: platformEnum.dom, Constructor: VertexDOM },
-  { type: typeEnum.vertex, platform: platformEnum.zr, Constructor: VertexZR }
+  { type: typeEnum.vertex, platform: platformEnum.zr, Constructor: VertexZR },
+  { type: typeEnum.arrow, platform: platformEnum.zr, Constructor: Arrow }
 ];
 
 const typeConstructorMap = makeMap(implList, (map, item) => {

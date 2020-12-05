@@ -35,13 +35,18 @@ export default {
   mounted() {
     this.root = new Root({
       el: this.$refs.root,
-      state: rootStateEnum.focus,
-      oncontextmenu: this.handleContextmenu
+      state: rootStateEnum.focus
     });
-    this.root.on("drop", this.handleDrop);
+    this.root.el.addEventListener("drop", this.handleDrop);
     document.addEventListener("click", () => {
       this.style = null;
     });
+
+    this.root.on("click", e => {
+      console.log(1111, e);
+    });
+
+    this.root.on("contextmenu", this.handleContextmenu);
 
     structRender(this.root, this.data);
   },
@@ -74,6 +79,7 @@ export default {
       localStorage.setItem("data", JSON.stringify(data));
     },
     handleContextmenu(item, e) {
+      e.event.preventDefault();
       this.style = {
         left: e.offsetX + "px",
         top: e.offsetY + "px"
@@ -90,7 +96,7 @@ export default {
           name: "设置背景",
           handler: () => {
             item.image = "/1.png";
-            item.dirty();
+            item.update();
             this.style = null;
           }
         },

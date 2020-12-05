@@ -1,13 +1,11 @@
-import { eachObj, extend, guid, mixin } from "./helpers";
-import { Event } from "./Event";
-import { Move } from "./mixins/Move";
+import { eachObj, extend, guid } from "./helpers";
+import { Eventful } from "./Eventful";
 /**
  * @description 所有元素的抽象类
  **/
 
 function Element(opts) {
-  Event.call(this, opts);
-  Move.call(this, opts);
+  Eventful.call(this, opts);
   eachObj(opts, (value, key) => {
     this[key] = value;
   });
@@ -23,47 +21,36 @@ Element.prototype = {
 
   y: 0,
 
-  mounted: false,
+  isMounted: false,
 
   // Interface
   create() {},
 
   mount(root) {
-    if (this.mounted) return;
-    this.mounted = true;
-    this.create();
+    if (this.isMounted) return;
     this.root = root;
     this.children.forEach(element => {
       root.add(element);
     });
+    this.isMounted = true;
   },
 
   unmount() {
-    if (!this.mounted) return;
-    this.mounted = false;
+    if (!this.isMounted) return;
+    this.isMounted = false;
     this.parent?.removeChild(this);
     this.children.forEach(element => {
       this.root.remove(element);
     });
   },
 
-  follow(offset) {
-    this.x += offset.x;
-    this.y += offset.y;
-    this.dirty();
-
-    this.children.forEach(element => {
-      element.follow(offset);
-    });
-  },
-
   // Interface
-  dirty() {},
+  update() {},
 
   addChild(child) {
     child.parent = this;
     this.children.push(child);
-    this.mounted && this.root.add(child);
+    this.isMounted && this.root.add(child);
   },
 
   removeChild(child) {
@@ -87,8 +74,7 @@ Element.prototype = {
   }
 };
 
-extend(Element, Event);
-mixin(Element, Move);
+extend(Element, Eventful);
 
 export { Element };
 
@@ -96,5 +82,6 @@ export const typeEnum = {
   rect: "rect",
   line: "line",
   circle: "circle",
-  vertex: "vertex"
+  vertex: "vertex",
+  arrow: "arrow"
 };

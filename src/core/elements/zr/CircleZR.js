@@ -15,9 +15,9 @@ CircleZR.prototype = {
 
   fill: "rgba(0, 0, 0, 0)",
 
-  dirty(shape) {
-    BaseCircle.prototype.dirty.call(this, shape);
-    CircleImplZR.prototype.dirty.call(this, shape);
+  update(shape) {
+    BaseCircle.prototype.update.call(this, shape);
+    CircleImplZR.prototype.update.call(this, shape);
   }
 };
 

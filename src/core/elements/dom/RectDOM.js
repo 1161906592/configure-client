@@ -32,7 +32,7 @@ RectDOM.prototype = {
     this.el = div;
   },
 
-  dirty() {
+  update() {
     this.el.style.transform = `translate3d(${this.x + (this.width < 0 ? this.width : 0)}px, ${this.y + (this.height < 0 ? this.height : 0)}px, 0)`;
     this.el.style.width = `${Math.abs(this.width)}px`;
     this.el.style.height = `${Math.abs(this.height)}px`;

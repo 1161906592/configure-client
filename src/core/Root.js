@@ -1,10 +1,7 @@
-import { extend } from "./helpers";
-import { Event } from "./Event";
-import { platformEnum } from "./platform";
 import { Storage } from "./Storage";
 import { Painter } from "./Painter";
 import { typeEnum } from "./Element";
-import { addContextmenu } from "./Contextmenu";
+import { HandlerProxy } from "./Handler";
 
 export const rootStateEnum = {
   off: 1,
@@ -13,11 +10,11 @@ export const rootStateEnum = {
 };
 
 function Root(opts) {
-  Event.call(this, opts);
   this.el = opts.el;
   this.oncontextmenu = opts.oncontextmenu;
   this.storage = new Storage();
   this.painter = new Painter(this.el);
+  this.handlerProxy = new HandlerProxy(this.storage);
   this.root = this;
   this.state = opts.state || rootStateEnum.rectMove;
   // 画连接线
@@ -28,24 +25,22 @@ function Root(opts) {
 
 Root.prototype = {
   constructor: Root,
-  platform: platformEnum.dom,
   add(element) {
     console.log(element);
     element.mount(this);
     this.painter.add(element);
     this.storage.add(element);
+    this.handlerProxy.addElement(element);
 
     switch (this.state) {
       case rootStateEnum.focus:
-        element.addMove();
+        element.addMove?.();
         element.addResize?.();
         break;
       case rootStateEnum.drawLine:
         element.addDrawLine?.();
         break;
     }
-    element.addContextmenu?.();
-    addContextmenu(element, this.oncontextmenu);
   },
 
   remove(element) {
@@ -53,10 +48,10 @@ Root.prototype = {
     element.removeMove?.();
     element.removeResize?.();
     element.removeDrawLine?.();
-    element.offContextmenu?.();
 
     this.painter.remove(element);
     this.storage.remove(element);
+    this.handlerProxy.removeElement(element);
   },
 
   clearHandler() {
@@ -68,8 +63,8 @@ Root.prototype = {
     if (this.state === rootStateEnum.focus) return;
     this.clearHandler();
     this.state = rootStateEnum.focus;
-    this.elements.forEach(element => {
-      element.addMove();
+    this.storage.getElementList().forEach(element => {
+      element.addMove?.();
       element.addResize?.();
     });
   },
@@ -78,7 +73,7 @@ Root.prototype = {
     if (this.state !== rootStateEnum.focus) return;
     this.state = rootStateEnum.off;
     this.storage.getElementList().forEach(element => {
-      element.removeMove();
+      element.removeMove?.();
       element.removeResize?.();
     });
   },
@@ -125,9 +120,15 @@ Root.prototype = {
         });
       }
     });
+  },
+
+  on(type, handler) {
+    this.handlerProxy.on(type, handler);
+  },
+
+  off(type, handler) {
+    this.handlerProxy.off(type, handler);
   }
 };
-
-extend(Root, Event);
 
 export { Root };

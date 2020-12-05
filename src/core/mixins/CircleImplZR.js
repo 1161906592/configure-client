@@ -21,7 +21,7 @@ CircleImplZR.prototype = {
     });
   },
 
-  dirty() {
+  update() {
     this.el.setShape({
       cx: this.x,
       cy: this.y,

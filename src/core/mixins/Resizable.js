@@ -1,11 +1,11 @@
 import { createElement, typeEnum } from "../index";
 
-function Resize() {
+function Resizable() {
   this.vertexes = [];
 }
 
-Resize.prototype = {
-  constructor: Resize,
+Resizable.prototype = {
+  constructor: Resizable,
   addResize() {
     const mousedown = () => {
       if (this.vertexes.length) return;
@@ -54,9 +54,9 @@ Resize.prototype = {
       const item = this.vertexes[index];
       item.x = point[0];
       item.y = point[1];
-      item.dirty();
+      item.update();
     });
   }
 };
 
-export { Resize };
+export { Resizable };

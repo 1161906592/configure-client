@@ -1,4 +1,5 @@
 import { Line } from "..";
+import { makeEventPacket } from "../Eventful";
 
 function DrawLine() {
   this.lines = this.lines || [];
@@ -19,6 +20,7 @@ DrawLine.prototype = {
       } else {
         // 鼠标移动绘制线段
         const mousemove = e => {
+          e = makeEventPacket(e);
           const curDrawLine = root.curDrawLine;
           if (!curDrawLine) return;
           const points = curDrawLine.points;
@@ -30,7 +32,7 @@ DrawLine.prototype = {
             root.isCurLineVertical = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]);
             points[points.length - 1] = root.isCurLineVertical ? [last[0], ~~e.offsetY + 0.5] : [~~e.offsetX + 0.5, last[1]];
           }
-          curDrawLine.dirty();
+          curDrawLine.update();
         };
 
         const clickRoot = () => {
@@ -38,11 +40,11 @@ DrawLine.prototype = {
         };
 
         root.offCurDrawLine = () => {
-          root.off("mousemove", mousemove);
-          root.off("click", clickRoot);
+          root.el.removeEventListener("mousemove", mousemove);
+          root.el.removeEventListener("click", clickRoot);
         };
-        root.on("mousemove", mousemove);
-        root.on("click", clickRoot);
+        root.el.addEventListener("mousemove", mousemove);
+        root.el.addEventListener("click", clickRoot);
         clickToStart(e, this);
       }
     };
@@ -163,7 +165,7 @@ function clickToEnd(rect) {
     }
   }
   points[points.length - 1] = point;
-  curDrawLine.dirty();
+  curDrawLine.update();
   rect.lines.push({
     id: curDrawLine.id,
     isStart: false,
@@ -176,6 +178,8 @@ function clickToEnd(rect) {
   curDrawLine.isStartVertical = points[0][1] !== points[1][1];
   curDrawLine.isEndVertical = root.isCurLineVertical;
   curDrawLine.el.silent = false;
+
+  curDrawLine.addArrow();
 
   root.curDrawLine = null;
 }

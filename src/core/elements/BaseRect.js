@@ -1,12 +1,14 @@
 import { Element, typeEnum } from "../Element";
 import { extend, mixin } from "../helpers";
 import { DrawLine } from "../mixins/DrawLine";
-import { Resize } from "../mixins/Resize";
+import { Resizable } from "../mixins/Resizable";
+import { Draggable } from "../mixins/Draggable";
 
 function BaseRect(opts) {
   Element.call(this, opts);
   DrawLine.call(this, opts);
-  Resize.call(this, opts);
+  Draggable.call(this, opts);
+  Resizable.call(this, opts);
 }
 
 BaseRect.prototype = {
@@ -21,8 +23,8 @@ BaseRect.prototype = {
   r: 4,
 
   follow(offset) {
-    Element.prototype.follow.call(this, offset);
-    Resize.prototype.follow.call(this, offset);
+    Draggable.prototype.follow.call(this, offset);
+    Resizable.prototype.follow.call(this, offset);
     this.lines.forEach(item => {
       const line = item.line;
       line.isFollowStart = item.isStart;
@@ -46,7 +48,7 @@ BaseRect.prototype = {
   },
 
   followVertex(vertex, offset) {
-    Resize.prototype.followVertex.call(this, vertex, offset);
+    Resizable.prototype.followVertex.call(this, vertex, offset);
     [lineFollowRectLT, lineFollowRectT, lineFollowRectRT, lineFollowRectR, lineFollowRectRB, lineFollowRectB, lineFollowRectLB, lineFollowRectL][
       vertex.index
     ].call(this, offset);
@@ -54,7 +56,7 @@ BaseRect.prototype = {
 
   updateShape(vertex, offset) {
     [resizeRectLT, resizeRectT, resizeRectRT, resizeRectR, resizeRectRB, resizeRectB, resizeRectLB, resizeRectL][vertex.index].call(this, offset);
-    this.dirty();
+    this.update();
   },
 
   unmount() {
@@ -76,7 +78,8 @@ BaseRect.prototype = {
 
 extend(BaseRect, Element);
 mixin(BaseRect, DrawLine);
-mixin(BaseRect, Resize);
+mixin(BaseRect, Draggable);
+mixin(BaseRect, Resizable);
 
 // 左上
 function resizeRectLT(offset) {

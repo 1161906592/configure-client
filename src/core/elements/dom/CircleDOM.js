@@ -13,9 +13,9 @@ CircleDOM.prototype = {
 
   platform: platformEnum.dom,
 
-  dirty(shape) {
-    BaseCircle.prototype.dirty.call(this, shape);
-    CircleImplDOM.prototype.dirty.call(this, shape);
+  update(shape) {
+    BaseCircle.prototype.update.call(this, shape);
+    CircleImplDOM.prototype.update.call(this, shape);
   }
 };
 

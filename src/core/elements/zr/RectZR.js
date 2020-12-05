@@ -45,7 +45,7 @@ RectZR.prototype = {
     this.hasImage = !!this.image;
   },
 
-  dirty() {
+  update() {
     if (this.hasImage !== !!this.image) {
       this.toggleImage();
       return;

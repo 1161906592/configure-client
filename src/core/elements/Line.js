@@ -2,18 +2,19 @@ import { Element, typeEnum } from "../Element";
 import { Polyline } from "zrender";
 import { platformEnum } from "../platform";
 import { extend, lastItem } from "../helpers";
+import { createElement } from "../createElement";
 
 function Line(opts) {
   Element.call(this, opts);
 }
 Line.prototype = {
+  constructor: Line,
+
   type: typeEnum.line,
 
   platform: platformEnum.zr,
 
   points: [[0, 0]],
-
-  constructor: Line,
 
   create() {
     this.el = new Polyline({
@@ -28,24 +29,27 @@ Line.prototype = {
         textFill: "#999"
       }
     });
+    this.hasArrow && this.addArrow();
+  },
+
+  mount(root) {
+    Element.prototype.mount.call(this, root);
+    this.arrow && this.root.add(this.arrow);
   },
 
   unmount(root) {
     Element.prototype.unmount.call(this, root);
     this.startRect.removeLine(this);
     this.endRect.removeLine(this);
+    this.arrow && this.root.remove(this.arrow);
   },
 
-  dirty() {
+  update() {
     this.el.setShape({
       shape: {
         points: this.points
       }
     });
-  },
-
-  follow(offset) {
-    console.log(offset);
   },
 
   followHost(offset) {
@@ -59,7 +63,7 @@ Line.prototype = {
       lineAutoBreak.call(this);
     }
 
-    this.dirty();
+    this.update();
   },
 
   exportStruct() {
@@ -67,8 +71,22 @@ Line.prototype = {
       ...Element.prototype.exportStruct.call(this),
       points: this.points,
       isStartVertical: this.isStartVertical,
-      isEndVertical: this.isEndVertical
+      isEndVertical: this.isEndVertical,
+      direction: this.direction,
+      hasArrow: !!this.arrow
     };
+  },
+
+  addArrow() {
+    const last = lastItem(this.points);
+    this.arrow = createElement({
+      type: typeEnum.arrow,
+      platform: platformEnum.zr,
+      x: last[0],
+      y: last[1],
+      direction: this.direction
+    });
+    this.isMounted && this.root.add(this.arrow);
   }
 };
 
@@ -84,6 +102,8 @@ function vertexFollow(offset) {
     const last = lastItem(this.points);
     last[0] += offset.x;
     last[1] += offset.y;
+
+    this.arrow && this.arrow.follow(offset);
   }
 }
 

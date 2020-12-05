@@ -1,7 +1,9 @@
 import { Element, typeEnum } from "../Element";
-import { extend } from "../helpers";
+import { extend, mixin } from "../helpers";
+import { Draggable } from "../mixins/Draggable";
 function BaseVertex(opts) {
   Element.call(this, opts);
+  Draggable.call(this, opts);
 }
 
 BaseVertex.prototype = {
@@ -14,7 +16,6 @@ BaseVertex.prototype = {
   fill: "#fff",
 
   follow(offset) {
-    // 顶点不继承element的follow行为
     this.host.followVertex(this, offset);
   },
 
@@ -32,5 +33,6 @@ BaseVertex.prototype = {
 };
 
 extend(BaseVertex, Element);
+mixin(BaseVertex, Draggable);
 
 export { BaseVertex };
