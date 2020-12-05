@@ -8,6 +8,7 @@
       <el-button type="primary" size="small" @click="handleStartDrawLine">画线</el-button>
       <el-button type="primary" size="small" @click="handleStartFocus">选择</el-button>
       <el-button type="primary" size="small" @click="handleClearHandler">清除状态</el-button>
+      <el-button type="primary" size="small" @click="handleSave">保存</el-button>
     </div>
     <div class="bottom">
       <div class="root" ref="root" @dragover.prevent></div>
@@ -19,25 +20,30 @@
 </template>
 
 <script>
-import { Root, createElement } from "../core";
+import { Root, createElement, structRender } from "../core";
+import { rootStateEnum } from "../core/Root";
 
 export default {
   name: "Home",
   data() {
     return {
       contextmenu: [],
-      style: null
+      style: null,
+      data: Object.freeze(JSON.parse(localStorage.getItem("data")) || [])
     };
   },
   mounted() {
     this.root = new Root({
       el: this.$refs.root,
+      state: rootStateEnum.focus,
       oncontextmenu: this.handleContextmenu
     });
     this.root.on("drop", this.handleDrop);
     document.addEventListener("click", () => {
       this.style = null;
     });
+
+    structRender(this.root, this.data);
   },
   methods: {
     handleDragstart(type, platform) {
@@ -61,6 +67,11 @@ export default {
     },
     handleClearHandler() {
       this.root.clearHandler();
+    },
+    handleSave() {
+      const data = this.root.exportStruct();
+      console.log(data);
+      localStorage.setItem("data", JSON.stringify(data));
     },
     handleContextmenu(item, e) {
       this.style = {
@@ -95,7 +106,6 @@ export default {
               height: item.height
             });
             item.addChild(element);
-            this.root.add(element);
             this.style = null;
           }
         }

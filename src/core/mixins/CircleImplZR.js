@@ -1,9 +1,9 @@
 import { Circle as ZRCircle } from "zrender";
-export function CircleImplZR() {}
+function CircleImplZR() {}
 CircleImplZR.prototype = {
   constructor: CircleImplZR,
 
-  render() {
+  create() {
     this.el = new ZRCircle({
       shape: {
         cx: this.x,
@@ -29,3 +29,5 @@ CircleImplZR.prototype = {
     });
   }
 };
+
+export { CircleImplZR };

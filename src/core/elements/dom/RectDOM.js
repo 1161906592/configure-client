@@ -1,15 +1,17 @@
 import { BaseRect } from "../BaseRect";
-import { platformEnum } from "../../Event";
+import { platformEnum } from "../../platform";
 import { eachObj, extend } from "../../helpers";
-import { VertexDOM } from "./VertexDOM";
 
-export function RectDOM(opts) {
+function RectDOM(opts) {
   BaseRect.call(this, opts);
-  this.platform = platformEnum.dom;
 }
 
 RectDOM.prototype = {
-  render() {
+  constructor: RectDOM,
+
+  platform: platformEnum.dom,
+
+  create() {
     const div = document.createElement("div");
     eachObj(
       {
@@ -35,11 +37,9 @@ RectDOM.prototype = {
     this.el.style.width = `${Math.abs(this.width)}px`;
     this.el.style.height = `${Math.abs(this.height)}px`;
     this.el.style.background = `url(${this.image}) center/100% 100%`;
-  },
-
-  makeVertex(opts) {
-    return new VertexDOM(opts);
   }
 };
 
 extend(RectDOM, BaseRect);
+
+export { RectDOM };

@@ -1,4 +1,4 @@
-export function Move() {}
+function Move() {}
 
 Move.prototype = {
   constructor: Move,
@@ -32,3 +32,5 @@ Move.prototype = {
     };
   }
 };
+
+export { Move };

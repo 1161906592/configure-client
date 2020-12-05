@@ -1,4 +1,6 @@
-export function Resize() {
+import { createElement, typeEnum } from "../index";
+
+function Resize() {
   this.vertexes = [];
 }
 
@@ -17,7 +19,9 @@ Resize.prototype = {
   },
   addVertexes() {
     this.makeRectVertexes().forEach((point, index) => {
-      const vertex = this.makeVertex({
+      const vertex = createElement({
+        type: typeEnum.vertex,
+        platform: this.platform,
         x: point[0],
         y: point[1],
         index
@@ -28,8 +32,6 @@ Resize.prototype = {
   },
   // Interface
   makeRectVertexes() {},
-  // Interface
-  makeVertex() {},
 
   removeVertexes() {
     this.vertexes.forEach(vertex => {
@@ -56,3 +58,5 @@ Resize.prototype = {
     });
   }
 };
+
+export { Resize };

@@ -1,28 +1,27 @@
-import { platformEnum } from "../../Event";
+import { platformEnum } from "../../platform";
 import { extend, mixin } from "../../helpers";
 import { BaseCircle } from "../BaseCircle";
-import { VertexZR } from "./VertexZR";
 import { CircleImplZR } from "../../mixins/CircleImplZR";
 
-export function CircleZR(opts) {
+function CircleZR(opts) {
   BaseCircle.call(this, opts);
   CircleImplZR.call(this, opts);
-  this.platform = platformEnum.zr;
-  this.fill = "rgba(0, 0, 0, 0)";
 }
 
 CircleZR.prototype = {
   constructor: CircleZR,
 
+  platform: platformEnum.zr,
+
+  fill: "rgba(0, 0, 0, 0)",
+
   dirty(shape) {
     BaseCircle.prototype.dirty.call(this, shape);
     CircleImplZR.prototype.dirty.call(this, shape);
-  },
-
-  makeVertex(opts) {
-    return new VertexZR(opts);
   }
 };
 
 extend(CircleZR, BaseCircle);
 mixin(CircleZR, CircleImplZR);
+
+export { CircleZR };

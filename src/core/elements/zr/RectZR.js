@@ -1,18 +1,18 @@
 import { BaseRect } from "../BaseRect";
-import { platformEnum } from "../../Event";
+import { platformEnum } from "../../platform";
 import { Rect as ZRRect, Image as ZRImage } from "zrender";
-import { VertexZR } from "./VertexZR";
 import { extend } from "../../helpers";
 
-export function RectZR(opts) {
+function RectZR(opts) {
   BaseRect.call(this, opts);
-  this.platform = platformEnum.zr;
 }
 
 RectZR.prototype = {
   constructor: RectZR,
 
-  render() {
+  platform: platformEnum.zr,
+
+  create() {
     const x = ~~this.x + 0.5;
     const y = ~~this.y + 0.5;
     this.el = this.image
@@ -66,15 +66,13 @@ RectZR.prototype = {
       : this.el.setShape(shape);
   },
 
-  makeVertex(opts) {
-    return new VertexZR(opts);
-  },
-
   toggleImage() {
     this.root.remove(this);
-    this.render();
+    this.create();
     this.root.add(this);
   }
 };
 
 extend(RectZR, BaseRect);
+
+export { RectZR };

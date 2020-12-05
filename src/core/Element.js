@@ -1,59 +1,52 @@
-import { extend, guid, mixin } from "./helpers";
-import { Contextmenu } from "./mixins/Contextmenu";
-import { Event, platformEnum } from "./Event";
+import { eachObj, extend, guid, mixin } from "./helpers";
+import { Event } from "./Event";
 import { Move } from "./mixins/Move";
 /**
  * @description 所有元素的抽象类
  **/
 
-export function Element(opts) {
+function Element(opts) {
   Event.call(this, opts);
-  Contextmenu.call(this, opts);
   Move.call(this, opts);
-  this.id = guid();
-  this.x = opts.x || 0;
-  this.y = opts.y || 0;
+  eachObj(opts, (value, key) => {
+    this[key] = value;
+  });
+  this.id = opts.id || guid();
   this.children = [];
+  this.create();
 }
 
 Element.prototype = {
   constructor: Element,
 
+  x: 0,
+
+  y: 0,
+
+  mounted: false,
+
   // Interface
-  render() {},
+  create() {},
 
   mount(root) {
-    this.initEvent();
-    this.render();
+    if (this.mounted) return;
+    this.mounted = true;
+    this.create();
     this.root = root;
-    switch (this.platform) {
-      case platformEnum.dom:
-        root.el.appendChild(this.el);
-        break;
-      case platformEnum.zr:
-        root.zr.add(this.el);
-        break;
-    }
     this.children.forEach(element => {
       root.add(element);
     });
   },
 
-  unmount(root) {
-    switch (this.platform) {
-      case platformEnum.dom:
-        root.el.removeChild(this.el);
-        break;
-      case platformEnum.zr:
-        root.zr.remove(this.el);
-        break;
-    }
+  unmount() {
+    if (!this.mounted) return;
+    this.mounted = false;
+    this.parent?.removeChild(this);
     this.children.forEach(element => {
-      root.remove(element);
+      this.root.remove(element);
     });
   },
 
-  // Interface
   follow(offset) {
     this.x += offset.x;
     this.y += offset.y;
@@ -70,16 +63,34 @@ Element.prototype = {
   addChild(child) {
     child.parent = this;
     this.children.push(child);
+    this.mounted && this.root.add(child);
   },
 
-  setData(data) {
-    this.data = data;
+  removeChild(child) {
+    this.children.splice(
+      this.children.findIndex(d => d === child),
+      1
+    );
+  },
+
+  exportStruct() {
+    return {
+      type: this.type,
+      platform: this.platform,
+      id: this.id,
+      x: this.x,
+      y: this.y,
+      children: this.children.map(element => {
+        return element.exportStruct();
+      })
+    };
   }
 };
 
 extend(Element, Event);
-mixin(Element, Contextmenu);
 mixin(Element, Move);
+
+export { Element };
 
 export const typeEnum = {
   rect: "rect",

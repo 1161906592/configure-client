@@ -1,10 +1,10 @@
 import { eachObj } from "../helpers";
 
-export function CircleImplDOM() {}
+function CircleImplDOM() {}
 CircleImplDOM.prototype = {
   constructor: CircleImplDOM,
 
-  render() {
+  create() {
     const div = document.createElement("div");
 
     eachObj(
@@ -36,3 +36,5 @@ CircleImplDOM.prototype = {
     this.el.style.height = `${this.r * 2}px`;
   }
 };
+
+export { CircleImplDOM };

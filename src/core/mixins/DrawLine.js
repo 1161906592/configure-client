@@ -1,44 +1,49 @@
 import { Line } from "..";
 
-export function DrawLine() {
-  this.drawLineable = true;
+function DrawLine() {
+  this.lines = this.lines || [];
 }
 
 DrawLine.prototype = {
   constructor: DrawLine,
+
   addDrawLine() {
     const root = this.root;
 
     const click = e => {
       e.event.stopPropagation();
 
-      // 鼠标移动绘制线段
-      const mousemove = e => {
-        const curDrawLine = root.curDrawLine;
-        if (!curDrawLine) return;
-        const points = curDrawLine.points;
-        if (root.isNewPoint) {
-          root.isNewPoint = false;
-          points.push([~~e.offsetX + 0.5, ~~e.offsetY + 0.5]);
-        } else {
-          const last = points[points.length - 2];
-          curDrawLine.isVertical = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]);
-          points[points.length - 1] = curDrawLine.isVertical ? [last[0], ~~e.offsetY + 0.5] : [~~e.offsetX + 0.5, last[1]];
-        }
-        curDrawLine.dirty();
-      };
-
-      const clickRoot = () => {
-        root.isNewPoint = true;
-      };
       if (root.curDrawLine) {
+        root.offCurDrawLine();
         clickToEnd(this);
-        root.off("mousemove", mousemove);
-        root.off("click", clickRoot);
       } else {
-        clickToStart(e, this);
+        // 鼠标移动绘制线段
+        const mousemove = e => {
+          const curDrawLine = root.curDrawLine;
+          if (!curDrawLine) return;
+          const points = curDrawLine.points;
+          if (root.isNewPoint) {
+            root.isNewPoint = false;
+            points.push([~~e.offsetX + 0.5, ~~e.offsetY + 0.5]);
+          } else {
+            const last = points[points.length - 2];
+            root.isCurLineVertical = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]);
+            points[points.length - 1] = root.isCurLineVertical ? [last[0], ~~e.offsetY + 0.5] : [~~e.offsetX + 0.5, last[1]];
+          }
+          curDrawLine.dirty();
+        };
+
+        const clickRoot = () => {
+          root.isNewPoint = true;
+        };
+
+        root.offCurDrawLine = () => {
+          root.off("mousemove", mousemove);
+          root.off("click", clickRoot);
+        };
         root.on("mousemove", mousemove);
         root.on("click", clickRoot);
+        clickToStart(e, this);
       }
     };
 
@@ -47,6 +52,31 @@ DrawLine.prototype = {
     this.removeDrawLine = () => {
       this.off("click", click);
     };
+  },
+
+  clearLine() {
+    this.lines.forEach(item => {
+      this.root.remove(item.line);
+    });
+    this.lines = [];
+  },
+
+  removeLine(line) {
+    this.lines.splice(
+      this.lines.findIndex(d => d.id === line.id),
+      1
+    );
+  },
+
+  exportStruct() {
+    return this.lines.map(item => {
+      return {
+        id: item.id,
+        isStart: item.isStart,
+        isBottom: item.isBottom,
+        isRight: item.isRight
+      };
+    });
   }
 };
 
@@ -83,19 +113,21 @@ function clickToStart(e, rect) {
   const nearInfo = near.find(d => d.value === min);
   const point = nearInfo.point;
 
-  let line = new Line({
+  let curDrawLine = new Line({
     points: [point]
   });
-  root.add(line);
-  line.el.silent = true;
+  root.add(curDrawLine);
+  curDrawLine.el.silent = true;
 
-  root.curDrawLine = line;
+  root.curDrawLine = curDrawLine;
   rect.lines.push({
-    id: line.id,
+    id: curDrawLine.id,
     isStart: true,
     isBottom: nearInfo.isBottom,
-    isRight: nearInfo.isRight
+    isRight: nearInfo.isRight,
+    line: curDrawLine
   });
+  curDrawLine.startRect = rect;
   root.isNewPoint = true;
 }
 
@@ -113,7 +145,7 @@ function clickToEnd(rect) {
   let isBottom = false;
   let isRight = false;
   let arrowDirection;
-  if (curDrawLine.isVertical) {
+  if (root.isCurLineVertical) {
     point = [last[0], rect.y];
     arrowDirection = "B";
     if (last[1] > rect.y) {
@@ -136,12 +168,16 @@ function clickToEnd(rect) {
     id: curDrawLine.id,
     isStart: false,
     isBottom: isBottom,
-    isRight: isRight
+    isRight: isRight,
+    line: curDrawLine
   });
+  curDrawLine.endRect = rect;
   curDrawLine.direction = arrowDirection;
   curDrawLine.isStartVertical = points[0][1] !== points[1][1];
-  curDrawLine.isEndVertical = curDrawLine.isVertical;
+  curDrawLine.isEndVertical = root.isCurLineVertical;
   curDrawLine.el.silent = false;
 
   root.curDrawLine = null;
 }
+
+export { DrawLine };

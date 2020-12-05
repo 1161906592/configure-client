@@ -1,15 +1,17 @@
 import { Element, typeEnum } from "../Element";
 import { extend } from "../helpers";
-export function BaseVertex(opts) {
+function BaseVertex(opts) {
   Element.call(this, opts);
-  this.type = typeEnum.vertex;
-  this.r = 4;
-  this.fill = "#fff";
-  this.index = opts.index;
 }
 
 BaseVertex.prototype = {
   constructor: BaseVertex,
+
+  type: typeEnum.vertex,
+
+  r: 4,
+
+  fill: "#fff",
 
   follow(offset) {
     // 顶点不继承element的follow行为
@@ -24,7 +26,11 @@ BaseVertex.prototype = {
 
   removeFromHost() {
     this.root.remove(this);
-  }
+  },
+
+  exportStruct() {}
 };
 
 extend(BaseVertex, Element);
+
+export { BaseVertex };

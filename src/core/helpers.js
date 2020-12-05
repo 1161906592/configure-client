@@ -64,30 +64,6 @@ export function eachObj(obj, fn) {
   }
 }
 
-export function copyProperties(from, props) {
-  const to = {};
-  props.forEach(prop => {
-    if (hasOwnProperty(from, prop)) {
-      to[prop] = from[prop];
-    }
-  });
-  return to;
-}
-
-export function calcDOMOffset(el) {
-  let offset = {
-    left: 0,
-    top: 0
-  };
-  el = el.offsetParent;
-  while (el) {
-    offset.left += el.offsetLeft;
-    offset.top += el.offsetTop;
-    el = el.offsetParent;
-  }
-  return offset;
-}
-
 export function makeMap(list, fn) {
   const map = {};
   list.forEach((item, index) => {

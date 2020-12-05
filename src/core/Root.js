@@ -1,54 +1,51 @@
-import { init } from "zrender";
-import { copyProperties, calcDOMOffset, extend } from "./helpers";
+import { extend } from "./helpers";
+import { Event } from "./Event";
+import { platformEnum } from "./platform";
+import { Storage } from "./Storage";
+import { Painter } from "./Painter";
 import { typeEnum } from "./Element";
-import { Event, platformEnum } from "./Event";
+import { addContextmenu } from "./Contextmenu";
 
-export const rootState = {
+export const rootStateEnum = {
   off: 1,
   focus: 2,
   drawLine: 3
 };
 
-export function Root(opts) {
+function Root(opts) {
   Event.call(this, opts);
-  this.platform = platformEnum.dom;
-  const el = opts.el;
-  el.style.position = "relative";
-  this.el = el;
-  this.zr = init(el);
+  this.el = opts.el;
   this.oncontextmenu = opts.oncontextmenu;
-  this.elements = [];
-  this.elementMap = {};
+  this.storage = new Storage();
+  this.painter = new Painter(this.el);
   this.root = this;
-  this.offset = calcDOMOffset(el);
-  this.state = rootState.rectMove;
+  this.state = opts.state || rootStateEnum.rectMove;
   // 画连接线
   this.curDrawLine = null;
   this.curDrawLineStartRect = null;
   this.isNewPoint = false;
-  this.initEvent();
 }
 
 Root.prototype = {
   constructor: Root,
+  platform: platformEnum.dom,
   add(element) {
     console.log(element);
     element.mount(this);
+    this.painter.add(element);
+    this.storage.add(element);
+
     switch (this.state) {
-      case rootState.focus:
+      case rootStateEnum.focus:
         element.addMove();
         element.addResize?.();
         break;
-      case rootState.drawLine:
+      case rootStateEnum.drawLine:
         element.addDrawLine?.();
         break;
-      // case rootState.rectResize:
-      //   element.addResize();
-      //   break;
     }
-    element.addContextmenu();
-    this.elements.push(element);
-    this.elementMap[element.id] = element;
+    element.addContextmenu?.();
+    addContextmenu(element, this.oncontextmenu);
   },
 
   remove(element) {
@@ -57,11 +54,9 @@ Root.prototype = {
     element.removeResize?.();
     element.removeDrawLine?.();
     element.offContextmenu?.();
-    const idx = this.elements.findIndex(d => d === element);
-    if (idx !== -1) {
-      this.elements.splice(idx, 1);
-      delete this.elementMap[element.id];
-    }
+
+    this.painter.remove(element);
+    this.storage.remove(element);
   },
 
   clearHandler() {
@@ -70,9 +65,9 @@ Root.prototype = {
   },
 
   startFocus() {
-    if (this.state === rootState.focus) return;
+    if (this.state === rootStateEnum.focus) return;
     this.clearHandler();
-    this.state = rootState.focus;
+    this.state = rootStateEnum.focus;
     this.elements.forEach(element => {
       element.addMove();
       element.addResize?.();
@@ -80,9 +75,9 @@ Root.prototype = {
   },
 
   endRectFocus() {
-    if (this.state !== rootState.focus) return;
-    this.state = rootState.off;
-    this.elements.forEach(element => {
+    if (this.state !== rootStateEnum.focus) return;
+    this.state = rootStateEnum.off;
+    this.storage.getElementList().forEach(element => {
       element.removeMove();
       element.removeResize?.();
     });
@@ -90,39 +85,49 @@ Root.prototype = {
 
   // 画线
   startDrawLine() {
-    if (this.state === rootState.drawLine) return;
+    if (this.state === rootStateEnum.drawLine) return;
     this.clearHandler();
-    this.state = rootState.drawLine;
-    this.elements.forEach(element => {
+    this.state = rootStateEnum.drawLine;
+    this.storage.getElementList().forEach(element => {
       element.addDrawLine?.();
     });
   },
 
   endDrawLine() {
-    if (this.state !== rootState.drawLine) return;
-    this.state = rootState.off;
-    this.elements.forEach(element => {
+    if (this.state !== rootStateEnum.drawLine) return;
+    this.state = rootStateEnum.off;
+    this.storage.getElementList().forEach(element => {
       element.removeDrawLine?.();
     });
   },
 
-  getResult() {
-    return this.elements
+  exportStruct() {
+    return this.storage
+      .getElementList()
       .map(element => {
-        let result;
-        switch (element.type) {
-          case typeEnum.rect:
-            result = copyProperties(element, ["id", "type", "shape", "lines", "platform", "image", "data"]);
-            result.shape = copyProperties(result.shape, ["x", "y", "width", "height"]);
-            return result;
-          case typeEnum.line:
-            result = copyProperties(element, ["id", "type", "shape", "lines", "platform", "isStartVertical", "isEndVertical", "data"]);
-            result.shape = copyProperties(result.shape, ["points"]);
-            return result;
+        if (!element.parent) {
+          return element.exportStruct();
         }
       })
       .filter(Boolean);
+  },
+
+  flushRectLineRelation() {
+    this.storage.getElementList().forEach(element => {
+      if (element.type === typeEnum.rect) {
+        element.lines.forEach(item => {
+          item.line = this.storage.getElementById(item.id);
+          if (item.isStart) {
+            item.line.startRect = element;
+          } else {
+            item.line.endRect = element;
+          }
+        });
+      }
+    });
   }
 };
 
 extend(Root, Event);
+
+export { Root };

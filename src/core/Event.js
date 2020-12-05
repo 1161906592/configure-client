@@ -1,18 +1,13 @@
-export const platformEnum = {
-  dom: "dom",
-  zr: "zr"
-};
+import { platformEnum } from "./platform";
 
-export function Event() {}
+function Event() {
+  if (this.platform === platformEnum.dom) {
+    this.eventPool = new Map();
+  }
+}
 
 Event.prototype = {
   constructor: Event,
-  initEvent() {
-    if (this.platform === platformEnum.dom) {
-      this.eventFns = [];
-      this.eventWrapperFns = [];
-    }
-  },
 
   on(type, fn) {
     switch (this.platform) {
@@ -39,26 +34,15 @@ Event.prototype = {
 
 function onDOM(type, fn) {
   const wrapperFn = event => {
-    const offset = this.root.offset;
-    fn({
-      offsetX: event.clientX - offset.left,
-      offsetY: event.clientY - offset.top,
-      event
-    });
+    fn(makeEventPacket(event));
   };
-  this.eventFns.push(fn);
-  this.eventWrapperFns.push(wrapperFn);
+  this.eventPool.set(fn, wrapperFn);
   this.el.addEventListener(type, wrapperFn);
 }
 
 function offDOM(type, fn) {
-  const idx = this.eventFns.findIndex(d => d === fn);
-  if (idx !== -1) {
-    const wrapperFn = this.eventWrapperFns[idx];
-    this.eventFns.splice(idx, 1);
-    this.eventWrapperFns.splice(idx, 1);
-    this.el.removeEventListener(type, wrapperFn);
-  }
+  const wrapperFn = this.eventPool.get(fn);
+  this.el.removeEventListener(type, wrapperFn);
 }
 
 function onZR(type, fn) {
@@ -68,3 +52,13 @@ function onZR(type, fn) {
 function offZR(type, fn) {
   this.el.off(type, fn);
 }
+
+function makeEventPacket(event) {
+  return {
+    offsetX: event.layerX,
+    offsetY: event.layerY,
+    event
+  };
+}
+
+export { Event };

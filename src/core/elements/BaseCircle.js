@@ -2,15 +2,17 @@ import { Element, typeEnum } from "../Element";
 import { extend, mixin } from "../helpers";
 import { Resize } from "../mixins/Resize";
 
-export function BaseCircle(opts) {
+function BaseCircle(opts) {
   Element.call(this, opts);
   Resize.call(this, opts);
-  this.type = typeEnum.circle;
-  this.r = opts.r || 32;
 }
 
 BaseCircle.prototype = {
   constructor: BaseCircle,
+
+  type: typeEnum.circle,
+
+  r: 30,
 
   follow(offset) {
     Element.prototype.follow.call(this, offset);
@@ -33,6 +35,13 @@ BaseCircle.prototype = {
   updateShape(vertex, offset) {
     [resizeT, resizeR, resizeB, resizeL][vertex.index](this, offset);
     this.dirty();
+  },
+
+  exportStruct() {
+    return {
+      ...Element.prototype.exportStruct.call(this),
+      r: this.r
+    };
   }
 };
 
@@ -58,3 +67,5 @@ function resizeL(circle, offset) {
   circle.x += offset.x / 2;
   circle.r -= offset.x / 2;
 }
+
+export { BaseCircle };

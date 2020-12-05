@@ -3,27 +3,28 @@ import { extend, mixin } from "../helpers";
 import { DrawLine } from "../mixins/DrawLine";
 import { Resize } from "../mixins/Resize";
 
-export function BaseRect(opts) {
+function BaseRect(opts) {
   Element.call(this, opts);
   DrawLine.call(this, opts);
   Resize.call(this, opts);
-  this.type = typeEnum.rect;
-  this.width = opts.width || 200;
-  this.height = opts.height || 100;
-  this.r = opts.r || 4;
-  this.lines = opts.lines || [];
-  this.image = opts.image;
 }
 
 BaseRect.prototype = {
   constructor: BaseRect,
 
+  type: typeEnum.rect,
+
+  width: 200,
+
+  height: 100,
+
+  r: 4,
+
   follow(offset) {
     Element.prototype.follow.call(this, offset);
     Resize.prototype.follow.call(this, offset);
-    const elementMap = this.root.elementMap;
     this.lines.forEach(item => {
-      const line = elementMap[item.id];
+      const line = item.line;
       line.isFollowStart = item.isStart;
       line.followHost(offset);
     });
@@ -54,6 +55,22 @@ BaseRect.prototype = {
   updateShape(vertex, offset) {
     [resizeRectLT, resizeRectT, resizeRectRT, resizeRectR, resizeRectRB, resizeRectB, resizeRectLB, resizeRectL][vertex.index].call(this, offset);
     this.dirty();
+  },
+
+  unmount() {
+    Element.prototype.unmount.call(this);
+    DrawLine.prototype.clearLine.call(this);
+  },
+
+  exportStruct() {
+    return {
+      ...Element.prototype.exportStruct.call(this),
+      width: this.width,
+      height: this.height,
+      r: this.r,
+      image: this.image,
+      lines: DrawLine.prototype.exportStruct.call(this)
+    };
   }
 };
 
@@ -117,9 +134,8 @@ function resizeRectL(offset) {
 
 // 左上
 function lineFollowRectLT(offset) {
-  const elementMap = this.root.elementMap;
   this.lines.forEach(item => {
-    const line = elementMap[item.id];
+    const line = item.line;
     line.isFollowStart = item.isStart;
     const points = line.points;
     const point = item.isStart ? points[0] : points[points.length - 1];
@@ -139,9 +155,8 @@ function lineFollowRectLT(offset) {
 
 // 上
 function lineFollowRectT(offset) {
-  const elementMap = this.root.elementMap;
   this.lines.forEach(item => {
-    const line = elementMap[item.id];
+    const line = item.line;
     line.isFollowStart = item.isStart;
     if (line.isStartVertical || line.isEndVertical) {
       line.followHost({
@@ -161,9 +176,8 @@ function lineFollowRectT(offset) {
 
 // 右上
 function lineFollowRectRT(offset) {
-  const elementMap = this.root.elementMap;
   this.lines.forEach(item => {
-    const line = elementMap[item.id];
+    const line = item.line;
     line.isFollowStart = item.isStart;
     const points = line.points;
     const point = item.isStart ? points[0] : points[points.length - 1];
@@ -183,9 +197,8 @@ function lineFollowRectRT(offset) {
 
 // 右
 function lineFollowRectR(offset) {
-  const elementMap = this.root.elementMap;
   this.lines.forEach(item => {
-    const line = elementMap[item.id];
+    const line = item.line;
     line.isFollowStart = item.isStart;
     if (!line.isStartVertical && !line.isEndVertical) {
       line.followHost({
@@ -205,9 +218,8 @@ function lineFollowRectR(offset) {
 
 // 右下
 function lineFollowRectRB(offset) {
-  const elementMap = this.root.elementMap;
   this.lines.forEach(item => {
-    const line = elementMap[item.id];
+    const line = item.line;
     line.isFollowStart = item.isStart;
     const points = line.points;
     const point = item.isStart ? points[0] : points[points.length - 1];
@@ -227,9 +239,8 @@ function lineFollowRectRB(offset) {
 
 // 下
 function lineFollowRectB(offset) {
-  const elementMap = this.root.elementMap;
   this.lines.forEach(item => {
-    const line = elementMap[item.id];
+    const line = item.line;
     line.isFollowStart = item.isStart;
     if (line.isStartVertical || line.isEndVertical) {
       line.followHost({
@@ -249,9 +260,8 @@ function lineFollowRectB(offset) {
 
 // 左下
 function lineFollowRectLB(offset) {
-  const elementMap = this.root.elementMap;
   this.lines.forEach(item => {
-    const line = elementMap[item.id];
+    const line = item.line;
     line.isFollowStart = item.isStart;
     const points = line.points;
     const point = item.isStart ? points[0] : points[points.length - 1];
@@ -271,9 +281,8 @@ function lineFollowRectLB(offset) {
 
 // 左
 function lineFollowRectL(offset) {
-  const elementMap = this.root.elementMap;
   this.lines.forEach(item => {
-    const line = elementMap[item.id];
+    const line = item.line;
     line.isFollowStart = item.isStart;
     if (!line.isStartVertical && !line.isEndVertical) {
       line.followHost({
@@ -290,3 +299,5 @@ function lineFollowRectL(offset) {
     }
   });
 }
+
+export { BaseRect };

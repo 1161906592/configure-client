@@ -1,16 +1,17 @@
 import { BaseVertex } from "../BaseVertex";
 import { extend, mixin } from "../../helpers";
 import { CircleImplDOM } from "../../mixins/CircleImplDOM";
-import { platformEnum } from "../../Event";
+import { platformEnum } from "../../platform";
 
-export function VertexDOM(opts) {
+function VertexDOM(opts) {
   BaseVertex.call(this, opts);
   CircleImplDOM.call(this, opts);
-  this.platform = platformEnum.dom;
 }
 
 VertexDOM.prototype = {
   constructor: VertexDOM,
+
+  platform: platformEnum.dom,
 
   dirty(shape) {
     BaseVertex.prototype.dirty.call(this, shape);
@@ -20,3 +21,5 @@ VertexDOM.prototype = {
 
 extend(VertexDOM, BaseVertex);
 mixin(VertexDOM, CircleImplDOM);
+
+export { VertexDOM };

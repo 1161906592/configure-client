@@ -1,19 +1,21 @@
 import { Element, typeEnum } from "../Element";
 import { Polyline } from "zrender";
-import { platformEnum } from "../Event";
+import { platformEnum } from "../platform";
 import { extend, lastItem } from "../helpers";
 
-export function Line(opts) {
-  opts.platform = platformEnum.zr;
+function Line(opts) {
   Element.call(this, opts);
-  this.type = typeEnum.line;
-  this.points = opts.points || [[0, 0]];
 }
-
 Line.prototype = {
+  type: typeEnum.line,
+
+  platform: platformEnum.zr,
+
+  points: [[0, 0]],
+
   constructor: Line,
 
-  render() {
+  create() {
     this.el = new Polyline({
       shape: {
         points: this.points
@@ -28,14 +30,10 @@ Line.prototype = {
     });
   },
 
-  mount(root) {
-    Element.prototype.mount.call(this, root);
-    root.zr.add(this.el);
-  },
-
   unmount(root) {
     Element.prototype.unmount.call(this, root);
-    root.zr.remove(this.el);
+    this.startRect.removeLine(this);
+    this.endRect.removeLine(this);
   },
 
   dirty() {
@@ -48,7 +46,6 @@ Line.prototype = {
 
   follow(offset) {
     console.log(offset);
-    // super.follow(offset);
   },
 
   followHost(offset) {
@@ -63,6 +60,15 @@ Line.prototype = {
     }
 
     this.dirty();
+  },
+
+  exportStruct() {
+    return {
+      ...Element.prototype.exportStruct.call(this),
+      points: this.points,
+      isStartVertical: this.isStartVertical,
+      isEndVertical: this.isEndVertical
+    };
   }
 };
 
@@ -119,3 +125,5 @@ function lineAutoBreak() {
     }
   }
 }
+
+export { Line };
