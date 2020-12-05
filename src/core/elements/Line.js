@@ -53,7 +53,7 @@ Line.prototype = {
         points: this.points
       }
     });
-    this.useArrow && this.addArrow();
+    this.useArrow ? this.addArrow() : this.removeArrow();
   },
 
   followHost(offset) {
@@ -68,6 +68,27 @@ Line.prototype = {
     }
 
     this.update();
+  },
+
+  // 直接设置host的形状时
+  followHostUpdate(host, relation) {
+    this.isFollowStart = relation.isStart;
+    const point = relation.isStart ? this.points[0] : lastItem(this.points);
+    if (this.isStartVertical || this.isEndVertical) {
+      const offsetX = host.x > point[0] ? ~~(host.x - point[0] + 1) : host.x + host.width < point[0] ? ~~(host.x + host.width - point[0]) : 0;
+      if (relation.isBottom) {
+        this.followHost({ x: offsetX, y: host.y + host.height - point[1] });
+      } else {
+        this.followHost({ x: offsetX, y: host.y - point[1] });
+      }
+    } else {
+      const offsetY = host.y > point[1] ? ~~(host.y - point[1] + 1) : host.y + host.height < point[1] ? ~~(host.y + host.height - point[1]) : 0;
+      if (relation.isRight) {
+        this.followHost({ x: host.x + host.width - point[0], y: offsetY });
+      } else {
+        this.followHost({ x: host.x - point[0], y: offsetY });
+      }
+    }
   },
 
   exportStruct() {
@@ -95,7 +116,7 @@ Line.prototype = {
   },
 
   removeArrow() {
-    if (!this.arrow || this.arrow.isMounted) return;
+    if (!this.arrow || !this.arrow.isMounted) return;
     this.root.remove(this.arrow);
   }
 };

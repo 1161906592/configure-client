@@ -11,6 +11,8 @@ function Root(opts) {
   this.handlerProxy = new HandlerProxy(this.storage);
   this.root = this;
   this.state = opts.state || rootStateEnum.rectMove;
+  // 选中resize
+  this.curResizeElement = null;
   // 画连接线
   this.curDrawLine = null;
   this.curDrawLineStartRect = null;

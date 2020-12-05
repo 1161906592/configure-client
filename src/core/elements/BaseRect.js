@@ -1,6 +1,6 @@
 import { Element } from "../Element";
 import { typeEnum } from "../enums";
-import { extend, mixin } from "../helpers";
+import { eachObj, extend, mixin } from "../helpers";
 import { DrawLine } from "../mixins/DrawLine";
 import { Resizable } from "../mixins/Resizable";
 import { Draggable } from "../mixins/Draggable";
@@ -28,7 +28,7 @@ BaseRect.prototype = {
   },
 
   follow(offset) {
-    Draggable.prototype.follow.call(this, offset);
+    Element.prototype.follow.call(this, offset);
     Resizable.prototype.follow.call(this, offset);
     this.lines.forEach(item => {
       const line = item.line;
@@ -67,6 +67,27 @@ BaseRect.prototype = {
   unmount() {
     Element.prototype.unmount.call(this);
     DrawLine.prototype.clearLine.call(this);
+  },
+
+  setConfiguration(configuration) {
+    eachObj(configuration, (value, key) => {
+      if (key !== "x" && key !== "y") {
+        this[key] = value;
+      }
+    });
+    // 设置位置
+    if (configuration.x !== undefined || configuration.y !== undefined) {
+      const offset = {
+        x: configuration.x ? configuration.x - this.x : 0,
+        y: configuration.y ? configuration.y - this.y : 0
+      };
+      Element.prototype.follow.call(this, offset);
+      Resizable.prototype.follow.call(this, offset);
+    }
+    // 带动连接线
+    this.lines.forEach(item => {
+      item.line.followHostUpdate(this, item);
+    });
   },
 
   exportStruct() {

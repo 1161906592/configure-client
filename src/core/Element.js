@@ -46,6 +46,16 @@ Element.prototype = {
     });
   },
 
+  follow(offset) {
+    this.x += offset.x;
+    this.y += offset.y;
+    this.update();
+
+    this.children.forEach(element => {
+      element.follow(offset);
+    });
+  },
+
   // Interface
   update() {},
 
@@ -61,6 +71,9 @@ Element.prototype = {
       this.children.splice(idx, 1);
     }
   },
+
+  // Interface
+  setConfiguration() {},
 
   exportStruct() {
     return {

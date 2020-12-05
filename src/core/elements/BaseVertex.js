@@ -28,10 +28,6 @@ BaseVertex.prototype = {
     this.root.add(this);
   },
 
-  removeFromHost() {
-    this.root.remove(this);
-  },
-
   exportStruct() {}
 };
 

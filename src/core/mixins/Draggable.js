@@ -34,16 +34,6 @@ Draggable.prototype = {
     this.removeMove = () => {
       this.off("mousedown", mousedown);
     };
-  },
-
-  follow(offset) {
-    this.x += offset.x;
-    this.y += offset.y;
-    this.update();
-
-    this.children.forEach(element => {
-      element.follow(offset);
-    });
   }
 };
 

@@ -9,7 +9,9 @@ Resizable.prototype = {
   constructor: Resizable,
   addResize() {
     const mousedown = () => {
-      if (this.vertexes.length) return;
+      if (this.root.curResizeElement === this) return;
+      this.root.curResizeElement?.removeVertexes();
+      this.root.curResizeElement = this;
       this.addVertexes();
     };
     this.on("mousedown", mousedown);
@@ -36,7 +38,7 @@ Resizable.prototype = {
 
   removeVertexes() {
     this.vertexes.forEach(vertex => {
-      vertex.removeFromHost();
+      this.root.remove(vertex);
     });
     this.vertexes = [];
   },

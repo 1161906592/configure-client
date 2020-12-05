@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { Root, createElement, structRender, rootStateEnum, configurableMap, fieldTypeEnum } from "../core";
+import { Root, createElement, structRender, rootStateEnum, configurableMap, fieldTypeEnum, makeConfiguration } from "../core";
 import { eachObj, makeMap } from "../core/helpers";
 
 export default {
@@ -133,20 +133,13 @@ export default {
       localStorage.setItem("data", JSON.stringify(data));
     },
     handleSure() {
-      this.form.items.forEach(item => {
-        let value = item.value;
-        if (item.type === fieldTypeEnum.number) {
-          value = Number(value);
-        }
-        this.curElement[item.prop] = value;
-      });
+      this.curElement.setConfiguration(makeConfiguration(this.form.items));
       this.curElement.data = makeMap(
         this.form.dataList.filter(d => d.key),
         (map, item) => {
           map[item.key] = item.value;
         }
       );
-      this.curElement.update();
       // this.panelVisible = false;
     },
     handleContextmenu(item, e) {

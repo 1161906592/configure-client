@@ -20,7 +20,7 @@ BaseCircle.prototype = {
   borderWidth: 1,
 
   follow(offset) {
-    Draggable.prototype.follow.call(this, offset);
+    Element.prototype.follow.call(this, offset);
     Resizable.prototype.follow.call(this, offset);
   },
 
