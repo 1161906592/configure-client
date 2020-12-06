@@ -15,15 +15,16 @@ body {
   font-size: 14px;
 }
 .v-modal {
-  opacity: 0;
+  opacity: 0.3;
 }
-.el-drawer__header {
-  margin-bottom: 0;
-}
+
 .el-form-item__label {
   font-size: 14px;
 }
-.el-drawer__body {
-  padding: 20px;
+.el-dialog__title {
+  font-size: 16px;
+}
+.el-dialog__body {
+  padding: 0 20px;
 }
 </style>

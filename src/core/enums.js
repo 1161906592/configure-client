@@ -3,7 +3,8 @@ export const typeEnum = {
   line: "line",
   circle: "circle",
   vertex: "vertex",
-  arrow: "arrow"
+  arrow: "arrow",
+  text: "text"
 };
 
 export const platformEnum = {

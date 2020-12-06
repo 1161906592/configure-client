@@ -1,4 +1,4 @@
-import { Line } from "./elements/Line";
+import { Polyline } from "./elements/Polyline";
 import { RectDOM } from "./elements/dom/RectDOM";
 import { RectZR } from "./elements/zr/RectZR";
 import { typeEnum } from "./enums";
@@ -9,24 +9,26 @@ import { CircleZR } from "./elements/zr/CircleZR";
 import { VertexDOM } from "./elements/dom/VertexDOM";
 import { VertexZR } from "./elements/zr/VertexZR";
 import { Arrow } from "./elements/Arrow";
+import { Text } from "./elements/Text";
 
 const implList = [
   { type: typeEnum.rect, platform: platformEnum.dom, Constructor: RectDOM },
   { type: typeEnum.rect, platform: platformEnum.zr, Constructor: RectZR },
-  { type: typeEnum.line, platform: platformEnum.zr, Constructor: Line },
+  { type: typeEnum.line, platform: platformEnum.zr, Constructor: Polyline },
   { type: typeEnum.circle, platform: platformEnum.dom, Constructor: CircleDOM },
   { type: typeEnum.circle, platform: platformEnum.zr, Constructor: CircleZR },
   { type: typeEnum.vertex, platform: platformEnum.dom, Constructor: VertexDOM },
   { type: typeEnum.vertex, platform: platformEnum.zr, Constructor: VertexZR },
-  { type: typeEnum.arrow, platform: platformEnum.zr, Constructor: Arrow }
+  { type: typeEnum.arrow, platform: platformEnum.zr, Constructor: Arrow },
+  { type: typeEnum.text, platform: platformEnum.zr, Constructor: Text }
 ];
 
 const typeConstructorMap = makeMap(implList, (map, item) => {
   (map[item.type] || (map[item.type] = {}))[item.platform] = item;
 });
 
-export function structRender(root, structures) {
-  structures.forEach(item => {
+export function structRender(root, structure) {
+  structure.elements.forEach(item => {
     const element = createElement(item);
     root.add(element);
   });

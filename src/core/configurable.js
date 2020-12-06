@@ -31,6 +31,8 @@ const lineBaseItems = [
   }
 ];
 
+const textBaseItems = [...elementBaseItems, { prop: "text", label: "文字", type: fieldTypeEnum.text }];
+
 const configurableList = [
   {
     type: typeEnum.rect,
@@ -61,6 +63,11 @@ const configurableList = [
     type: typeEnum.circle,
     platform: platformEnum.zr,
     items: [...circleBaseItems]
+  },
+  {
+    type: typeEnum.text,
+    platform: platformEnum.zr,
+    items: [...textBaseItems]
   }
 ];
 

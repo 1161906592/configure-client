@@ -1,5 +1,5 @@
 export { Root } from "./Root";
-export { Line } from "./elements/Line";
+export { Polyline } from "./elements/Polyline";
 export { RectDOM } from "./elements/dom/RectDOM";
 export { RectZR } from "./elements/zr/RectZR";
 export { CircleDOM } from "./elements/dom/CircleDOM";

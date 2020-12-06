@@ -1,4 +1,4 @@
-import { Line } from "..";
+import { Polyline } from "..";
 import { makeEventPacket } from "../Eventful";
 
 function DrawLine() {
@@ -114,7 +114,7 @@ function clickToStart(e, rect) {
   const nearInfo = near.find(d => d.value === min);
   const point = nearInfo.point;
 
-  let curDrawLine = new Line({
+  let curDrawLine = new Polyline({
     points: [point]
   });
   root.add(curDrawLine);

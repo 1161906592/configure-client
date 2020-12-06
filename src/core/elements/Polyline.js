@@ -1,15 +1,15 @@
 import { Element } from "../Element";
 import { typeEnum } from "../enums";
-import { Polyline } from "zrender";
+import { Polyline as ZRPolyline } from "zrender";
 import { platformEnum } from "../enums";
 import { extend, lastItem } from "../helpers";
 import { createElement } from "../createElement";
 
-function Line(opts) {
+function Polyline(opts) {
   Element.call(this, opts);
 }
-Line.prototype = {
-  constructor: Line,
+Polyline.prototype = {
+  constructor: Polyline,
 
   type: typeEnum.line,
 
@@ -20,7 +20,7 @@ Line.prototype = {
   useArrow: false,
 
   create() {
-    this.el = new Polyline({
+    this.el = new ZRPolyline({
       shape: {
         points: this.points
       },
@@ -121,7 +121,7 @@ Line.prototype = {
   }
 };
 
-extend(Line, Element);
+extend(Polyline, Element);
 
 // 线顶点跟随拖动
 function vertexFollow(offset) {
@@ -177,4 +177,4 @@ function lineAutoBreak() {
   }
 }
 
-export { Line };
+export { Polyline };

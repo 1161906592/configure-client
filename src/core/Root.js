@@ -22,7 +22,7 @@ function Root(opts) {
 Root.prototype = {
   constructor: Root,
   add(element) {
-    console.log(element);
+    // console.log(element);
     element.mount(this);
     this.painter.add(element);
     this.storage.add(element);
@@ -93,14 +93,18 @@ Root.prototype = {
   },
 
   exportStruct() {
-    return this.storage
-      .getElementList()
-      .map(element => {
-        if (!element.parent) {
-          return element.exportStruct();
-        }
-      })
-      .filter(Boolean);
+    return {
+      width: this.el.clientWidth,
+      height: this.el.clientHeight,
+      elements: this.storage
+        .getElementList()
+        .map(element => {
+          if (!element.parent) {
+            return element.exportStruct();
+          }
+        })
+        .filter(Boolean)
+    };
   },
 
   flushRectLineRelation() {

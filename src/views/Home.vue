@@ -1,10 +1,11 @@
 <template>
   <div>
     <div class="header">
-      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'dom')">dom矩形</el-button>
-      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'zr')">canvas矩形</el-button>
-      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'dom')">dom圆</el-button>
-      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'zr')">canvas圆</el-button>
+      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'dom')">DOM矩形</el-button>
+      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'zr')">CANVAS矩形</el-button>
+      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'dom')">DOM圆</el-button>
+      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'zr')">CANVAS圆</el-button>
+      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('text', 'zr')">文字</el-button>
       <el-button type="primary" size="small" @click="handleStartDrawLine">画线</el-button>
       <el-button type="primary" size="small" @click="handleStartFocus">选择</el-button>
       <el-button type="primary" size="small" @click="handleClearHandler">配置</el-button>
@@ -16,7 +17,7 @@
         <div v-for="(item, index) in contextmenu" :key="index" @click="item.handler">{{ item.name }}</div>
       </div>
     </div>
-    <el-drawer title="配置元素" :visible.sync="panelVisible" size="400px">
+    <el-dialog title="配置元素" :visible.sync="panelVisible" width="400px">
       <el-form size="mini">
         <el-form-item v-for="item in form.items" :key="item.prop" :label="item.label">
           <el-input v-model="item.value" v-if="item.type === fieldTypeEnum.text" />
@@ -41,16 +42,29 @@
           </div>
         </div>
       </el-form>
-      <div class="footer">
-        <el-button size="small" @click="panelVisible = false">取消</el-button>
-        <el-button size="small" type="primary" @click="handleSure">确定</el-button>
-      </div>
-    </el-drawer>
+      <template slot="footer">
+        <el-button size="mini" @click="panelVisible = false">取消</el-button>
+        <el-button size="mini" type="primary" @click="handleSure">确定</el-button>
+      </template>
+    </el-dialog>
+    <el-dialog title="添加子元素" :visible.sync="subVisible" width="240px">
+      <el-form size="mini">
+        <el-form-item label="子元素类型">
+          <el-select v-model="subIndex" style="width: 100%;">
+            <el-option v-for="(item, index) in subTypeOptions" :key="index" :label="item.label" :value="index" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template slot="footer">
+        <el-button size="mini" @click="subVisible = false">取消</el-button>
+        <el-button size="mini" type="primary" @click="handleSureSub">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { Root, createElement, structRender, rootStateEnum, configurableMap, fieldTypeEnum, makeConfiguration } from "../core";
+import { Root, createElement, structRender, rootStateEnum, configurableMap, fieldTypeEnum, makeConfiguration, typeEnum, platformEnum } from "../core";
 import { eachObj, makeMap } from "../core/helpers";
 
 export default {
@@ -65,7 +79,16 @@ export default {
         items: [],
         dataList: []
       },
-      fieldTypeEnum: Object.freeze(fieldTypeEnum)
+      fieldTypeEnum: Object.freeze(fieldTypeEnum),
+      subVisible: false,
+      subTypeOptions: [
+        { label: "DOM矩形", type: typeEnum.rect, platform: platformEnum.dom },
+        { label: "CANVAS矩形", type: typeEnum.rect, platform: platformEnum.zr },
+        { label: "DOM圆", type: typeEnum.circle, platform: platformEnum.dom },
+        { label: "CANVAS圆", type: typeEnum.circle, platform: platformEnum.zr },
+        { label: "文字", type: typeEnum.text, platform: platformEnum.zr }
+      ],
+      subIndex: 0
     };
   },
   mounted() {
@@ -86,9 +109,7 @@ export default {
       eachObj(item.data, (value, key) => {
         dataList.push({ key, value });
       });
-      if (!dataList.length) {
-        dataList.push({});
-      }
+
       this.form = {
         dataList: dataList,
         items: configurableMap[item.type][item.platform].items.map(d => {
@@ -141,7 +162,7 @@ export default {
           map[item.key] = item.value;
         }
       );
-      // this.panelVisible = false;
+      this.panelVisible = false;
     },
     handleContextmenu(item, e) {
       e.event.preventDefault();
@@ -149,30 +170,35 @@ export default {
         left: e.offsetX + "px",
         top: e.offsetY + "px"
       };
+      this.curElement = item;
+      this.curEvent = e;
       this.contextmenu = [
         {
           name: "删除",
           handler: () => {
-            item.root.remove(item);
+            this.root.remove(item);
             this.style = null;
           }
         },
         {
           name: "添加子元素",
           handler: () => {
-            const element = createElement({
-              type: item.type,
-              platform: item.platform,
-              x: item.x + 20,
-              y: item.y + 20,
-              width: item.width,
-              height: item.height
-            });
-            item.addChild(element);
+            this.subVisible = true;
             this.style = null;
           }
         }
       ];
+    },
+    handleSureSub() {
+      const item = this.subTypeOptions[this.subIndex];
+      const element = createElement({
+        type: item.type,
+        platform: item.platform,
+        x: this.curEvent.offsetX + 20,
+        y: this.curEvent.offsetY + 20
+      });
+      this.curElement.addChild(element);
+      this.subVisible = false;
     }
   }
 };
@@ -229,11 +255,11 @@ export default {
     > .el-form-item {
       flex: 1;
       margin-right: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
   }
   .remove-btn {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     line-height: 28px;
   }
 }
