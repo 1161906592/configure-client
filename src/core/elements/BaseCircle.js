@@ -44,7 +44,8 @@ BaseCircle.prototype = {
   exportStruct() {
     return {
       ...Element.prototype.exportStruct.call(this),
-      r: this.r
+      r: this.r,
+      image: this.image
     };
   }
 };

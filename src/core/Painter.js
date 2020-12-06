@@ -3,6 +3,7 @@ import { init } from "zrender";
 
 function Painter(root) {
   root.style.position = "relative";
+  root.style.overflow = "hidden";
 
   this.domRoot = root;
 
@@ -10,6 +11,8 @@ function Painter(root) {
 }
 
 Painter.prototype = {
+  constructor: Painter,
+
   add(element) {
     switch (element.platform) {
       case platformEnum.dom:
@@ -20,6 +23,7 @@ Painter.prototype = {
         break;
     }
   },
+
   remove(element) {
     switch (element.platform) {
       case platformEnum.dom:
@@ -31,4 +35,5 @@ Painter.prototype = {
     }
   }
 };
+
 export { Painter };

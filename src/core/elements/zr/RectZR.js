@@ -1,11 +1,12 @@
 import { BaseRect } from "../BaseRect";
 import { platformEnum } from "../../enums";
 import { Rect as ZRRect, Image as ZRImage } from "zrender";
-import { extend } from "../../helpers";
+import { extend, mixin } from "../../helpers";
+import { ToggleZRImage } from "../../mixins/ToggleZRImage";
 
 function RectZR(opts) {
   BaseRect.call(this, opts);
-  this.typeHandlerMap = new Map();
+  ToggleZRImage.call(this, opts);
 }
 
 RectZR.prototype = {
@@ -14,33 +15,16 @@ RectZR.prototype = {
   platform: platformEnum.zr,
 
   create() {
-    let x = ~~this.x + 0.5;
-    let y = ~~this.y + 0.5;
-    let width = this.width - 1;
-    let height = this.height - 1;
-    if (this.image) {
-      x--;
-      y--;
-      width++;
-      height++;
-    }
+    const shape = makeRectShape(this);
     this.el = this.image
       ? new ZRImage({
           style: {
-            x: x,
-            y: y,
-            width: width,
-            height: height,
+            ...shape,
             image: this.image
           }
         })
       : new ZRRect({
-          shape: {
-            x: x,
-            y: y,
-            width: width,
-            height: height
-          },
+          shape: shape,
           style: {
             lineWidth: 1,
             stroke: "#000",
@@ -60,14 +44,7 @@ RectZR.prototype = {
       this.toggleImage();
       return;
     }
-    const x = ~~this.x + 0.5;
-    const y = ~~this.y + 0.5;
-    const shape = {
-      x: x,
-      y: y,
-      width: this.width,
-      height: this.height
-    };
+    const shape = makeRectShape(this);
     this.image
       ? this.el.setStyle({
           ...shape,
@@ -78,40 +55,35 @@ RectZR.prototype = {
 
   on(type, handler) {
     BaseRect.prototype.on.call(this, type, handler);
-    // 记录当前元素添加过的事件 用于图片切换之后把事件重新添加到新的元素上
-    if (!this.typeHandlerMap.get(type)) {
-      this.typeHandlerMap.set(type, []);
-    }
-    this.typeHandlerMap.get(type).push(handler);
+    ToggleZRImage.prototype.on.call(this, type, handler);
   },
 
   off(type, handler) {
     BaseRect.prototype.off.call(this, type, handler);
-    const handlers = this.typeHandlerMap.get(type);
-    if (!handlers || !handlers.length) return;
-    const idx = handlers?.findIndex(d => d === handler);
-    if (idx !== -1) {
-      handlers.splice(idx, 1);
-    }
-  },
-
-  toggleImage() {
-    this.root.painter.zrRoot.remove(this.el);
-    this.typeHandlerMap.forEach((handlers, type) => {
-      handlers.forEach(handler => {
-        BaseRect.prototype.off.call(this, type, handler);
-      });
-    });
-    this.create();
-    this.root.painter.zrRoot.add(this.el);
-    this.typeHandlerMap.forEach((handlers, type) => {
-      handlers.forEach(handler => {
-        BaseRect.prototype.on.call(this, type, handler);
-      });
-    });
+    ToggleZRImage.prototype.off.call(this, type, handler);
   }
 };
 
+function makeRectShape(rect) {
+  let x = ~~rect.x + 0.5;
+  let y = ~~rect.y + 0.5;
+  let width = rect.width - 1;
+  let height = rect.height - 1;
+  if (rect.image) {
+    x--;
+    y--;
+    width++;
+    height++;
+  }
+  return {
+    x,
+    y,
+    width,
+    height
+  };
+}
+
 extend(RectZR, BaseRect);
+mixin(RectZR, ToggleZRImage);
 
 export { RectZR };

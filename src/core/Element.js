@@ -93,7 +93,6 @@ Element.prototype = {
   setConfiguration(configuration) {
     const offset = this.defaultMerge(configuration);
     this.follow(offset);
-    this.update();
   },
 
   exportStruct() {

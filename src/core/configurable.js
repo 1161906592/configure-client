@@ -13,7 +13,11 @@ const rectBaseItems = [
   { prop: "image", label: "背景图片", type: fieldTypeEnum.text }
 ];
 
-const circleBaseItems = [...elementBaseItems, { prop: "r", label: "半径", type: fieldTypeEnum.number }];
+const circleBaseItems = [
+  ...elementBaseItems,
+  { prop: "r", label: "半径", type: fieldTypeEnum.number },
+  { prop: "image", label: "背景图片", type: fieldTypeEnum.text }
+];
 
 const lineBaseItems = [
   {

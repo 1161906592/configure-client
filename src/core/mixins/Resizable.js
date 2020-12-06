@@ -7,6 +7,7 @@ function Resizable() {
 
 Resizable.prototype = {
   constructor: Resizable,
+
   addResize() {
     const mousedown = () => {
       if (this.root.curResizeElement === this) return;
@@ -20,6 +21,7 @@ Resizable.prototype = {
       this.removeVertexes();
     };
   },
+
   addVertexes() {
     this.makeRectVertexes().forEach((point, index) => {
       const vertex = createElement({
@@ -33,6 +35,7 @@ Resizable.prototype = {
       this.vertexes.push(vertex);
     });
   },
+
   // Interface
   makeRectVertexes() {},
 
@@ -42,15 +45,19 @@ Resizable.prototype = {
     });
     this.vertexes = [];
   },
+
   follow() {
     this.updateVertexes();
   },
+
   followVertex(vertex, offset) {
     this.updateShape(vertex, offset);
     this.updateVertexes();
   },
+
   // Interface
   updateShape() {},
+
   updateVertexes() {
     if (!this.vertexes.length) return;
     this.makeRectVertexes().forEach((point, index) => {

@@ -5,7 +5,7 @@ CircleImplDOM.prototype = {
   constructor: CircleImplDOM,
 
   create() {
-    const div = document.createElement("div");
+    const el = document.createElement("div");
 
     eachObj(
       {
@@ -18,24 +18,41 @@ CircleImplDOM.prototype = {
         border: "1px solid #000"
       },
       (value, key) => {
-        div.style[key] = value;
+        el.style[key] = value;
       }
     );
 
-    div.style.transform = `translate3d(${this.x - this.r}px, ${this.y - this.r}px, 0)`;
+    el.style.transform = `translate3d(${this.x - this.r}px, ${this.y - this.r}px, 0)`;
     const r = fixCircleRadius(this) + "px";
-    div.style.width = r;
-    div.style.height = r;
+    el.style.width = r;
+    el.style.height = r;
 
-    div.style.background = this.fill;
-    this.el = div;
+    if (this.fill) {
+      el.style.background = this.fill;
+    }
+
+    if (this.image) {
+      el.style.background = `url(${this.image}) center/100% 100%`;
+    }
+
+    this.el = el;
   },
 
   update() {
     const r = fixCircleRadius(this) + "px";
-    this.el.style.transform = `translate3d(${this.x - this.r}px, ${this.y - this.r}px, 0)`;
-    this.el.style.width = r;
-    this.el.style.height = r;
+    const el = this.el;
+
+    el.style.transform = `translate3d(${this.x - this.r}px, ${this.y - this.r}px, 0)`;
+    el.style.width = r;
+    el.style.height = r;
+
+    if (this.fill) {
+      el.style.background = this.fill;
+    }
+
+    if (this.image) {
+      el.style.background = `url(${this.image}) center/100% 100%`;
+    }
   }
 };
 

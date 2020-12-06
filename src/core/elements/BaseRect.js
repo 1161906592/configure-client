@@ -71,6 +71,8 @@ BaseRect.prototype = {
 
   setConfiguration(configuration) {
     const offset = Element.prototype.defaultMerge.call(this, configuration);
+
+    // 因为这里会有宽高的变化所以不能直接调用自身的follow方法
     Element.prototype.follow.call(this, offset);
     Resizable.prototype.follow.call(this, offset);
     // 带动连接线
