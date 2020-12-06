@@ -1,4 +1,6 @@
 import { makeEventPacket } from "../Eventful";
+import { Polyline } from "..";
+import { lastItem } from "../helpers";
 
 function DrawLine() {
   this.lines = this.lines || [];
@@ -44,7 +46,7 @@ DrawLine.prototype = {
   },
 
   // Interface 开始画线 用于确定起始点
-  makeDrawingLine() {},
+  makeLineStartPoint() {},
 
   // Interface 画线过程中
   lineDrawing(e) {
@@ -56,7 +58,7 @@ DrawLine.prototype = {
       root.isNewPoint = false;
       points.push([~~e.offsetX + 0.5, ~~e.offsetY + 0.5]);
     } else {
-      const last = points[points.length - 2];
+      const last = lastItem(points, 2);
       root.isCurLineVertical = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]);
       points[points.length - 1] = root.isCurLineVertical ? [last[0], ~~e.offsetY + 0.5] : [~~e.offsetX + 0.5, last[1]];
     }
@@ -64,7 +66,19 @@ DrawLine.prototype = {
   },
 
   // Interface 结束画线时的逻辑
-  makeDrawingLineEndPoint() {},
+  makeLineEndPoint() {},
+
+  updateLines() {
+    this.lines.forEach(item => {
+      const line = item.line;
+
+      line.isFollowStart = item.isStart;
+
+      line.followHost(this.makeLineVertexByAngle(item.sin, item.cos));
+    });
+  },
+
+  makeLineVertexByAngle() {},
 
   clearLine() {
     while (this.lines.length) {
@@ -84,8 +98,8 @@ DrawLine.prototype = {
       return {
         id: item.id,
         isStart: item.isStart,
-        isBottom: item.isBottom,
-        isRight: item.isRight
+        sin: item.sin,
+        cos: item.cos
       };
     });
   }
@@ -93,7 +107,17 @@ DrawLine.prototype = {
 
 // 开始画线
 function clickToStart(e) {
-  const line = this.makeDrawingLine(e);
+  const { point, sin, cos } = this.makeLineStartPoint(e);
+  const line = new Polyline({
+    points: [point]
+  });
+  this.lines.push({
+    id: line.id,
+    isStart: true,
+    sin,
+    cos,
+    line: line
+  });
 
   const root = this.root;
   root.curDrawLineStartElement = this;
@@ -118,9 +142,19 @@ function clickToEnd() {
   }
   const line = root.curDrawLine;
   const points = line.points;
-  const last2 = points[points.length - 2];
+  const last2 = lastItem(points, 2);
 
-  points[points.length - 1] = this.makeDrawingLineEndPoint(last2);
+  const { point, sin, cos } = this.makeLineEndPoint(last2);
+
+  points[points.length - 1] = point;
+
+  this.lines.push({
+    id: line.id,
+    isStart: false,
+    sin,
+    cos,
+    line: line
+  });
 
   line.isStartVertical = points[0][1] !== points[1][1];
   line.isEndVertical = root.isCurLineVertical;
@@ -129,6 +163,7 @@ function clickToEnd() {
   line.endElement = this;
   line.el.silent = false;
   root.curDrawLine = null;
+  root.curDrawLineStartElement = null;
 }
 
 export { DrawLine };

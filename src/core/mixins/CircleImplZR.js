@@ -53,7 +53,7 @@ function makeCircleShape(circle) {
   return {
     cx: circle.x + 0.5,
     cy: circle.y + 0.5,
-    r: circle.r
+    r: Math.abs(circle.r)
   };
 }
 

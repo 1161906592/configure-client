@@ -46,10 +46,6 @@ Resizable.prototype = {
     this.vertexes = [];
   },
 
-  follow() {
-    this.updateVertexes();
-  },
-
   followVertex(vertex, offset) {
     this.updateShape(vertex, offset);
     this.updateVertexes();

@@ -72,7 +72,7 @@ Element.prototype = {
     }
   },
 
-  defaultMerge(configuration) {
+  setConfiguration(configuration) {
     eachObj(configuration, (value, key) => {
       if (key !== "x" && key !== "y") {
         this[key] = value;
@@ -86,12 +86,6 @@ Element.prototype = {
     if (configuration.y !== undefined) {
       offset.y = configuration.y - this.y;
     }
-    return offset;
-  },
-
-  // 默认只进行位置的变换 子类如果有其它属性的变化则重写此方法 重写时不调用
-  setConfiguration(configuration) {
-    const offset = this.defaultMerge(configuration);
     this.follow(offset);
   },
 

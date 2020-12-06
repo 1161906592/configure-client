@@ -1,27 +1,8 @@
 import { Element } from "../Element";
 import { typeEnum } from "../enums";
-import { extend, makeMap } from "../helpers";
+import { extend, lastItem } from "../helpers";
 import { platformEnum } from "../enums";
 import { Isogon } from "zrender";
-
-export const arrowDirectionEnum = {
-  T: "T",
-  R: "R",
-  B: "B",
-  L: "L"
-};
-
-const directionRotateMap = makeMap(
-  [
-    { direction: arrowDirectionEnum.T, rotate: 0 },
-    { direction: arrowDirectionEnum.R, rotate: Math.PI * -0.5 },
-    { direction: arrowDirectionEnum.B, rotate: Math.PI },
-    { direction: arrowDirectionEnum.L, rotate: Math.PI * 0.5 }
-  ],
-  (map, item) => {
-    map[item.direction] = item.rotate;
-  }
-);
 
 function Arrow(opts) {
   Element.call(this, opts);
@@ -38,7 +19,7 @@ Arrow.prototype = {
 
   fill: "#000",
 
-  direction: arrowDirectionEnum.B,
+  rotation: Math.PI / 2,
 
   create() {
     fixArrowCenter(this);
@@ -54,12 +35,13 @@ Arrow.prototype = {
         fill: this.fill,
         stroke: 1
       },
-      rotation: directionRotateMap[this.direction],
+      rotation: this.rotation,
       origin: [x, y]
     });
   },
 
   update() {
+    fixArrowCenter(this);
     this.el.attr("origin", [this.x, this.y]);
     this.el.setShape({
       x: this.x,
@@ -67,9 +49,10 @@ Arrow.prototype = {
     });
   },
 
-  follow(offset) {
-    this.x += offset.x;
-    this.y += offset.y;
+  follow() {
+    const last = lastItem(this.line.points);
+    this.x = last[0];
+    this.y = last[1];
     this.update();
   },
 
@@ -79,23 +62,9 @@ Arrow.prototype = {
 extend(Arrow, Element);
 
 function fixArrowCenter(arrow) {
-  let { x, y, direction } = arrow;
-  switch (direction) {
-    case arrowDirectionEnum.T:
-      y += 6;
-      break;
-    case arrowDirectionEnum.R:
-      x -= 6;
-      break;
-    case arrowDirectionEnum.B:
-      y -= 6;
-      break;
-    case arrowDirectionEnum.L:
-      x += 6;
-      break;
-  }
-  arrow.x = x;
-  arrow.y = y;
+  let { rotation, r } = arrow;
+  arrow.x += r * Math.sin(rotation);
+  arrow.y += r * Math.cos(rotation);
 }
 
 export { Arrow };

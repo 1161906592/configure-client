@@ -11,7 +11,12 @@ function Container(opts) {
 Container.prototype = {
   constructor: Container,
 
-  isContainer: true
+  isContainer: true,
+
+  follow() {
+    Resizable.prototype.updateVertexes.call(this);
+    DrawLine.prototype.updateLines.call(this);
+  }
 };
 
 mixin(Container, DrawLine);

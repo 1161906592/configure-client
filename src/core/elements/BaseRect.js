@@ -3,7 +3,6 @@ import { typeEnum } from "../enums";
 import { extend, mixin } from "../helpers";
 import { Draggable } from "../mixins/Draggable";
 import { Container } from "../mixins/Container";
-import { Polyline } from "./Polyline";
 
 function BaseRect(opts) {
   Element.call(this, opts);
@@ -28,40 +27,28 @@ BaseRect.prototype = {
 
   follow(offset) {
     Element.prototype.follow.call(this, offset);
-    Container.prototype.follow.call(this, offset);
-    this.lines.forEach(item => {
-      const line = item.line;
-      line.isFollowStart = item.isStart;
-      line.followHost(offset);
-    });
+    Container.prototype.follow.call(this);
   },
 
   makeRectVertexes() {
-    const halfW = this.width / 2;
-    const halfH = this.height / 2;
-    return [
-      [this.x, this.y],
-      [this.x + halfW, this.y],
-      [this.x + this.width, this.y],
-      [this.x + this.width, this.y + halfH],
-      [this.x + this.width, this.y + this.height],
-      [this.x + halfW, this.y + this.height],
-      [this.x, this.y + this.height],
-      [this.x, this.y + halfH]
-    ];
+    return makeRectVertexes.call(this);
   },
 
   followVertex(vertex, offset) {
     Container.prototype.followVertex.call(this, vertex, offset);
-    [lineFollowLT, lineFollowT, lineFollowRT, lineFollowR, lineFollowRB, lineFollowB, lineFollowLB, lineFollowL][vertex.index].call(this, offset);
+    Container.prototype.updateLines.call(this);
   },
 
-  makeDrawingLine(e) {
-    return makePolyline.call(this, e);
+  makeLineStartPoint(e) {
+    return makeLineStartPoint.call(this, e);
   },
 
-  makeDrawingLineEndPoint(e) {
-    return makePolylineEndPoint.call(this, e);
+  makeLineEndPoint(e) {
+    return makeLineEndPoint.call(this, e);
+  },
+
+  makeLineVertexByAngle(sin, cos) {
+    return makeLineVertexByAngle.call(this, sin, cos);
   },
 
   updateShape(vertex, offset) {
@@ -72,18 +59,6 @@ BaseRect.prototype = {
   unmount() {
     Element.prototype.unmount.call(this);
     Container.prototype.clearLine.call(this);
-  },
-
-  setConfiguration(configuration) {
-    const offset = Element.prototype.defaultMerge.call(this, configuration);
-
-    // 因为这里会有宽高的变化所以不能直接调用自身的follow方法
-    Element.prototype.follow.call(this, offset);
-    Container.prototype.follow.call(this, offset);
-    // 带动连接线
-    this.lines.forEach(item => {
-      item.line.followHostUpdate(this, item);
-    });
   },
 
   exportStruct() {
@@ -102,90 +77,74 @@ extend(BaseRect, Element);
 mixin(BaseRect, Draggable);
 mixin(BaseRect, Container);
 
-function makePolyline(e) {
-  const x = ~~e.offsetX + 0.5;
-  const y = ~~e.offsetY + 0.5;
-  const near = [
-    {
-      isRight: false,
-      value: x - this.x,
-      point: [this.x, y]
-    },
-    {
-      isRight: true,
-      value: this.x + this.width - x,
-      point: [this.x + this.width, y]
-    },
-    {
-      isBottom: false,
-      value: y - this.y,
-      point: [x, this.y]
-    },
-    {
-      isBottom: true,
-      value: this.y + this.height - y,
-      point: [x, this.y + this.height]
-    }
+function makeRectVertexes() {
+  const halfW = this.width / 2;
+  const halfH = this.height / 2;
+  return [
+    [this.x, this.y],
+    [this.x + halfW, this.y],
+    [this.x + this.width, this.y],
+    [this.x + this.width, this.y + halfH],
+    [this.x + this.width, this.y + this.height],
+    [this.x + halfW, this.y + this.height],
+    [this.x, this.y + this.height],
+    [this.x, this.y + halfH]
   ];
-  const min = Math.min(...near.map(d => d.value));
-  const nearInfo = near.find(d => d.value === min);
-
-  const line = new Polyline({
-    points: [nearInfo.point]
-  });
-
-  this.lines.push({
-    id: line.id,
-    isStart: true,
-    isBottom: nearInfo.isBottom,
-    isRight: nearInfo.isRight,
-    line: line
-  });
-
-  return line;
 }
 
-function makePolylineEndPoint(last2) {
-  const root = this.root;
-  const line = root.curDrawLine;
-  let isBottom = false;
-  let isRight = false;
-  let arrowDirection;
-  if (root.isCurLineVertical) {
-    arrowDirection = "B";
-    if (last2[1] > this.y) {
-      isBottom = true;
-      arrowDirection = "T";
-    }
-  } else {
-    arrowDirection = "R";
-    if (last2[0] > this.x) {
-      isRight = true;
-      arrowDirection = "L";
-    }
-  }
-  this.lines.push({
-    id: line.id,
-    isStart: false,
-    isBottom: isBottom,
-    isRight: isRight,
-    line: line
-  });
-  line.direction = arrowDirection;
+function makeLineVertexByAngle(sin, cos) {
+  const centerX = this.x + this.width / 2;
+  const centerY = this.y + this.height / 2;
 
-  let point;
+  let r1 = Math.abs(this.width / 2 / cos);
+  let r2 = Math.abs(this.height / 2 / sin);
+
+  let x;
+  let y;
+  if (r1 > r2) {
+    x = ~~(centerX + r2 * cos) + 0.5;
+    y = ~~(centerY + r2 * sin) + 0.5;
+  } else {
+    x = ~~(centerX + r1 * cos) + 0.5;
+    y = ~~(centerY + r1 * sin) + 0.5;
+  }
+
+  return [x, y];
+}
+
+function makeLineStartPoint(e) {
+  const centerX = this.x + this.width / 2;
+  const centerY = this.y + this.height / 2;
+
+  const er = Math.sqrt((e.offsetX - centerX) ** 2 + (e.offsetY - centerY) ** 2);
+  const sin = (e.offsetY - centerY) / er;
+  const cos = (e.offsetX - centerX) / er;
+
+  return { point: makeLineVertexByAngle.call(this, sin, cos), sin, cos };
+}
+
+function makeLineEndPoint(last2) {
+  const center = [this.x + this.width / 2, this.y + this.height / 2];
+
+  let sin;
+  let cos;
   if (this.root.isCurLineVertical) {
-    point = [last2[0], this.y];
-    if (last2[1] > this.y) {
-      point[1] += this.height;
+    const r = Math.sqrt((last2[0] - center[0]) ** 2 + (this.height / 2) ** 2);
+    cos = (last2[0] - center[0]) / r;
+    sin = Math.sqrt(1 - cos ** 2);
+    if (last2[1] < center[1]) {
+      sin = -sin;
     }
   } else {
-    point = [this.x, last2[1]];
-    if (last2[0] > this.x) {
-      point[0] += this.width;
+    const r = Math.sqrt((last2[1] - center[1]) ** 2 + (this.width / 2) ** 2);
+    sin = (last2[1] - center[1]) / r;
+    cos = Math.sqrt(1 - sin ** 2);
+    if (last2[0] < center[0]) {
+      cos = -cos;
     }
   }
-  return point;
+
+  return { point: makeLineVertexByAngle.call(this, sin, cos), sin, cos };
 }
 
 // 左上
@@ -240,174 +199,6 @@ function resizeRectLB(offset) {
 function resizeRectL(offset) {
   this.x += offset.x;
   this.width -= offset.x;
-}
-
-// 左上
-function lineFollowLT(offset) {
-  this.lines.forEach(item => {
-    const line = item.line;
-    line.isFollowStart = item.isStart;
-    const points = line.points;
-    const point = item.isStart ? points[0] : points[points.length - 1];
-    if (line.isStartVertical || line.isEndVertical) {
-      line.followHost({
-        x: point[0] < this.x || point[0] > this.x + this.width ? offset.x : 0,
-        y: item.isBottom ? 0 : offset.y
-      });
-    } else {
-      line.followHost({
-        x: item.isRight ? 0 : offset.x,
-        y: point[1] < this.y || point[1] > this.y + this.height ? offset.y : 0
-      });
-    }
-  });
-}
-
-// 上
-function lineFollowT(offset) {
-  this.lines.forEach(item => {
-    const line = item.line;
-    line.isFollowStart = item.isStart;
-    if (line.isStartVertical || line.isEndVertical) {
-      line.followHost({
-        x: 0,
-        y: item.isBottom ? 0 : offset.y
-      });
-    } else {
-      const points = line.points;
-      const point = item.isStart ? points[0] : points[points.length - 1];
-      line.followHost({
-        x: 0,
-        y: point[1] < this.y || point[1] > this.y + this.height ? offset.y : 0
-      });
-    }
-  });
-}
-
-// 右上
-function lineFollowRT(offset) {
-  this.lines.forEach(item => {
-    const line = item.line;
-    line.isFollowStart = item.isStart;
-    const points = line.points;
-    const point = item.isStart ? points[0] : points[points.length - 1];
-    if (line.isStartVertical || line.isEndVertical) {
-      line.followHost({
-        x: point[0] < this.x || point[0] > this.x + this.width ? offset.x : 0,
-        y: item.isBottom ? 0 : offset.y
-      });
-    } else {
-      line.followHost({
-        x: item.isRight ? offset.x : 0,
-        y: point[1] < this.y || point[1] > this.y + this.height ? offset.y : 0
-      });
-    }
-  });
-}
-
-// 右
-function lineFollowR(offset) {
-  this.lines.forEach(item => {
-    const line = item.line;
-    line.isFollowStart = item.isStart;
-    if (!line.isStartVertical && !line.isEndVertical) {
-      line.followHost({
-        x: item.isRight ? offset.x : 0,
-        y: 0
-      });
-    } else {
-      const points = line.points;
-      const point = item.isStart ? points[0] : points[points.length - 1];
-      line.followHost({
-        x: point[0] < this.x || point[0] > this.x + this.width ? offset.x : 0,
-        y: 0
-      });
-    }
-  });
-}
-
-// 右下
-function lineFollowRB(offset) {
-  this.lines.forEach(item => {
-    const line = item.line;
-    line.isFollowStart = item.isStart;
-    const points = line.points;
-    const point = item.isStart ? points[0] : points[points.length - 1];
-    if (line.isStartVertical || line.isEndVertical) {
-      line.followHost({
-        x: point[0] < this.x || point[0] > this.x + this.width ? offset.x : 0,
-        y: item.isBottom ? offset.y : 0
-      });
-    } else {
-      line.followHost({
-        x: item.isRight ? offset.x : 0,
-        y: point[1] < this.y || point[1] > this.y + this.height ? offset.y : 0
-      });
-    }
-  });
-}
-
-// 下
-function lineFollowB(offset) {
-  this.lines.forEach(item => {
-    const line = item.line;
-    line.isFollowStart = item.isStart;
-    if (line.isStartVertical || line.isEndVertical) {
-      line.followHost({
-        x: 0,
-        y: item.isBottom ? offset.y : 0
-      });
-    } else {
-      const points = line.points;
-      const point = item.isStart ? points[0] : points[points.length - 1];
-      line.followHost({
-        x: 0,
-        y: point[1] < this.y || point[1] > this.y + this.height ? offset.y : 0
-      });
-    }
-  });
-}
-
-// 左下
-function lineFollowLB(offset) {
-  this.lines.forEach(item => {
-    const line = item.line;
-    line.isFollowStart = item.isStart;
-    const points = line.points;
-    const point = item.isStart ? points[0] : points[points.length - 1];
-    if (line.isStartVertical || line.isEndVertical) {
-      line.followHost({
-        x: point[0] < this.x || point[0] > this.x + this.width ? offset.x : 0,
-        y: item.isBottom ? offset.y : 0
-      });
-    } else {
-      line.followHost({
-        x: item.isRight ? 0 : offset.x,
-        y: point[1] < this.y || point[1] > this.y + this.height ? offset.y : 0
-      });
-    }
-  });
-}
-
-// 左
-function lineFollowL(offset) {
-  this.lines.forEach(item => {
-    const line = item.line;
-    line.isFollowStart = item.isStart;
-    if (!line.isStartVertical && !line.isEndVertical) {
-      line.followHost({
-        x: item.isRight ? 0 : offset.x,
-        y: 0
-      });
-    } else {
-      const points = line.points;
-      const point = item.isStart ? points[0] : points[points.length - 1];
-      line.followHost({
-        x: point[0] < this.x || point[0] > this.x + this.width ? offset.x : 0,
-        y: 0
-      });
-    }
-  });
 }
 
 export { BaseRect };

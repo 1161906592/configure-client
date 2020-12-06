@@ -72,6 +72,7 @@ Root.prototype = {
       element.removeMove?.();
       element.removeResize?.();
     });
+    this.curResizeElement = null;
   },
 
   // 画线

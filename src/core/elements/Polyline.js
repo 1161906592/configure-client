@@ -56,10 +56,9 @@ Polyline.prototype = {
     this.useArrow ? this.addArrow() : this.removeArrow();
   },
 
-  followHost(offset) {
+  followHost(newPoint) {
     const points = this.points;
-
-    vertexFollow.call(this, offset);
+    points[this.isFollowStart ? 0 : points.length - 1] = newPoint;
 
     if (points.length > 2) {
       nextVertexFollow.call(this);
@@ -67,28 +66,9 @@ Polyline.prototype = {
       lineAutoBreak.call(this);
     }
 
-    this.update();
-  },
+    this.arrow && this.arrow.follow();
 
-  // 直接设置host的形状时
-  followHostUpdate(host, relation) {
-    this.isFollowStart = relation.isStart;
-    const point = relation.isStart ? this.points[0] : lastItem(this.points);
-    if (this.isStartVertical || this.isEndVertical) {
-      const offsetX = host.x > point[0] ? ~~(host.x - point[0] + 1) : host.x + host.width < point[0] ? ~~(host.x + host.width - point[0]) : 0;
-      if (relation.isBottom) {
-        this.followHost({ x: offsetX, y: host.y + host.height - point[1] });
-      } else {
-        this.followHost({ x: offsetX, y: host.y - point[1] });
-      }
-    } else {
-      const offsetY = host.y > point[1] ? ~~(host.y - point[1] + 1) : host.y + host.height < point[1] ? ~~(host.y + host.height - point[1]) : 0;
-      if (relation.isRight) {
-        this.followHost({ x: host.x + host.width - point[0], y: offsetY });
-      } else {
-        this.followHost({ x: host.x - point[0], y: offsetY });
-      }
-    }
+    this.update();
   },
 
   exportStruct() {
@@ -97,7 +77,6 @@ Polyline.prototype = {
       points: this.points,
       isStartVertical: this.isStartVertical,
       isEndVertical: this.isEndVertical,
-      direction: this.direction,
       useArrow: this.useArrow
     };
   },
@@ -105,12 +84,14 @@ Polyline.prototype = {
   addArrow() {
     if (this.arrow) return;
     const last = lastItem(this.points);
+    const last2 = lastItem(this.points, 2);
     this.arrow = createElement({
       type: typeEnum.arrow,
       platform: platformEnum.zr,
       x: last[0],
       y: last[1],
-      direction: this.direction
+      rotation: calcRotation(last2, last),
+      line: this
     });
     this.isMounted && this.root.add(this.arrow);
   },
@@ -122,21 +103,6 @@ Polyline.prototype = {
 };
 
 extend(Polyline, Element);
-
-// 线顶点跟随拖动
-function vertexFollow(offset) {
-  if (this.isFollowStart) {
-    const first = this.points[0];
-    first[0] += offset.x;
-    first[1] += offset.y;
-  } else {
-    const last = lastItem(this.points);
-    last[0] += offset.x;
-    last[1] += offset.y;
-
-    this.arrow && this.arrow.follow(offset);
-  }
-}
 
 // 与端点相连的点跟随
 function nextVertexFollow() {
@@ -150,12 +116,12 @@ function nextVertexFollow() {
       point[1] = first[1];
     }
   } else {
-    const point = points[points.length - 2];
-    const last = points[points.length - 1];
+    const last = lastItem(points);
+    const last2 = lastItem(points, 2);
     if (this.isEndVertical) {
-      point[0] = last[0];
+      last2[0] = last[0];
     } else {
-      point[1] = last[1];
+      last2[1] = last[1];
     }
   }
 }
@@ -175,6 +141,10 @@ function lineAutoBreak() {
       points.splice(1, 0, [~~(points[0][0] + halfX) + 0.5, points[0][1]], [~~(points[0][0] + halfX) + 0.5, points[1][1]]);
     }
   }
+}
+
+function calcRotation(p1, p2) {
+  return Math.atan2(p1[1] - p2[1], p2[0] - p1[0]) - Math.PI / 2;
 }
 
 export { Polyline };
