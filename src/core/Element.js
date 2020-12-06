@@ -72,8 +72,29 @@ Element.prototype = {
     }
   },
 
-  // Interface
-  setConfiguration() {},
+  defaultMerge(configuration) {
+    eachObj(configuration, (value, key) => {
+      if (key !== "x" && key !== "y") {
+        this[key] = value;
+      }
+    });
+    // 设置位置
+    const offset = { x: 0, y: 0 };
+    if (configuration.x !== undefined) {
+      offset.x = configuration.x - this.x;
+    }
+    if (configuration.y !== undefined) {
+      offset.y = configuration.y - this.y;
+    }
+    return offset;
+  },
+
+  // 默认之作
+  setConfiguration(configuration) {
+    const offset = this.defaultMerge(configuration);
+    this.follow(offset);
+    this.update();
+  },
 
   exportStruct() {
     return {

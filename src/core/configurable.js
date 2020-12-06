@@ -13,6 +13,8 @@ const rectBaseItems = [
   { prop: "image", label: "背景图片", type: fieldTypeEnum.text }
 ];
 
+const circleBaseItems = [...elementBaseItems, { prop: "r", label: "半径", type: fieldTypeEnum.number }];
+
 const lineBaseItems = [
   {
     prop: "useArrow",
@@ -45,6 +47,16 @@ const configurableList = [
     type: typeEnum.line,
     platform: platformEnum.zr,
     items: [...lineBaseItems]
+  },
+  {
+    type: typeEnum.circle,
+    platform: platformEnum.dom,
+    items: [...circleBaseItems]
+  },
+  {
+    type: typeEnum.circle,
+    platform: platformEnum.zr,
+    items: [...circleBaseItems]
   }
 ];
 

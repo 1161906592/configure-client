@@ -133,6 +133,7 @@ export default {
       localStorage.setItem("data", JSON.stringify(data));
     },
     handleSure() {
+      console.log(makeConfiguration(this.form.items));
       this.curElement.setConfiguration(makeConfiguration(this.form.items));
       this.curElement.data = makeMap(
         this.form.dataList.filter(d => d.key),
