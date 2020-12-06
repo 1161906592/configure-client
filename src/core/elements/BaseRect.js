@@ -53,17 +53,11 @@ BaseRect.prototype = {
 
   followVertex(vertex, offset) {
     Container.prototype.followVertex.call(this, vertex, offset);
-    [lineFollowRectLT, lineFollowRectT, lineFollowRectRT, lineFollowRectR, lineFollowRectRB, lineFollowRectB, lineFollowRectLB, lineFollowRectL][
-      vertex.index
-    ].call(this, offset);
+    [lineFollowLT, lineFollowT, lineFollowRT, lineFollowR, lineFollowRB, lineFollowB, lineFollowLB, lineFollowL][vertex.index].call(this, offset);
   },
 
   makeDrawingLine(e) {
     return makePolyline.call(this, e);
-  },
-
-  lineDrawing(e) {
-    polylineDrawing.call(this, e);
   },
 
   makeDrawingLineEndPoint(e) {
@@ -151,47 +145,23 @@ function makePolyline(e) {
   return line;
 }
 
-function polylineDrawing(e) {
-  const root = this.root;
-  const curDrawLine = root.curDrawLine;
-  if (!curDrawLine) return;
-  const points = curDrawLine.points;
-  if (root.isNewPoint) {
-    root.isNewPoint = false;
-    points.push([~~e.offsetX + 0.5, ~~e.offsetY + 0.5]);
-  } else {
-    const last = points[points.length - 2];
-    root.isCurLineVertical = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]);
-    points[points.length - 1] = root.isCurLineVertical ? [last[0], ~~e.offsetY + 0.5] : [~~e.offsetX + 0.5, last[1]];
-  }
-  curDrawLine.update();
-}
-
-function makePolylineEndPoint() {
+function makePolylineEndPoint(last2) {
   const root = this.root;
   const line = root.curDrawLine;
-  const points = line.points;
-  const last2 = points[points.length - 2];
-
-  let point;
   let isBottom = false;
   let isRight = false;
   let arrowDirection;
   if (root.isCurLineVertical) {
-    point = [last2[0], this.y];
     arrowDirection = "B";
     if (last2[1] > this.y) {
       isBottom = true;
       arrowDirection = "T";
-      point[1] += this.height;
     }
   } else {
-    point = [this.x, last2[1]];
     arrowDirection = "R";
     if (last2[0] > this.x) {
       isRight = true;
       arrowDirection = "L";
-      point[0] += this.width;
     }
   }
   this.lines.push({
@@ -202,9 +172,19 @@ function makePolylineEndPoint() {
     line: line
   });
   line.direction = arrowDirection;
-  line.isStartVertical = points[0][1] !== points[1][1];
-  line.isEndVertical = root.isCurLineVertical;
 
+  let point;
+  if (this.root.isCurLineVertical) {
+    point = [last2[0], this.y];
+    if (last2[1] > this.y) {
+      point[1] += this.height;
+    }
+  } else {
+    point = [this.x, last2[1]];
+    if (last2[0] > this.x) {
+      point[0] += this.width;
+    }
+  }
   return point;
 }
 
@@ -263,7 +243,7 @@ function resizeRectL(offset) {
 }
 
 // 左上
-function lineFollowRectLT(offset) {
+function lineFollowLT(offset) {
   this.lines.forEach(item => {
     const line = item.line;
     line.isFollowStart = item.isStart;
@@ -284,7 +264,7 @@ function lineFollowRectLT(offset) {
 }
 
 // 上
-function lineFollowRectT(offset) {
+function lineFollowT(offset) {
   this.lines.forEach(item => {
     const line = item.line;
     line.isFollowStart = item.isStart;
@@ -305,7 +285,7 @@ function lineFollowRectT(offset) {
 }
 
 // 右上
-function lineFollowRectRT(offset) {
+function lineFollowRT(offset) {
   this.lines.forEach(item => {
     const line = item.line;
     line.isFollowStart = item.isStart;
@@ -326,7 +306,7 @@ function lineFollowRectRT(offset) {
 }
 
 // 右
-function lineFollowRectR(offset) {
+function lineFollowR(offset) {
   this.lines.forEach(item => {
     const line = item.line;
     line.isFollowStart = item.isStart;
@@ -347,7 +327,7 @@ function lineFollowRectR(offset) {
 }
 
 // 右下
-function lineFollowRectRB(offset) {
+function lineFollowRB(offset) {
   this.lines.forEach(item => {
     const line = item.line;
     line.isFollowStart = item.isStart;
@@ -368,7 +348,7 @@ function lineFollowRectRB(offset) {
 }
 
 // 下
-function lineFollowRectB(offset) {
+function lineFollowB(offset) {
   this.lines.forEach(item => {
     const line = item.line;
     line.isFollowStart = item.isStart;
@@ -389,7 +369,7 @@ function lineFollowRectB(offset) {
 }
 
 // 左下
-function lineFollowRectLB(offset) {
+function lineFollowLB(offset) {
   this.lines.forEach(item => {
     const line = item.line;
     line.isFollowStart = item.isStart;
@@ -410,7 +390,7 @@ function lineFollowRectLB(offset) {
 }
 
 // 左
-function lineFollowRectL(offset) {
+function lineFollowL(offset) {
   this.lines.forEach(item => {
     const line = item.line;
     line.isFollowStart = item.isStart;

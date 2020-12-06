@@ -73,7 +73,7 @@ export default {
     return {
       contextmenu: [],
       style: null,
-      data: Object.freeze(JSON.parse(localStorage.getItem("data")) || []),
+      data: Object.freeze(JSON.parse(localStorage.getItem("data"))),
       panelVisible: false,
       form: {
         items: [],
@@ -123,7 +123,7 @@ export default {
 
     this.root.on("contextmenu", this.handleContextmenu);
 
-    structRender(this.root, this.data);
+    this.data && structRender(this.root, this.data);
   },
   methods: {
     handleDragstart(type, platform) {

@@ -1,6 +1,6 @@
 import { Storage } from "./Storage";
 import { Painter } from "./Painter";
-import { typeEnum, rootStateEnum } from "./enums";
+import { rootStateEnum } from "./enums";
 import { HandlerProxy } from "./Handler";
 
 function Root(opts) {
@@ -109,7 +109,7 @@ Root.prototype = {
 
   flushRectLineRelation() {
     this.storage.getElementList().forEach(element => {
-      if (element.type === typeEnum.rect) {
+      if (element.isContainer) {
         element.lines.forEach(item => {
           item.line = this.storage.getElementById(item.id);
           if (item.isStart) {

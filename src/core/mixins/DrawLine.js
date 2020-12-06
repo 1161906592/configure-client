@@ -15,7 +15,7 @@ DrawLine.prototype = {
 
       if (root.curDrawLine) {
         root.offCurDrawLine();
-        clickToEnd.call(this);
+        clickToEnd.call(this, e);
       } else {
         // 鼠标移动绘制线段
         const mousemove = e => {
@@ -47,7 +47,21 @@ DrawLine.prototype = {
   makeDrawingLine() {},
 
   // Interface 画线过程中
-  lineDrawing() {},
+  lineDrawing(e) {
+    const root = this.root;
+    const curDrawLine = root.curDrawLine;
+    if (!curDrawLine) return;
+    const points = curDrawLine.points;
+    if (root.isNewPoint) {
+      root.isNewPoint = false;
+      points.push([~~e.offsetX + 0.5, ~~e.offsetY + 0.5]);
+    } else {
+      const last = points[points.length - 2];
+      root.isCurLineVertical = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]);
+      points[points.length - 1] = root.isCurLineVertical ? [last[0], ~~e.offsetY + 0.5] : [~~e.offsetX + 0.5, last[1]];
+    }
+    curDrawLine.update();
+  },
 
   // Interface 结束画线时的逻辑
   makeDrawingLineEndPoint() {},
@@ -104,8 +118,13 @@ function clickToEnd() {
   }
   const line = root.curDrawLine;
   const points = line.points;
+  const last2 = points[points.length - 2];
 
-  points[points.length - 1] = this.makeDrawingLineEndPoint();
+  points[points.length - 1] = this.makeDrawingLineEndPoint(last2);
+
+  line.isStartVertical = points[0][1] !== points[1][1];
+  line.isEndVertical = root.isCurLineVertical;
+
   line.update();
   line.endElement = this;
   line.el.silent = false;
