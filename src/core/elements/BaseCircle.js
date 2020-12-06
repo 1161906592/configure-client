@@ -2,12 +2,12 @@ import { Element } from "../Element";
 import { typeEnum } from "../enums";
 import { extend, mixin } from "../helpers";
 import { Draggable } from "../mixins/Draggable";
-import { Resizable } from "../mixins/Resizable";
+import { Container } from "../mixins/Container";
 
 function BaseCircle(opts) {
   Element.call(this, opts);
   Draggable.call(this, opts);
-  Resizable.call(this, opts);
+  Container.call(this, opts);
 }
 
 BaseCircle.prototype = {
@@ -20,7 +20,7 @@ BaseCircle.prototype = {
 
   follow(offset) {
     Element.prototype.follow.call(this, offset);
-    Resizable.prototype.follow.call(this, offset);
+    Container.prototype.follow.call(this, offset);
   },
 
   makeRectVertexes() {
@@ -33,7 +33,7 @@ BaseCircle.prototype = {
   },
 
   followVertex(vertex, offset) {
-    Resizable.prototype.followVertex.call(this, vertex, offset);
+    Container.prototype.followVertex.call(this, vertex, offset);
   },
 
   updateShape(vertex, offset) {
@@ -52,7 +52,7 @@ BaseCircle.prototype = {
 
 extend(BaseCircle, Element);
 mixin(BaseCircle, Draggable);
-mixin(BaseCircle, Resizable);
+mixin(BaseCircle, Container);
 
 function resizeT(circle, offset) {
   circle.y += offset.y / 2;

@@ -89,7 +89,7 @@ Element.prototype = {
     return offset;
   },
 
-  // 默认之作
+  // 默认只进行位置的变换 子类如果有其它属性的变化则重写此方法 重写时不调用
   setConfiguration(configuration) {
     const offset = this.defaultMerge(configuration);
     this.follow(offset);

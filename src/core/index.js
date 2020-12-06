@@ -9,3 +9,8 @@ export { VertexZR } from "./elements/zr/VertexZR";
 export * from "./enums";
 export * from "./createElement";
 export * from "./configurable";
+
+/**
+ * 增加一个容器类型的抽象类，继承这个类的元素可以缩放 添加子元素 连线
+ * 增加直线、贝塞尔曲线类型的连接线
+ **/

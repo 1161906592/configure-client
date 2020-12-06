@@ -15,7 +15,7 @@ function Root(opts) {
   this.curResizeElement = null;
   // 画连接线
   this.curDrawLine = null;
-  this.curDrawLineStartRect = null;
+  this.curDrawLineStartElement = null;
   this.isNewPoint = false;
 }
 
@@ -52,7 +52,7 @@ Root.prototype = {
 
   clearHandler() {
     this.endDrawLine();
-    this.endRectFocus();
+    this.endElementFocus();
   },
 
   startFocus() {
@@ -65,7 +65,7 @@ Root.prototype = {
     });
   },
 
-  endRectFocus() {
+  endElementFocus() {
     if (this.state !== rootStateEnum.focus) return;
     this.state = rootStateEnum.off;
     this.storage.getElementList().forEach(element => {
@@ -113,9 +113,9 @@ Root.prototype = {
         element.lines.forEach(item => {
           item.line = this.storage.getElementById(item.id);
           if (item.isStart) {
-            item.line.startRect = element;
+            item.line.startElement = element;
           } else {
-            item.line.endRect = element;
+            item.line.endElement = element;
           }
         });
       }

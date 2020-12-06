@@ -42,8 +42,8 @@ Polyline.prototype = {
 
   unmount(root) {
     Element.prototype.unmount.call(this, root);
-    this.startRect.removeLine(this);
-    this.endRect.removeLine(this);
+    this.startElement.removeLine(this);
+    this.endElement.removeLine(this);
     this.removeArrow();
   },
 
