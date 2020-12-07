@@ -19,30 +19,26 @@ CircleImplDOM.prototype = {
 
     this.el = el;
 
-    renderProp.call(this);
+    this.mapToView();
   },
 
-  update() {
-    renderProp.call(this);
+  mapToView() {
+    const r = fixCircleRadius(this) + "px";
+    const el = this.el;
+
+    el.style.transform = `translate3d(${this.x - this.r}px, ${this.y - this.r}px, 0)`;
+    el.style.width = r;
+    el.style.height = r;
+
+    if (this.fill) {
+      el.style.background = this.fill;
+    }
+
+    if (this.image) {
+      el.style.background = `url(${this.image}) center/100% 100%`;
+    }
   }
 };
-
-function renderProp() {
-  const r = fixCircleRadius(this) + "px";
-  const el = this.el;
-
-  el.style.transform = `translate3d(${this.x - this.r}px, ${this.y - this.r}px, 0)`;
-  el.style.width = r;
-  el.style.height = r;
-
-  if (this.fill) {
-    el.style.background = this.fill;
-  }
-
-  if (this.image) {
-    el.style.background = `url(${this.image}) center/100% 100%`;
-  }
-}
 
 function fixCircleRadius(circle) {
   return circle.r * 2 + circle.borderWidth / 2;

@@ -5,21 +5,24 @@ function Draggable() {}
 Draggable.prototype = {
   constructor: Draggable,
 
-  addMove() {
+  eventOffsetX: 0,
+
+  eventOffsetY: 0,
+
+  addDrag() {
     const root = this.root;
-    let prevEvent;
     const mousedown = e => {
       if (e.event.button !== 0) return;
-      prevEvent = e;
+
+      this.eventOffsetX = e.offsetX - this.x;
+      this.eventOffsetY = e.offsetY - this.y;
 
       const mousemove = e => {
         e = makeEventPacket(e);
-        const offset = {
-          x: e.offsetX - prevEvent.offsetX,
-          y: e.offsetY - prevEvent.offsetY
-        };
-        this.follow(offset);
-        prevEvent = e;
+        this.attr({
+          x: e.offsetX - this.eventOffsetX,
+          y: e.offsetY - this.eventOffsetY
+        });
       };
 
       const mouseup = () => {

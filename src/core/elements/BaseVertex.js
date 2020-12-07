@@ -19,17 +19,15 @@ BaseVertex.prototype = {
 
   fill: "#fff",
 
-  follow(offset) {
-    this.host.followVertex(this, offset);
+  isUpdateByResize: false,
+
+  update() {
+    Element.prototype.update.call(this);
+    this.isUpdateByResize = false;
+    this.parent.syncWidthVertex(this);
   },
 
-  addToHost(host) {
-    this.host = host;
-    this.root = host.root;
-    this.root.add(this);
-  },
-
-  exportStruct() {}
+  export() {}
 };
 
 extend(BaseVertex, Element);

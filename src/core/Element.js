@@ -1,16 +1,17 @@
-import { eachObj, extend, guid } from "./helpers";
+import { eachObj, guid, mixin } from "./helpers";
 import { Eventful } from "./Eventful";
+import { Child } from "./mixins/Child";
 /**
  * @description 所有元素的抽象类
  **/
 
 function Element(opts) {
   Eventful.call(this, opts);
+  Child.call(this, opts);
   eachObj(opts, (value, key) => {
     this[key] = value;
   });
   this.id = opts.id || guid();
-  this.children = [];
   this.create();
 }
 
@@ -20,6 +21,10 @@ Element.prototype = {
   x: 0,
 
   y: 0,
+
+  root: null,
+
+  el: null,
 
   data: {},
 
@@ -31,79 +36,50 @@ Element.prototype = {
   mount(root) {
     if (this.isMounted) return;
     this.root = root;
-    this.children.forEach(element => {
-      root.add(element);
-    });
+    root.add(this);
     this.isMounted = true;
+  },
+
+  attr(key, value) {
+    if (typeof key === "object") {
+      eachObj(key, (value, key) => {
+        this[key] = value;
+      });
+    } else {
+      this[key] = value;
+    }
+    this.update();
+  },
+
+  update() {
+    this.mapToView();
+    this.updateOffset();
   },
 
   unmount() {
     if (!this.isMounted) return;
-    this.isMounted = false;
+    console.log(this);
     this.parent?.removeChild(this);
-    this.children.forEach(element => {
-      this.root.remove(element);
-    });
-  },
-
-  follow(offset) {
-    this.x += offset.x;
-    this.y += offset.y;
-    this.update();
-
-    this.children.forEach(element => {
-      element.follow(offset);
-    });
+    this.root.remove(this);
+    this.isMounted = false;
   },
 
   // Interface
-  update() {},
+  mapToView() {},
 
-  addChild(child) {
-    child.parent = this;
-    this.children.push(child);
-    this.isMounted && this.root.add(child);
-  },
-
-  removeChild(child) {
-    const idx = this.children.findIndex(d => d === child);
-    if (idx !== -1) {
-      this.children.splice(idx, 1);
-    }
-  },
-
-  setConfiguration(configuration) {
-    eachObj(configuration, (value, key) => {
-      if (key !== "x" && key !== "y") {
-        this[key] = value;
-      }
-    });
-    // 设置位置
-    const offset = { x: 0, y: 0 };
-    if (configuration.x !== undefined) {
-      offset.x = configuration.x - this.x;
-    }
-    if (configuration.y !== undefined) {
-      offset.y = configuration.y - this.y;
-    }
-    this.follow(offset);
-  },
-
-  exportStruct() {
+  export() {
     return {
       type: this.type,
       platform: this.platform,
       id: this.id,
       x: this.x,
       y: this.y,
-      data: this.data,
-      children: this.children.map(element => {
-        return element.exportStruct();
-      })
+      data: this.data
     };
   }
 };
 
-extend(Element, Eventful);
+mixin(Element, Eventful);
+mixin(Element, Child);
 
 export { Element };

@@ -21,22 +21,29 @@ BaseRect.prototype = {
 
   r: 4,
 
-  update() {
-    Container.prototype.updateVertexes.call(this);
+  mount(root) {
+    Element.prototype.mount.call(this, root);
+    Container.prototype.mount.call(this, root);
   },
 
-  follow(offset) {
-    Element.prototype.follow.call(this, offset);
-    Container.prototype.follow.call(this);
+  update() {
+    Element.prototype.update.call(this);
+    Container.prototype.update.call(this);
+  },
+
+  unmount() {
+    Element.prototype.unmount.call(this);
+    Container.prototype.unmount.call(this);
   },
 
   makeRectVertexes() {
     return makeRectVertexes.call(this);
   },
 
-  followVertex(vertex, offset) {
-    Container.prototype.followVertex.call(this, vertex, offset);
-    Container.prototype.updateLines.call(this);
+  updateShapeByVertex(vertex) {
+    this.attr(
+      [resizeRectLT, resizeRectT, resizeRectRT, resizeRectR, resizeRectRB, resizeRectB, resizeRectLB, resizeRectL][vertex.index].call(this, vertex)
+    );
   },
 
   makeLineStartPoint(e) {
@@ -51,24 +58,14 @@ BaseRect.prototype = {
     return makeLineVertexByAngle.call(this, sin, cos);
   },
 
-  updateShape(vertex, offset) {
-    [resizeRectLT, resizeRectT, resizeRectRT, resizeRectR, resizeRectRB, resizeRectB, resizeRectLB, resizeRectL][vertex.index].call(this, offset);
-    this.update();
-  },
-
-  unmount() {
-    Element.prototype.unmount.call(this);
-    Container.prototype.clearLine.call(this);
-  },
-
-  exportStruct() {
+  export() {
     return {
-      ...Element.prototype.exportStruct.call(this),
+      ...Element.prototype.export.call(this),
+      ...Container.prototype.export.call(this),
       width: this.width,
       height: this.height,
       r: this.r,
-      image: this.image,
-      lines: Container.prototype.exportStruct.call(this)
+      image: this.image
     };
   }
 };
@@ -148,57 +145,69 @@ function makeLineEndPoint(last2) {
 }
 
 // 左上
-function resizeRectLT(offset) {
-  this.x += offset.x;
-  this.y += offset.y;
-  this.width -= offset.x;
-  this.height -= offset.y;
+function resizeRectLT(vertex) {
+  return {
+    x: vertex.x,
+    y: vertex.y,
+    width: this.width + this.x - vertex.x,
+    height: this.height + this.y - vertex.y
+  };
 }
 
 // 上
-function resizeRectT(offset) {
-  this.y += offset.y;
-  this.height -= offset.y;
+function resizeRectT(vertex) {
+  return {
+    y: vertex.y,
+    height: this.height + this.y - vertex.y
+  };
 }
 
 // 右上
-function resizeRectRT(offset) {
-  // shape.x -= offset.x;
-  this.width += offset.x;
-  this.y += offset.y;
-  this.height -= offset.y;
+function resizeRectRT(vertex) {
+  return {
+    width: vertex.x - this.x,
+    y: vertex.y,
+    height: this.height + this.y - vertex.y
+  };
 }
 
 // 右
-function resizeRectR(offset) {
-  // shape.x -= offset.x;
-  this.width += offset.x;
+function resizeRectR(vertex) {
+  return {
+    width: vertex.x - this.x
+  };
 }
 
 // 右下
-function resizeRectRB(offset) {
-  // shape.x -= offset.x;
-  this.width += offset.x;
-  this.height += offset.y;
+function resizeRectRB(vertex) {
+  return {
+    width: vertex.x - this.x,
+    height: vertex.y - this.y
+  };
 }
 
 // 下
-function resizeRectB(offset) {
-  // shape.y -= offset.y;
-  this.height += offset.y;
+function resizeRectB(vertex) {
+  return {
+    height: vertex.y - this.y
+  };
 }
 
 // 左下
-function resizeRectLB(offset) {
-  this.x += offset.x;
-  this.width -= offset.x;
-  this.height += offset.y;
+function resizeRectLB(vertex) {
+  return {
+    x: vertex.x,
+    width: this.width + this.x - vertex.x,
+    height: vertex.y - this.y
+  };
 }
 
 // 左
-function resizeRectL(offset) {
-  this.x += offset.x;
-  this.width -= offset.x;
+function resizeRectL(vertex) {
+  return {
+    x: vertex.x,
+    width: this.width + this.x - vertex.x
+  };
 }
 
 export { BaseRect };

@@ -1,12 +1,11 @@
-import { Element } from "../Element";
 import { typeEnum } from "../enums";
 import { Polyline as ZRPolyline } from "zrender";
 import { platformEnum } from "../enums";
 import { extend, lastItem } from "../helpers";
-import { createElement } from "../createElement";
+import { BaseLinkLine } from "./BaseLinkLine";
 
 function Polyline(opts) {
-  Element.call(this, opts);
+  BaseLinkLine.call(this, opts);
 }
 Polyline.prototype = {
   constructor: Polyline,
@@ -20,6 +19,7 @@ Polyline.prototype = {
   useArrow: false,
 
   create() {
+    BaseLinkLine.prototype.create.call(this);
     this.el = new ZRPolyline({
       shape: {
         points: this.points
@@ -32,28 +32,14 @@ Polyline.prototype = {
         textFill: "#999"
       }
     });
-    this.useArrow && this.addArrow();
   },
 
-  mount(root) {
-    Element.prototype.mount.call(this, root);
-    this.arrow && this.root.add(this.arrow);
-  },
-
-  unmount(root) {
-    Element.prototype.unmount.call(this, root);
-    this.startElement.removeLine(this);
-    this.endElement.removeLine(this);
-    this.removeArrow();
-  },
-
-  update() {
+  mapToView() {
     this.el.setShape({
       shape: {
         points: this.points
       }
     });
-    this.useArrow ? this.addArrow() : this.removeArrow();
   },
 
   followHost(newPoint) {
@@ -66,43 +52,26 @@ Polyline.prototype = {
       lineAutoBreak.call(this);
     }
 
-    this.arrow && this.arrow.follow();
+    this.arrow && this.arrow.asyncWithLine();
 
     this.update();
   },
 
-  exportStruct() {
+  export() {
     return {
-      ...Element.prototype.exportStruct.call(this),
+      ...BaseLinkLine.prototype.export.call(this),
       points: this.points,
       isStartVertical: this.isStartVertical,
-      isEndVertical: this.isEndVertical,
-      useArrow: this.useArrow
+      isEndVertical: this.isEndVertical
     };
   },
 
-  addArrow() {
-    if (this.arrow) return;
-    const last = lastItem(this.points);
-    const last2 = lastItem(this.points, 2);
-    this.arrow = createElement({
-      type: typeEnum.arrow,
-      platform: platformEnum.zr,
-      x: last[0],
-      y: last[1],
-      rotation: calcRotation(last2, last),
-      line: this
-    });
-    this.isMounted && this.root.add(this.arrow);
-  },
-
-  removeArrow() {
-    if (!this.arrow || !this.arrow.isMounted) return;
-    this.root.remove(this.arrow);
+  makeArrowVertex() {
+    return [lastItem(this.points), lastItem(this.points, 2)];
   }
 };
 
-extend(Polyline, Element);
+extend(Polyline, BaseLinkLine);
 
 // 与端点相连的点跟随
 function nextVertexFollow() {
@@ -141,10 +110,6 @@ function lineAutoBreak() {
       points.splice(1, 0, [~~(points[0][0] + halfX) + 0.5, points[0][1]], [~~(points[0][0] + halfX) + 0.5, points[1][1]]);
     }
   }
-}
-
-function calcRotation(p1, p2) {
-  return Math.atan2(p1[1] - p2[1], p2[0] - p1[0]) - Math.PI / 2;
 }
 
 export { Polyline };

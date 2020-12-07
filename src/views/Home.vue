@@ -137,7 +137,8 @@ export default {
         x: e.offsetX,
         y: e.offsetY
       });
-      this.root.add(element);
+      element.mount(this.root);
+      // this.root.add(element);
     },
     handleStartDrawLine() {
       this.root.startDrawLine();
@@ -149,13 +150,13 @@ export default {
       this.root.clearHandler();
     },
     handleSave() {
-      const data = this.root.exportStruct();
+      const data = this.root.export();
       console.log(data);
       localStorage.setItem("data", JSON.stringify(data));
     },
     handleSure() {
       console.log(makeConfiguration(this.form.items));
-      this.curElement.setConfiguration(makeConfiguration(this.form.items));
+      this.curElement.attr(makeConfiguration(this.form.items));
       this.curElement.data = makeMap(
         this.form.dataList.filter(d => d.key),
         (map, item) => {
@@ -176,7 +177,7 @@ export default {
         {
           name: "删除",
           handler: () => {
-            this.root.remove(item);
+            item.unmount();
             this.style = null;
           }
         },

@@ -28,7 +28,7 @@ Text.prototype = {
     });
   },
 
-  update() {
+  mapToView() {
     this.el.setStyle({
       x: this.x,
       y: this.y,
@@ -36,9 +36,9 @@ Text.prototype = {
     });
   },
 
-  exportStruct() {
+  export() {
     return {
-      ...Element.prototype.exportStruct.call(this),
+      ...Element.prototype.export.call(this),
       text: this.text
     };
   }

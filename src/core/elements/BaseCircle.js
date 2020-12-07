@@ -16,20 +16,25 @@ BaseCircle.prototype = {
   type: typeEnum.circle,
 
   r: 30,
+
   borderWidth: 1,
 
-  follow(offset) {
-    Element.prototype.follow.call(this, offset);
-    Container.prototype.follow.call(this, offset);
+  mount(root) {
+    Element.prototype.mount.call(this, root);
+    Container.prototype.mount.call(this, root);
+  },
+
+  update() {
+    Element.prototype.update.call(this);
+    Container.prototype.update.call(this);
   },
 
   makeRectVertexes() {
     return makeRectVertexes.call(this);
   },
 
-  followVertex(vertex, offset) {
-    Container.prototype.followVertex.call(this, vertex, offset);
-    Container.prototype.updateLines.call(this);
+  updateShapeByVertex(vertex) {
+    this.attr([resizeT, resizeR, resizeB, resizeL][vertex.index].call(this, vertex));
   },
 
   makeLineStartPoint(e) {
@@ -44,22 +49,17 @@ BaseCircle.prototype = {
     return makeLineVertexByAngle.call(this, sin, cos);
   },
 
-  updateShape(vertex, offset) {
-    [resizeT, resizeR, resizeB, resizeL][vertex.index](this, offset);
-    this.update();
-  },
-
   unmount() {
     Element.prototype.unmount.call(this);
     Container.prototype.clearLine.call(this);
   },
 
-  exportStruct() {
+  export() {
     return {
-      ...Element.prototype.exportStruct.call(this),
+      ...Element.prototype.export.call(this),
+      ...Container.prototype.export.call(this),
       r: this.r,
-      image: this.image,
-      lines: Container.prototype.exportStruct.call(this)
+      image: this.image
     };
   }
 };
@@ -115,24 +115,36 @@ function makeLineEndPoint(last2) {
   return { point: makeLineVertexByAngle.call(this, sin, cos), sin, cos };
 }
 
-function resizeT(circle, offset) {
-  circle.y += offset.y / 2;
-  circle.r -= offset.y / 2;
+function resizeT(vertex) {
+  const r = (this.y + this.r - vertex.y) / 2;
+  return {
+    y: this.y + this.r - r,
+    r: r
+  };
 }
 
-function resizeR(circle, offset) {
-  circle.x += offset.x / 2;
-  circle.r += offset.x / 2;
+function resizeR(vertex) {
+  const r = (vertex.x - this.x) / 2;
+  return {
+    r: r,
+    x: this.x - this.r + r
+  };
 }
 
-function resizeB(circle, offset) {
-  circle.y += offset.y / 2;
-  circle.r += offset.y / 2;
+function resizeB(vertex) {
+  const r = (vertex.y - this.y + this.r) / 2;
+  return {
+    r: r,
+    y: this.y - this.r + r
+  };
 }
 
-function resizeL(circle, offset) {
-  circle.x += offset.x / 2;
-  circle.r -= offset.x / 2;
+function resizeL(vertex) {
+  const r = (this.x + this.r - vertex.x) / 2;
+  return {
+    x: this.x + this.r - r,
+    r: r
+  };
 }
 
 export { BaseCircle };

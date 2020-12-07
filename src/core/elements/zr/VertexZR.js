@@ -13,12 +13,7 @@ VertexZR.prototype = {
 
   platform: platformEnum.zr,
 
-  fill: "#fff",
-
-  update(shape) {
-    BaseVertex.prototype.update.call(this, shape);
-    CircleImplZR.prototype.update.call(this, shape);
-  }
+  fill: "#fff"
 };
 
 extend(VertexZR, BaseVertex);

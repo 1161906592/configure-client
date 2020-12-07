@@ -38,8 +38,7 @@ RectZR.prototype = {
     this.hasImage = !!this.image;
   },
 
-  update() {
-    BaseRect.prototype.update.call(this);
+  mapToView() {
     if (this.hasImage !== !!this.image) {
       this.toggleImage();
       return;

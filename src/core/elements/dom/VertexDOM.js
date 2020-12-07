@@ -11,12 +11,7 @@ function VertexDOM(opts) {
 VertexDOM.prototype = {
   constructor: VertexDOM,
 
-  platform: platformEnum.dom,
-
-  update(shape) {
-    BaseVertex.prototype.update.call(this, shape);
-    CircleImplDOM.prototype.update.call(this, shape);
-  }
+  platform: platformEnum.dom
 };
 
 extend(VertexDOM, BaseVertex);

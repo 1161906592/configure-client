@@ -11,12 +11,7 @@ function CircleDOM(opts) {
 CircleDOM.prototype = {
   constructor: CircleDOM,
 
-  platform: platformEnum.dom,
-
-  update(shape) {
-    BaseCircle.prototype.update.call(this, shape);
-    CircleImplDOM.prototype.update.call(this, shape);
-  }
+  platform: platformEnum.dom
 };
 
 extend(CircleDOM, BaseCircle);

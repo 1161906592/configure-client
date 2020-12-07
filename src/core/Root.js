@@ -23,24 +23,22 @@ Root.prototype = {
   constructor: Root,
   add(element) {
     // console.log(element);
-    element.mount(this);
     this.painter.add(element);
     this.storage.add(element);
     this.handlerProxy.addElement(element);
 
     switch (this.state) {
       case rootStateEnum.focus:
-        element.addMove?.();
+        element.addDrag?.();
         element.addResize?.();
         break;
       case rootStateEnum.drawLine:
-        element.addDrawLine?.();
+        element.addDrawLinkLine?.();
         break;
     }
   },
 
   remove(element) {
-    element.unmount(this);
     element.removeMove?.();
     element.removeResize?.();
     element.removeDrawLine?.();
@@ -60,7 +58,7 @@ Root.prototype = {
     this.clearHandler();
     this.state = rootStateEnum.focus;
     this.storage.getElementList().forEach(element => {
-      element.addMove?.();
+      element.addDrag?.();
       element.addResize?.();
     });
   },
@@ -81,7 +79,7 @@ Root.prototype = {
     this.clearHandler();
     this.state = rootStateEnum.drawLine;
     this.storage.getElementList().forEach(element => {
-      element.addDrawLine?.();
+      element.addDrawLinkLine?.();
     });
   },
 
@@ -93,7 +91,7 @@ Root.prototype = {
     });
   },
 
-  exportStruct() {
+  export() {
     return {
       width: this.el.clientWidth,
       height: this.el.clientHeight,
@@ -101,7 +99,7 @@ Root.prototype = {
         .getElementList()
         .map(element => {
           if (!element.parent) {
-            return element.exportStruct();
+            return element.export();
           }
         })
         .filter(Boolean)
@@ -111,6 +109,7 @@ Root.prototype = {
   flushRectLineRelation() {
     this.storage.getElementList().forEach(element => {
       if (element.isContainer) {
+        console.log(element);
         element.lines.forEach(item => {
           item.line = this.storage.getElementById(item.id);
           if (item.isStart) {

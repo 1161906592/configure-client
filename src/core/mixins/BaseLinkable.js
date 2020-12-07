@@ -1,15 +1,15 @@
 import { makeEventPacket } from "../Eventful";
-import { Polyline } from "..";
 import { lastItem } from "../helpers";
 
-function DrawLine() {
+// 可以添加连接线的类的混入类的抽象类 用于表示其公共部分 只用于混入 不能继承 继承无效
+function BaseLinkable() {
   this.lines = this.lines || [];
 }
 
-DrawLine.prototype = {
-  constructor: DrawLine,
+BaseLinkable.prototype = {
+  constructor: BaseLinkable,
 
-  addDrawLine() {
+  addDrawLinkLine() {
     const root = this.root;
 
     const click = e => {
@@ -48,22 +48,11 @@ DrawLine.prototype = {
   // Interface 开始画线 用于确定起始点
   makeLineStartPoint() {},
 
+  // Interface 开始画线 用于生成对应实现类的实例
+  makeLinkLine() {},
+
   // Interface 画线过程中
-  lineDrawing(e) {
-    const root = this.root;
-    const curDrawLine = root.curDrawLine;
-    if (!curDrawLine) return;
-    const points = curDrawLine.points;
-    if (root.isNewPoint) {
-      root.isNewPoint = false;
-      points.push([~~e.offsetX + 0.5, ~~e.offsetY + 0.5]);
-    } else {
-      const last = lastItem(points, 2);
-      root.isCurLineVertical = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]);
-      points[points.length - 1] = root.isCurLineVertical ? [last[0], ~~e.offsetY + 0.5] : [~~e.offsetX + 0.5, last[1]];
-    }
-    curDrawLine.update();
-  },
+  lineDrawing() {},
 
   // Interface 结束画线时的逻辑
   makeLineEndPoint() {},
@@ -78,13 +67,8 @@ DrawLine.prototype = {
     });
   },
 
+  // 通过与宿主元素的 sin cos关系得到在宿主元素上的交点 用于更新当前线的端点
   makeLineVertexByAngle() {},
-
-  clearLine() {
-    while (this.lines.length) {
-      this.root.remove(this.lines[0].line);
-    }
-  },
 
   removeLine(line) {
     this.lines.splice(
@@ -93,24 +77,30 @@ DrawLine.prototype = {
     );
   },
 
-  exportStruct() {
-    return this.lines.map(item => {
-      return {
-        id: item.id,
-        isStart: item.isStart,
-        sin: item.sin,
-        cos: item.cos
-      };
-    });
+  clearLine() {
+    while (this.lines.length) {
+      this.lines[0].line.unmount();
+    }
+  },
+
+  export() {
+    return {
+      lines: this.lines.map(item => {
+        return {
+          id: item.id,
+          isStart: item.isStart,
+          sin: item.sin,
+          cos: item.cos
+        };
+      })
+    };
   }
 };
 
 // 开始画线
 function clickToStart(e) {
-  const { point, sin, cos } = this.makeLineStartPoint(e);
-  const line = new Polyline({
-    points: [point]
-  });
+  const { line, sin, cos } = this.makeLinkLine(e);
+
   this.lines.push({
     id: line.id,
     isStart: true,
@@ -166,4 +156,4 @@ function clickToEnd() {
   root.curDrawLineStartElement = null;
 }
 
-export { DrawLine };
+export { BaseLinkable };

@@ -32,7 +32,7 @@ CircleImplZR.prototype = {
     this.hasImage = !!this.image;
   },
 
-  update() {
+  mapToView() {
     if (this.hasImage !== !!this.image) {
       this.toggleImage();
       this.hasImage = true;

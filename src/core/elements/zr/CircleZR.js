@@ -17,11 +17,6 @@ CircleZR.prototype = {
 
   fill: "rgba(0, 0, 0, 0)",
 
-  update(shape) {
-    BaseCircle.prototype.update.call(this, shape);
-    CircleImplZR.prototype.update.call(this, shape);
-  },
-
   on(type, handler) {
     BaseCircle.prototype.on.call(this, type, handler);
     ToggleZRImage.prototype.on.call(this, type, handler);

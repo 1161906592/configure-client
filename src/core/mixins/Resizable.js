@@ -31,7 +31,8 @@ Resizable.prototype = {
         y: point[1],
         index
       });
-      vertex.addToHost(this);
+      vertex.addToParent(this);
+      vertex.mount(this.root);
       this.vertexes.push(vertex);
     });
   },
@@ -41,26 +42,27 @@ Resizable.prototype = {
 
   removeVertexes() {
     this.vertexes.forEach(vertex => {
-      this.root.remove(vertex);
+      vertex.removeFromParent();
+      vertex.unmount();
     });
     this.vertexes = [];
   },
 
-  followVertex(vertex, offset) {
-    this.updateShape(vertex, offset);
-    this.updateVertexes();
+  syncWidthVertex(vertex) {
+    this.updateShapeByVertex(vertex);
+    // this.updateVertexes();
   },
 
   // Interface
-  updateShape() {},
+  updateShapeByVertex() {},
 
   updateVertexes() {
     if (!this.vertexes.length) return;
     this.makeRectVertexes().forEach((point, index) => {
-      const item = this.vertexes[index];
-      item.x = point[0];
-      item.y = point[1];
-      item.update();
+      const vertex = this.vertexes[index];
+      vertex.x = point[0];
+      vertex.y = point[1];
+      vertex.mapToView();
     });
   }
 };

@@ -49,14 +49,15 @@ Arrow.prototype = {
     });
   },
 
-  follow() {
+  asyncWithLine() {
     const last = lastItem(this.line.points);
-    this.x = last[0];
-    this.y = last[1];
-    this.update();
+    this.attr({
+      x: last[0],
+      y: last[1]
+    });
   },
 
-  exportStruct() {}
+  export() {}
 };
 
 extend(Arrow, Element);
