@@ -15,7 +15,6 @@ function Root(opts) {
   this.curResizeElement = null;
   // 画连接线
   this.curDrawLine = null;
-  this.curDrawLineStartElement = null;
   this.isNewPoint = false;
 }
 
@@ -108,17 +107,25 @@ Root.prototype = {
 
   flushRectLineRelation() {
     this.storage.getElementList().forEach(element => {
-      if (element.isContainer) {
-        console.log(element);
-        element.lines.forEach(item => {
-          item.line = this.storage.getElementById(item.id);
-          if (item.isStart) {
-            item.line.startElement = element;
-          } else {
-            item.line.endElement = element;
-          }
-        });
+      if (element.isLinkLine) {
+        const startElement = this.storage.getElementById(element.startId);
+        element.startElement = startElement;
+        startElement.lines.push(element);
+        const endElement = this.storage.getElementById(element.endId);
+        element.endElement = endElement;
+        endElement.lines.push(element);
       }
+      // if (element.isContainer) {
+      //   console.log(element);
+      //   element.lines.forEach(item => {
+      //     item.line = this.storage.getElementById(item.id);
+      //     if (item.isStart) {
+      //       item.line.startElement = element;
+      //     } else {
+      //       item.line.endElement = element;
+      //     }
+      //   });
+      // }
     });
   },
 

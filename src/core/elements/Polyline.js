@@ -42,7 +42,7 @@ Polyline.prototype = {
     });
   },
 
-  followHost(newPoint) {
+  followVertexElement(newPoint) {
     const points = this.points;
     points[this.isFollowStart ? 0 : points.length - 1] = newPoint;
 

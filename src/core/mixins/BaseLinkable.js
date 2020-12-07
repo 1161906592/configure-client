@@ -58,12 +58,13 @@ BaseLinkable.prototype = {
   makeLineEndPoint() {},
 
   updateLines() {
-    this.lines.forEach(item => {
-      const line = item.line;
+    this.lines.forEach(line => {
+      line.isFollowStart = line.startElement === this;
 
-      line.isFollowStart = item.isStart;
+      const sin = line.isFollowStart ? line.startSin : line.endSin;
+      const cos = line.isFollowStart ? line.startCos : line.endCos;
 
-      line.followHost(this.makeLineVertexByAngle(item.sin, item.cos));
+      line.followVertexElement(this.makeLineVertexByAngle(sin, cos));
     });
   },
 
@@ -79,21 +80,8 @@ BaseLinkable.prototype = {
 
   clearLine() {
     while (this.lines.length) {
-      this.lines[0].line.unmount();
+      this.lines[0].unmount();
     }
-  },
-
-  export() {
-    return {
-      lines: this.lines.map(item => {
-        return {
-          id: item.id,
-          isStart: item.isStart,
-          sin: item.sin,
-          cos: item.cos
-        };
-      })
-    };
   }
 };
 
@@ -101,22 +89,17 @@ BaseLinkable.prototype = {
 function clickToStart(e) {
   const { line, sin, cos } = this.makeLinkLine(e);
 
-  this.lines.push({
-    id: line.id,
-    isStart: true,
-    sin,
-    cos,
-    line: line
-  });
+  line.startElement = this;
+  line.startSin = sin;
+  line.startCos = cos;
+
+  this.lines.push(line);
 
   const root = this.root;
-  root.curDrawLineStartElement = this;
 
   line.el.silent = true;
 
-  line.startElement = this;
-
-  root.add(line);
+  line.mount(root);
 
   root.curDrawLine = line;
 
@@ -126,10 +109,7 @@ function clickToStart(e) {
 // 结束画线
 function clickToEnd() {
   const root = this.root;
-  if (root.curDrawLineStartElement === this) {
-    // root.remove(root.curDrawLine);
-    // root.curDrawLine
-  }
+
   const line = root.curDrawLine;
   const points = line.points;
   const last2 = lastItem(points, 2);
@@ -138,22 +118,19 @@ function clickToEnd() {
 
   points[points.length - 1] = point;
 
-  this.lines.push({
-    id: line.id,
-    isStart: false,
-    sin,
-    cos,
-    line: line
-  });
+  line.endElement = this;
+  line.endSin = sin;
+  line.endCos = cos;
+
+  this.lines.push(line);
 
   line.isStartVertical = points[0][1] !== points[1][1];
   line.isEndVertical = root.isCurLineVertical;
 
   line.update();
-  line.endElement = this;
+
   line.el.silent = false;
   root.curDrawLine = null;
-  root.curDrawLineStartElement = null;
 }
 
 export { BaseLinkable };

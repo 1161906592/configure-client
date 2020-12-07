@@ -11,6 +11,8 @@ function BaseLinkLine(opts) {
 BaseLinkLine.prototype = {
   constructor: BaseLinkLine,
 
+  isLinkLine: true,
+
   useArrow: false,
 
   create() {
@@ -19,7 +21,7 @@ BaseLinkLine.prototype = {
 
   mount(root) {
     Element.prototype.mount.call(this, root);
-    this.arrow && this.root.add(this.arrow);
+    this.arrow && this.arrow.mount(this.root);
   },
 
   unmount() {
@@ -33,6 +35,8 @@ BaseLinkLine.prototype = {
     Element.prototype.update.call(this);
     this.useArrow ? this.addArrow() : this.removeArrow();
   },
+
+  followVertexElement() {},
 
   addArrow() {
     if (this.arrow) return;
@@ -59,7 +63,14 @@ BaseLinkLine.prototype = {
   export() {
     return {
       ...Element.prototype.export.call(this),
-      useArrow: this.useArrow
+      startId: this.startElement.id,
+      startSin: this.startSin,
+      startCos: this.startCos,
+      endId: this.endElement.id,
+      endSin: this.endSin,
+      endCos: this.endCos,
+      useArrow: this.useArrow,
+      isLinkLine: this.isLinkLine
     };
   }
 };

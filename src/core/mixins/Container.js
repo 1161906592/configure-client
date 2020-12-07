@@ -1,7 +1,6 @@
 import { Resizable } from "./Resizable";
 import { PolylineLinkable } from "./PolylineLinkable";
 import { mixin } from "../helpers";
-import { BaseLinkable } from "./BaseLinkable";
 
 // 容器的抽象类 混入此类的类可以添加children 可以添加连接线 可以缩放
 function Container(opts) {
@@ -51,7 +50,6 @@ Container.prototype = {
 
   export() {
     return {
-      ...BaseLinkable.prototype.export.call(this),
       children: this.children.map(element => {
         return element.export();
       })

@@ -31,7 +31,6 @@ export function structRender(root, structure) {
   structure.elements.forEach(item => {
     createElement(item).mount(root);
   });
-  console.log(root);
   root.flushRectLineRelation();
 }
 
