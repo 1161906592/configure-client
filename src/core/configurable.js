@@ -45,8 +45,13 @@ const configurableList = [
     items: [...rectBaseItems]
   },
   {
-    type: typeEnum.line,
+    type: typeEnum.polyline,
     platform: platformEnum.dom,
+    items: [...lineBaseItems]
+  },
+  {
+    type: typeEnum.polyline,
+    platform: platformEnum.zr,
     items: [...lineBaseItems]
   },
   {

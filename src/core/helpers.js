@@ -71,3 +71,7 @@ export function makeMap(list, fn) {
   });
   return map;
 }
+
+export function fixZrCoordinate(n) {
+  return ~~n + 0.5;
+}

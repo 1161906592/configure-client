@@ -1,11 +1,13 @@
 import { Resizable } from "./Resizable";
 import { PolylineLinkable } from "./PolylineLinkable";
 import { mixin } from "../helpers";
+import { LineLinkable } from "./LineLinkable";
 
 // 容器的抽象类 混入此类的类可以添加children 可以添加连接线 可以缩放
 function Container(opts) {
   Resizable.call(this, opts);
   PolylineLinkable.call(this, opts);
+  LineLinkable.call(this, opts);
   this.children = [];
 }
 
@@ -59,5 +61,6 @@ Container.prototype = {
 
 mixin(Container, Resizable);
 mixin(Container, PolylineLinkable);
+mixin(Container, LineLinkable);
 
 export { Container };

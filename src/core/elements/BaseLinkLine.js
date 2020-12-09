@@ -36,24 +36,40 @@ BaseLinkLine.prototype = {
     this.useArrow ? this.addArrow() : this.removeArrow();
   },
 
-  followVertexElement() {},
+  // Interface 返回表示线的方向的两个点
+  makeDirectionPoints() {},
+
+  followVertexElement(newPoint) {
+    const points = this.points;
+    points[this.isFollowStart ? 0 : points.length - 1] = newPoint;
+
+    this.syncBreakPoints();
+
+    this.arrow && this.arrow.asyncWithLine();
+    this.update();
+  },
+
+  // Interface 调整拐点
+  syncBreakPoints() {},
 
   addArrow() {
     if (this.arrow) return;
-    const [last, last2] = this.makeArrowVertex();
+    const [start, end] = this.makeDirectionPoints();
     this.arrow = createElement({
       type: typeEnum.arrow,
       platform: this.platform,
-      x: last[0],
-      y: last[1],
-      rotation: calcRotation(last2, last),
+      x: end[0],
+      y: end[1],
+      rotation: calcRotation(start, end),
       line: this
     });
     this.isMounted && this.arrow.mount(this.root);
   },
 
-  // Interface
-  makeArrowVertex() {},
+  makeRotation() {
+    const [start, end] = this.makeDirectionPoints();
+    return calcRotation(start, end);
+  },
 
   removeArrow() {
     if (!this.arrow || !this.arrow.isMounted) return;
@@ -63,6 +79,7 @@ BaseLinkLine.prototype = {
   export() {
     return {
       ...Element.prototype.export.call(this),
+      points: this.points,
       startId: this.startElement.id,
       startSin: this.startSin,
       startCos: this.startCos,

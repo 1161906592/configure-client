@@ -1,4 +1,4 @@
-import { Polyline } from "..";
+import { createElement, platformEnum, typeEnum } from "..";
 import { lastItem, mixin } from "../helpers";
 import { BaseLinkable } from "./BaseLinkable";
 
@@ -9,9 +9,17 @@ function PolylineLinkable() {
 PolylineLinkable.prototype = {
   constructor: PolylineLinkable,
 
+  addDrawPolyLine() {
+    BaseLinkable.prototype.addDrawLinkLine.call(this);
+    this.makeLinkLine = PolylineLinkable.prototype.makeLinkLine;
+    this.lineDrawing = PolylineLinkable.prototype.lineDrawing;
+  },
+
   makeLinkLine(e) {
     const { point, sin, cos } = this.makeLineStartPoint(e);
-    const line = new Polyline({
+    const line = createElement({
+      type: typeEnum.polyline,
+      platform: platformEnum.zr,
       points: [point]
     });
     return { line, sin, cos };
@@ -25,11 +33,11 @@ PolylineLinkable.prototype = {
     const points = curDrawLine.points;
     if (root.isNewPoint) {
       root.isNewPoint = false;
-      points.push([~~e.offsetX + 0.5, ~~e.offsetY + 0.5]);
+      points.push([e.offsetX, e.offsetY]);
     } else {
       const last = lastItem(points, 2);
       root.isCurLineVertical = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]);
-      points[points.length - 1] = root.isCurLineVertical ? [last[0], ~~e.offsetY + 0.5] : [~~e.offsetX + 0.5, last[1]];
+      points[points.length - 1] = root.isCurLineVertical ? [last[0], e.offsetY] : [e.offsetX, last[1]];
     }
     curDrawLine.update();
   }

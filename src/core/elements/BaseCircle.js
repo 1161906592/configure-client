@@ -41,8 +41,8 @@ BaseCircle.prototype = {
     return makeLineStartPoint.call(this, e);
   },
 
-  makeLineEndPoint(e) {
-    return makeLineEndPoint.call(this, e);
+  makeLineEndPoint(point1, point2) {
+    return makeLineEndPoint.call(this, point1, point2);
   },
 
   makeLineVertexByAngle(sin, cos) {
@@ -93,26 +93,43 @@ function makeLineStartPoint(e) {
   return { point: makeLineVertexByAngle.call(this, sin, cos), sin, cos };
 }
 
-function makeLineEndPoint(last2) {
-  const center = [this.x, this.y];
+function makeLineEndPoint(point1, point2) {
+  const point = calcLineCross.call(this, point1, point2);
 
-  let sin;
-  let cos;
-  if (this.root.isCurLineVertical) {
-    cos = (last2[0] - center[0]) / this.r;
-    sin = Math.sqrt(1 - cos ** 2);
-    if (last2[1] < this.y) {
-      sin = -sin;
-    }
-  } else {
-    sin = (last2[1] - center[1]) / this.r;
-    cos = Math.sqrt(1 - sin ** 2);
-    if (last2[0] < this.x) {
-      cos = -cos;
-    }
-  }
+  const sin = (point[1] - this.y) / this.r;
+  const cos = (point[0] - this.x) / this.r;
 
   return { point: makeLineVertexByAngle.call(this, sin, cos), sin, cos };
+}
+
+function calcLineCross([x1, y1], [x2, y2]) {
+  if (x1 === x2) {
+    if (y1 < this.y - this.r) {
+      return [x1, this.y - Math.sqrt(this.r ** 2 - (this.x - x1) ** 2)];
+    } else {
+      return [x1, this.y + Math.sqrt(this.r ** 2 - (this.x - x1) ** 2)];
+    }
+  }
+  const k = (y2 - y1) / (x2 - x1);
+  const b = y1 - k * x1;
+  const c = -this.x;
+  const d = -this.y;
+  const r = this.r;
+
+  const sqrt = Math.sqrt((k ** 2 + 1) * r ** 2 - c ** 2 * k ** 2 + 2 * c * (b + d) * k - d ** 2 - 2 * b * d - b ** 2);
+  const a2 = k ** 2 + 1;
+  const b1 = (b + d) * k + c;
+
+  const x11 = -(b1 + sqrt) / a2;
+  const y11 = k * x11 + b;
+  if (x1 < x11) {
+    return [x11, y11];
+  }
+  const x22 = -(b1 - sqrt) / a2;
+  const y22 = k * x22 + b;
+  if (x1 > x22) {
+    return [x22, y22];
+  }
 }
 
 function resizeT(vertex) {
@@ -124,7 +141,7 @@ function resizeT(vertex) {
 }
 
 function resizeR(vertex) {
-  const r = (vertex.x - this.x) / 2;
+  const r = (vertex.x - this.x + this.r) / 2;
   return {
     r: r,
     x: this.x - this.r + r

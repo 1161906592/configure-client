@@ -42,7 +42,8 @@ Arrow.prototype = {
 
   update() {
     fixArrowCenter(this);
-    this.el.attr("origin", [this.x, this.y]);
+    this.el.origin = [this.x, this.y];
+    this.el.rotation = this.rotation;
     this.el.setShape({
       x: this.x,
       y: this.y
@@ -53,7 +54,8 @@ Arrow.prototype = {
     const last = lastItem(this.line.points);
     this.attr({
       x: last[0],
-      y: last[1]
+      y: last[1],
+      rotation: this.line.makeRotation()
     });
   },
 

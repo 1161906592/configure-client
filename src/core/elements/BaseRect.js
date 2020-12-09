@@ -50,8 +50,8 @@ BaseRect.prototype = {
     return makeLineStartPoint.call(this, e);
   },
 
-  makeLineEndPoint(e) {
-    return makeLineEndPoint.call(this, e);
+  makeLineEndPoint(point1, point2) {
+    return makeLineEndPoint.call(this, point1, point2);
   },
 
   makeLineVertexByAngle(sin, cos) {
@@ -120,28 +120,47 @@ function makeLineStartPoint(e) {
   return { point: makeLineVertexByAngle.call(this, sin, cos), sin, cos };
 }
 
-function makeLineEndPoint(last2) {
-  const center = [this.x + this.width / 2, this.y + this.height / 2];
+function makeLineEndPoint(point1, point2) {
+  const point = calcLineCross.call(this, point1, point2);
 
-  let sin;
-  let cos;
-  if (this.root.isCurLineVertical) {
-    const r = Math.sqrt((last2[0] - center[0]) ** 2 + (this.height / 2) ** 2);
-    cos = (last2[0] - center[0]) / r;
-    sin = Math.sqrt(1 - cos ** 2);
-    if (last2[1] < center[1]) {
-      sin = -sin;
+  const center = [this.x + this.width / 2, this.y + this.height / 2];
+  const r = Math.sqrt((point[0] - center[0]) ** 2 + (point[1] - center[1]) ** 2);
+
+  const sin = (point[1] - center[1]) / r;
+  const cos = (point[0] - center[0]) / r;
+
+  return { point: point, sin, cos };
+}
+
+// 计算直线与矩形的交点
+function calcLineCross([x1, y1], [x2, y2]) {
+  if (x1 === x2) {
+    if (y1 < this.y) {
+      return [x1, this.y];
+    } else {
+      return [x1, this.y + this.height];
     }
   } else {
-    const r = Math.sqrt((last2[1] - center[1]) ** 2 + (this.width / 2) ** 2);
-    sin = (last2[1] - center[1]) / r;
-    cos = Math.sqrt(1 - sin ** 2);
-    if (last2[0] < center[0]) {
-      cos = -cos;
+    // y = k * x + b
+    const k = (y2 - y1) / (x2 - x1);
+    const b = y1 - k * x1;
+    const cross1 = [(this.y - b) / k, this.y]; // 上边交点
+    if (y1 < this.y && cross1[0] >= this.x && cross1[0] <= this.x + this.width) {
+      return cross1;
+    }
+    const cross2 = [this.x + this.width, k * (this.x + this.width) + b]; // 右边交点
+    if (x1 > this.x + this.width && cross2[1] >= this.y && cross2[1] <= this.y + this.height) {
+      return cross2;
+    }
+    const cross3 = [(this.y + this.height - b) / k, this.y + this.height]; // 下边交点
+    if (y1 > this.y + this.height && cross3[0] >= this.x && cross3[0] <= this.x + this.width) {
+      return cross3;
+    }
+    const cross4 = [this.x, k * this.x + b]; // 左边交点
+    if (x1 < this.x && cross4[1] >= this.y && cross4[1] <= this.y + this.height) {
+      return cross4;
     }
   }
-
-  return { point: makeLineVertexByAngle.call(this, sin, cos), sin, cos };
 }
 
 // 左上

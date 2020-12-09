@@ -32,7 +32,7 @@ Root.prototype = {
         element.addResize?.();
         break;
       case rootStateEnum.drawLine:
-        element.addDrawLinkLine?.();
+        element.addDrawPolyLine?.();
         break;
     }
   },
@@ -40,7 +40,7 @@ Root.prototype = {
   remove(element) {
     element.removeMove?.();
     element.removeResize?.();
-    element.removeDrawLine?.();
+    element.removeDrawLinkLine?.();
 
     this.painter.remove(element);
     this.storage.remove(element);
@@ -62,8 +62,8 @@ Root.prototype = {
     });
   },
 
+  // 结束元素可选择
   endElementFocus() {
-    if (this.state !== rootStateEnum.focus) return;
     this.state = rootStateEnum.off;
     this.storage.getElementList().forEach(element => {
       element.removeMove?.();
@@ -72,21 +72,31 @@ Root.prototype = {
     this.curResizeElement = null;
   },
 
-  // 画线
+  // 画直线
   startDrawLine() {
     if (this.state === rootStateEnum.drawLine) return;
     this.clearHandler();
     this.state = rootStateEnum.drawLine;
     this.storage.getElementList().forEach(element => {
-      element.addDrawLinkLine?.();
+      element.addDrawLine?.();
     });
   },
 
+  // 画折线
+  startDrawPolyLine() {
+    if (this.state === rootStateEnum.drawPolyLine) return;
+    this.clearHandler();
+    this.state = rootStateEnum.drawPolyLine;
+    this.storage.getElementList().forEach(element => {
+      element.addDrawPolyLine?.();
+    });
+  },
+
+  // 结束画线
   endDrawLine() {
-    if (this.state !== rootStateEnum.drawLine) return;
     this.state = rootStateEnum.off;
     this.storage.getElementList().forEach(element => {
-      element.removeDrawLine?.();
+      element.removeDrawLinkLine?.();
     });
   },
 
@@ -115,17 +125,6 @@ Root.prototype = {
         element.endElement = endElement;
         endElement.lines.push(element);
       }
-      // if (element.isContainer) {
-      //   console.log(element);
-      //   element.lines.forEach(item => {
-      //     item.line = this.storage.getElementById(item.id);
-      //     if (item.isStart) {
-      //       item.line.startElement = element;
-      //     } else {
-      //       item.line.endElement = element;
-      //     }
-      //   });
-      // }
     });
   },
 

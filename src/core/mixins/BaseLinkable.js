@@ -1,5 +1,4 @@
 import { makeEventPacket } from "../Eventful";
-import { lastItem } from "../helpers";
 
 // 可以添加连接线的类的混入类的抽象类 用于表示其公共部分 只用于混入 不能继承 继承无效
 function BaseLinkable() {
@@ -40,7 +39,7 @@ BaseLinkable.prototype = {
 
     this.on("click", click);
 
-    this.removeDrawLine = () => {
+    this.removeDrawLinkLine = () => {
       this.off("click", click);
     };
   },
@@ -111,23 +110,23 @@ function clickToEnd() {
   const root = this.root;
 
   const line = root.curDrawLine;
+  const [last2, last] = line.makeDirectionPoints();
+  console.log([last2, last]);
+  const { point, sin, cos } = this.makeLineEndPoint(last2, last);
+
   const points = line.points;
-  const last2 = lastItem(points, 2);
-
-  const { point, sin, cos } = this.makeLineEndPoint(last2);
-
   points[points.length - 1] = point;
+  line.attr({
+    points: points
+  });
+  line.isStartVertical = points[0][1] !== points[1][1];
+  line.isEndVertical = root.isCurLineVertical;
 
   line.endElement = this;
   line.endSin = sin;
   line.endCos = cos;
 
   this.lines.push(line);
-
-  line.isStartVertical = points[0][1] !== points[1][1];
-  line.isEndVertical = root.isCurLineVertical;
-
-  line.update();
 
   line.el.silent = false;
   root.curDrawLine = null;

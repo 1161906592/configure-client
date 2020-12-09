@@ -21,10 +21,10 @@ Child.prototype = {
     this.parent = null;
   },
 
-  syncWithParent(parent) {
+  syncWithParent() {
     this.attr({
-      x: parent.x + this.parentOffsetX,
-      y: parent.y + this.parentOffsetY
+      x: this.parent.x + this.parentOffsetX,
+      y: this.parent.y + this.parentOffsetY
     });
   },
 

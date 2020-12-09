@@ -1,16 +1,17 @@
 import { typeEnum } from "../enums";
 import { Polyline as ZRPolyline } from "zrender";
 import { platformEnum } from "../enums";
-import { extend, lastItem } from "../helpers";
+import { extend, fixZrCoordinate, lastItem } from "../helpers";
 import { BaseLinkLine } from "./BaseLinkLine";
 
 function Polyline(opts) {
   BaseLinkLine.call(this, opts);
 }
+
 Polyline.prototype = {
   constructor: Polyline,
 
-  type: typeEnum.line,
+  type: typeEnum.polyline,
 
   platform: platformEnum.zr,
 
@@ -22,7 +23,7 @@ Polyline.prototype = {
     BaseLinkLine.prototype.create.call(this);
     this.el = new ZRPolyline({
       shape: {
-        points: this.points
+        points: fixCoordinate(this.points)
       },
       style: {
         lineWidth: 1,
@@ -34,44 +35,41 @@ Polyline.prototype = {
     });
   },
 
+  makeDirectionPoints() {
+    const points = this.points;
+    return [lastItem(points, 2), lastItem(points)];
+  },
+
   mapToView() {
     this.el.setShape({
-      shape: {
-        points: this.points
-      }
+      points: fixCoordinate(this.points)
     });
   },
 
-  followVertexElement(newPoint) {
-    const points = this.points;
-    points[this.isFollowStart ? 0 : points.length - 1] = newPoint;
-
-    if (points.length > 2) {
+  syncBreakPoints() {
+    if (this.points.length > 2) {
       nextVertexFollow.call(this);
     } else {
       lineAutoBreak.call(this);
     }
-
-    this.arrow && this.arrow.asyncWithLine();
-
-    this.update();
   },
 
   export() {
     return {
       ...BaseLinkLine.prototype.export.call(this),
-      points: this.points,
       isStartVertical: this.isStartVertical,
       isEndVertical: this.isEndVertical
     };
-  },
-
-  makeArrowVertex() {
-    return [lastItem(this.points), lastItem(this.points, 2)];
   }
 };
 
 extend(Polyline, BaseLinkLine);
+
+function fixCoordinate(points) {
+  return points.map(([x, y]) => {
+    return [fixZrCoordinate(x), fixZrCoordinate(y)];
+  });
+}
 
 // 与端点相连的点跟随
 function nextVertexFollow() {

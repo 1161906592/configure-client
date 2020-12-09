@@ -1,8 +1,9 @@
 export const typeEnum = {
   rect: "rect",
-  line: "line",
   circle: "circle",
   vertex: "vertex",
+  polyline: "polyline",
+  line: "line",
   arrow: "arrow",
   text: "text"
 };
@@ -21,5 +22,6 @@ export const fieldTypeEnum = {
 export const rootStateEnum = {
   off: 1,
   focus: 2,
-  drawLine: 3
+  drawLine: 3,
+  drawPolyLine: 4
 };

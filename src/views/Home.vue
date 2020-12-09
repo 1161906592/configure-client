@@ -6,7 +6,8 @@
       <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'dom')">DOM圆</el-button>
       <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'zr')">CANVAS圆</el-button>
       <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('text', 'zr')">文字</el-button>
-      <el-button type="primary" size="small" @click="handleStartDrawLine">画线</el-button>
+      <el-button type="primary" size="small" @click="handleStartDrawPolyLine">折线</el-button>
+      <el-button type="primary" size="small" @click="handleStartDrawLine">直线</el-button>
       <el-button type="primary" size="small" @click="handleStartFocus">选择</el-button>
       <el-button type="primary" size="small" @click="handleClearHandler">配置</el-button>
       <el-button type="primary" size="small" @click="handleSave">保存</el-button>
@@ -139,6 +140,9 @@ export default {
       });
       element.mount(this.root);
       // this.root.add(element);
+    },
+    handleStartDrawPolyLine() {
+      this.root.startDrawPolyLine();
     },
     handleStartDrawLine() {
       this.root.startDrawLine();

@@ -58,7 +58,6 @@ Element.prototype = {
 
   unmount() {
     if (!this.isMounted) return;
-    console.log(this);
     this.parent?.removeChild(this);
     this.root.remove(this);
     this.isMounted = false;
