@@ -36,42 +36,27 @@ const textBaseItems = [...elementBaseItems, { prop: "text", label: "文字", typ
 const configurableList = [
   {
     type: typeEnum.rect,
-    platform: platformEnum.dom,
-    items: [...rectBaseItems]
-  },
-  {
-    type: typeEnum.rect,
-    platform: platformEnum.zr,
+    platform: platformEnum.svg,
     items: [...rectBaseItems]
   },
   {
     type: typeEnum.polyline,
-    platform: platformEnum.dom,
-    items: [...lineBaseItems]
-  },
-  {
-    type: typeEnum.polyline,
-    platform: platformEnum.zr,
+    platform: platformEnum.svg,
     items: [...lineBaseItems]
   },
   {
     type: typeEnum.line,
-    platform: platformEnum.zr,
+    platform: platformEnum.svg,
     items: [...lineBaseItems]
   },
   {
     type: typeEnum.circle,
-    platform: platformEnum.dom,
-    items: [...circleBaseItems]
-  },
-  {
-    type: typeEnum.circle,
-    platform: platformEnum.zr,
+    platform: platformEnum.svg,
     items: [...circleBaseItems]
   },
   {
     type: typeEnum.text,
-    platform: platformEnum.zr,
+    platform: platformEnum.svg,
     items: [...textBaseItems]
   }
 ];

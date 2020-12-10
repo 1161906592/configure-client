@@ -1,11 +1,13 @@
 <template>
   <div>
     <div class="header">
-      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'dom')">DOM矩形</el-button>
-      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'zr')">CANVAS矩形</el-button>
-      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'dom')">DOM圆</el-button>
-      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'zr')">CANVAS圆</el-button>
-      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('text', 'zr')">文字</el-button>
+      <!--      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'dom')">DOM矩形</el-button>-->
+      <!--      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'zr')">CANVAS矩形</el-button>-->
+      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'svg')">SVG矩形</el-button>
+      <!--      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'dom')">DOM圆</el-button>-->
+      <!--      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'zr')">CANVAS圆</el-button>-->
+      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'svg')">SVG圆</el-button>
+      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('text', 'svg')">文字</el-button>
       <el-button type="primary" size="small" @click="handleStartDrawPolyLine">折线</el-button>
       <el-button type="primary" size="small" @click="handleStartDrawLine">直线</el-button>
       <el-button type="primary" size="small" @click="handleStartFocus">选择</el-button>
@@ -83,11 +85,9 @@ export default {
       fieldTypeEnum: Object.freeze(fieldTypeEnum),
       subVisible: false,
       subTypeOptions: [
-        { label: "DOM矩形", type: typeEnum.rect, platform: platformEnum.dom },
-        { label: "CANVAS矩形", type: typeEnum.rect, platform: platformEnum.zr },
-        { label: "DOM圆", type: typeEnum.circle, platform: platformEnum.dom },
-        { label: "CANVAS圆", type: typeEnum.circle, platform: platformEnum.zr },
-        { label: "文字", type: typeEnum.text, platform: platformEnum.zr }
+        { label: "矩形", type: typeEnum.rect, platform: platformEnum.svg },
+        { label: "圆", type: typeEnum.circle, platform: platformEnum.svg },
+        { label: "文字", type: typeEnum.text, platform: platformEnum.svg }
       ],
       subIndex: 0
     };

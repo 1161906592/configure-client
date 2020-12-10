@@ -10,7 +10,8 @@ export const typeEnum = {
 
 export const platformEnum = {
   dom: "dom",
-  zr: "zr"
+  zr: "zr",
+  svg: "svg"
 };
 
 export const fieldTypeEnum = {

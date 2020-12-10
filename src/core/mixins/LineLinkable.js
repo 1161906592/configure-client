@@ -23,7 +23,7 @@ LineLinkable.prototype = {
     } = this.makeLineStartPoint(e);
     const line = createElement({
       type: typeEnum.line,
-      platform: platformEnum.zr,
+      platform: platformEnum.svg,
       points: [
         [x, y],
         [x, y]
@@ -38,7 +38,7 @@ LineLinkable.prototype = {
     const curDrawLine = root.curDrawLine;
     if (!curDrawLine) return;
     const points = curDrawLine.points;
-    points[1] = [e.offsetX, e.offsetY];
+    points[1] = [e.offsetX - 1, e.offsetY - 1];
     curDrawLine.attr({
       points
     });

@@ -21,7 +21,7 @@ function Root(opts) {
 Root.prototype = {
   constructor: Root,
   add(element) {
-    // console.log(element);
+    console.log(element);
     this.painter.add(element);
     this.storage.add(element);
     this.handlerProxy.addElement(element);

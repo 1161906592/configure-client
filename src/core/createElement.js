@@ -1,28 +1,22 @@
 import { typeEnum } from "./enums";
 import { platformEnum } from "./enums";
 import { makeMap } from "./helpers";
-import { RectDOM } from "./elements/dom/RectDOM";
-import { RectZR } from "./elements/zr/RectZR";
-import { Polyline } from "./elements/Polyline";
-import { Line } from "./elements/Line";
-import { CircleDOM } from "./elements/dom/CircleDOM";
-import { CircleZR } from "./elements/zr/CircleZR";
-import { VertexDOM } from "./elements/dom/VertexDOM";
-import { VertexZR } from "./elements/zr/VertexZR";
-import { Arrow } from "./elements/Arrow";
-import { Text } from "./elements/Text";
+import { ArrowSvg } from "./elements/impl/ArrowSvg";
+import { RectSvg } from "./elements/impl/RectSvg";
+import { VertexSvg } from "./elements/impl/VertexSvg";
+import { CircleSvg } from "./elements/impl/CircleSvg";
+import { LineSvg } from "./elements/impl/LineSvg";
+import { PolylineSvg } from "./elements/impl/PolylineSvg";
+import { TextSvg } from "./elements/impl/TextSvg";
 
 const implList = [
-  { type: typeEnum.rect, platform: platformEnum.dom, Constructor: RectDOM },
-  { type: typeEnum.rect, platform: platformEnum.zr, Constructor: RectZR },
-  { type: typeEnum.polyline, platform: platformEnum.zr, Constructor: Polyline },
-  { type: typeEnum.line, platform: platformEnum.zr, Constructor: Line },
-  { type: typeEnum.circle, platform: platformEnum.dom, Constructor: CircleDOM },
-  { type: typeEnum.circle, platform: platformEnum.zr, Constructor: CircleZR },
-  { type: typeEnum.vertex, platform: platformEnum.dom, Constructor: VertexDOM },
-  { type: typeEnum.vertex, platform: platformEnum.zr, Constructor: VertexZR },
-  { type: typeEnum.arrow, platform: platformEnum.zr, Constructor: Arrow },
-  { type: typeEnum.text, platform: platformEnum.zr, Constructor: Text }
+  { type: typeEnum.rect, platform: platformEnum.svg, Constructor: RectSvg },
+  { type: typeEnum.polyline, platform: platformEnum.svg, Constructor: PolylineSvg },
+  { type: typeEnum.line, platform: platformEnum.svg, Constructor: LineSvg },
+  { type: typeEnum.circle, platform: platformEnum.svg, Constructor: CircleSvg },
+  { type: typeEnum.vertex, platform: platformEnum.svg, Constructor: VertexSvg },
+  { type: typeEnum.arrow, platform: platformEnum.svg, Constructor: ArrowSvg },
+  { type: typeEnum.text, platform: platformEnum.svg, Constructor: TextSvg }
 ];
 
 const typeConstructorMap = makeMap(implList, (map, item) => {

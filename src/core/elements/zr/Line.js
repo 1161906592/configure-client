@@ -1,7 +1,7 @@
-import { platformEnum, typeEnum } from "../enums";
-import { BaseLinkLine } from "./BaseLinkLine";
+import { platformEnum, typeEnum } from "../../enums";
+import { BaseLinkLine } from "../BaseLinkLine";
 import { Line as ZRLine } from "zrender";
-import { extend, fixZrCoordinate } from "../helpers";
+import { extend, fixZrCoordinate } from "../../helpers";
 
 function Line(opts) {
   BaseLinkLine.call(this, opts);

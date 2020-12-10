@@ -1,13 +1,17 @@
 import { platformEnum } from "./enums";
-import { init } from "zrender";
+import { createSvgNode } from "./helpers";
 
 function Painter(root) {
-  root.style.position = "relative";
-  root.style.overflow = "hidden";
+  const svg = createSvgNode("svg");
 
-  this.domRoot = root;
+  root.appendChild(svg);
 
-  this.zrRoot = init(root);
+  svg.setAttribute("width", root.clientWidth);
+  svg.setAttribute("height", root.clientHeight);
+
+  svg.style.cssText = "position: absolute;left: 0;top:0;";
+
+  this.svgRoot = svg;
 }
 
 Painter.prototype = {
@@ -21,6 +25,9 @@ Painter.prototype = {
       case platformEnum.zr:
         this.zrRoot.add(element.el);
         break;
+      case platformEnum.svg:
+        this.svgRoot.appendChild(element.el);
+        break;
     }
   },
 
@@ -31,6 +38,9 @@ Painter.prototype = {
         break;
       case platformEnum.zr:
         this.zrRoot.remove(element.el);
+        break;
+      case platformEnum.svg:
+        this.svgRoot.removeChild(element.el);
         break;
     }
   }

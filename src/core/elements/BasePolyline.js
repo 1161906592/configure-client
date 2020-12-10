@@ -1,49 +1,32 @@
 import { typeEnum } from "../enums";
-import { Polyline as ZRPolyline } from "zrender";
-import { platformEnum } from "../enums";
-import { extend, fixZrCoordinate, lastItem } from "../helpers";
+import { extend, lastItem } from "../helpers";
 import { BaseLinkLine } from "./BaseLinkLine";
 
-function Polyline(opts) {
+function BasePolyline(opts) {
   BaseLinkLine.call(this, opts);
 }
 
-Polyline.prototype = {
-  constructor: Polyline,
+BasePolyline.prototype = {
+  constructor: BasePolyline,
 
   type: typeEnum.polyline,
 
-  platform: platformEnum.zr,
+  points: [
+    [0, 0],
+    [0, 0]
+  ],
 
-  points: [[0, 0]],
+  color: "#000",
 
   useArrow: false,
 
   create() {
     BaseLinkLine.prototype.create.call(this);
-    this.el = new ZRPolyline({
-      shape: {
-        points: fixCoordinate(this.points)
-      },
-      style: {
-        lineWidth: 1,
-        stroke: "#000",
-        text: "",
-        fontSize: 16,
-        textFill: "#999"
-      }
-    });
   },
 
   makeDirectionPoints() {
     const points = this.points;
     return [lastItem(points, 2), lastItem(points)];
-  },
-
-  mapToView() {
-    this.el.setShape({
-      points: fixCoordinate(this.points)
-    });
   },
 
   syncBreakPoints() {
@@ -63,13 +46,7 @@ Polyline.prototype = {
   }
 };
 
-extend(Polyline, BaseLinkLine);
-
-function fixCoordinate(points) {
-  return points.map(([x, y]) => {
-    return [fixZrCoordinate(x), fixZrCoordinate(y)];
-  });
-}
+extend(BasePolyline, BaseLinkLine);
 
 // 与端点相连的点跟随
 function nextVertexFollow() {
@@ -110,4 +87,4 @@ function lineAutoBreak() {
   }
 }
 
-export { Polyline };
+export { BasePolyline };

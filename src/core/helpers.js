@@ -75,3 +75,7 @@ export function makeMap(list, fn) {
 export function fixZrCoordinate(n) {
   return ~~n + 0.5;
 }
+
+export function createSvgNode(qualifiedName) {
+  return document.createElementNS("http://www.w3.org/2000/svg", qualifiedName);
+}

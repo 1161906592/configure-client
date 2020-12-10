@@ -71,6 +71,7 @@ BaseLinkable.prototype = {
   makeLineVertexByAngle() {},
 
   removeLine(line) {
+    console.log(this);
     this.lines.splice(
       this.lines.findIndex(d => d.line === line),
       1
@@ -111,7 +112,7 @@ function clickToEnd() {
 
   const line = root.curDrawLine;
   const [last2, last] = line.makeDirectionPoints();
-  console.log([last2, last]);
+
   const { point, sin, cos } = this.makeLineEndPoint(last2, last);
 
   const points = line.points;

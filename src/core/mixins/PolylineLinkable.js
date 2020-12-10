@@ -19,7 +19,7 @@ PolylineLinkable.prototype = {
     const { point, sin, cos } = this.makeLineStartPoint(e);
     const line = createElement({
       type: typeEnum.polyline,
-      platform: platformEnum.zr,
+      platform: platformEnum.svg,
       points: [point]
     });
     return { line, sin, cos };
@@ -37,7 +37,7 @@ PolylineLinkable.prototype = {
     } else {
       const last = lastItem(points, 2);
       root.isCurLineVertical = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]);
-      points[points.length - 1] = root.isCurLineVertical ? [last[0], e.offsetY] : [e.offsetX, last[1]];
+      points[points.length - 1] = root.isCurLineVertical ? [last[0], e.offsetY - 1] : [e.offsetX - 1, last[1]];
     }
     curDrawLine.update();
   }

@@ -1,7 +1,7 @@
 import { platformEnum } from "./enums";
 
 function Eventful() {
-  if (this.platform === platformEnum.dom) {
+  if (this.platform === platformEnum.dom || this.platform === platformEnum.svg) {
     this.handlerMap = new Map();
   }
 }
@@ -14,6 +14,9 @@ Eventful.prototype = {
       case platformEnum.dom:
         onDOM.call(this, type, handler);
         break;
+      case platformEnum.svg:
+        onDOM.call(this, type, handler);
+        break;
       case platformEnum.zr:
         onZR.call(this, type, handler);
         break;
@@ -23,6 +26,9 @@ Eventful.prototype = {
   off(type, handler) {
     switch (this.platform) {
       case platformEnum.dom:
+        offDOM.call(this, type, handler);
+        break;
+      case platformEnum.svg:
         offDOM.call(this, type, handler);
         break;
       case platformEnum.zr:
