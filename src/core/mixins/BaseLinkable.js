@@ -72,6 +72,7 @@ BaseLinkable.prototype = {
 
   removeLine(line) {
     console.log(this);
+    // todo fix 删除元素不能删除线的bug
     this.lines.splice(
       this.lines.findIndex(d => d.line === line),
       1

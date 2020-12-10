@@ -21,6 +21,8 @@ BaseRect.prototype = {
 
   r: 4,
 
+  hasImage: false,
+
   mount(root) {
     Element.prototype.mount.call(this, root);
     Container.prototype.mount.call(this, root);

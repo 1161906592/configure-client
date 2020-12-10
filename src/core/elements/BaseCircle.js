@@ -19,6 +19,8 @@ BaseCircle.prototype = {
 
   borderWidth: 1,
 
+  hasImage: false,
+
   mount(root) {
     Element.prototype.mount.call(this, root);
     Container.prototype.mount.call(this, root);

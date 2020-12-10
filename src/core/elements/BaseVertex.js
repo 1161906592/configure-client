@@ -19,6 +19,8 @@ BaseVertex.prototype = {
 
   fill: "#fff",
 
+  hasImage: false,
+
   isUpdateByResize: false,
 
   update() {

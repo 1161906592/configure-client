@@ -12,12 +12,16 @@ RectSvg.prototype = {
   platform: platformEnum.svg,
 
   create() {
-    const el = (this.el = document.createElementNS("http://www.w3.org/2000/svg", "g"));
-    el.setAttribute("fill", "rgba(0,0,0,0)");
-    el.setAttribute("stroke-width", 1);
-    el.setAttribute("stroke", "rgb(0,0,0)");
-    el.style.cursor = "pointer";
-    // foreignObject.appendChild(image);
+    this.el = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    this.el.setAttribute("fill", "rgba(0,0,0,0)");
+    this.el.setAttribute("stroke-width", 1);
+    this.el.setAttribute("stroke", "rgb(0,0,0)");
+    this.el.setAttribute("x", "rgb(0,0,0)");
+    this.el.style.cursor = "pointer";
+
+    this.rectEl = createSvgNode("rect");
+
+    this.el.appendChild(this.rectEl);
 
     this.toggleImage();
 
@@ -27,27 +31,32 @@ RectSvg.prototype = {
   mapToView() {
     this.toggleImage();
 
-    const el = this.innerEl;
-    el.setAttribute("x", fixZrCoordinate(this.x + (this.width < 0 ? this.width : 0)));
-    el.setAttribute("y", fixZrCoordinate(this.y + (this.height < 0 ? this.height : 0)));
-    el.setAttribute("width", Math.abs(this.width));
-    el.setAttribute("height", Math.abs(this.height));
+    setShape.call(this, this.rectEl);
+    this.imageEl && setShape.call(this, this.imageEl);
   },
 
   toggleImage() {
     if (this.hasImage !== !!this.image) {
-      this.innerEl && this.el.removeChild(this.innerEl);
-      this.innerEl = createSvgNode(this.image ? "image" : "rect");
-      this.el.appendChild(this.innerEl);
-      this.hasImage = !!this.image;
+      if (this.imageEl) {
+        this.el.removeChild(this.imageEl);
+      } else {
+        this.imageEl = createSvgNode("image");
+        this.imageEl.setAttribute("preserveAspectRatio", "none");
+        this.imageEl.setAttribute("href", this.image);
+        this.el.insertBefore(this.imageEl, this.rectEl);
+      }
     }
-    if (this.hasImage) {
-      this.innerEl.setAttribute("preserveAspectRatio", "none");
-      this.innerEl.setAttribute("href", this.image);
-    }
+    this.hasImage = !!this.image;
   }
 };
 
 extend(RectSvg, BaseRect);
+
+function setShape(el) {
+  el.setAttribute("x", fixZrCoordinate(this.x + (this.width < 0 ? this.width : 0)));
+  el.setAttribute("y", fixZrCoordinate(this.y + (this.height < 0 ? this.height : 0)));
+  el.setAttribute("width", Math.abs(this.width));
+  el.setAttribute("height", Math.abs(this.height));
+}
 
 export { RectSvg };
