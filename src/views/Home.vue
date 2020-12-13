@@ -3,10 +3,10 @@
     <div class="header">
       <!--      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'dom')">DOM矩形</el-button>-->
       <!--      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'zr')">CANVAS矩形</el-button>-->
-      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'svg')">SVG矩形</el-button>
+      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('rect', 'svg')">矩形</el-button>
       <!--      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'dom')">DOM圆</el-button>-->
       <!--      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'zr')">CANVAS圆</el-button>-->
-      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'svg')">SVG圆</el-button>
+      <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('circle', 'svg')">圆</el-button>
       <el-button type="primary" size="small" draggable="true" @dragstart.native="handleDragstart('text', 'svg')">文字</el-button>
       <el-button type="primary" size="small" @click="handleStartDrawPolyLine">折线</el-button>
       <el-button type="primary" size="small" @click="handleStartDrawLine">直线</el-button>
@@ -17,10 +17,11 @@
     <div class="bottom">
       <div class="root" ref="root" @dragover.prevent></div>
       <div class="contextmenu" :style="style" v-show="style" @click.stop>
-        <div v-for="(item, index) in contextmenu" :key="index" @click="item.handler">{{ item.name }}</div>
+        <div v-for="(item, index) in contextmenu" :key="'a' + index" @click="item.handler">{{ item.name }}</div>
+        <div v-for="(item, index) in subTypeOptions" :key="'b' + index" @click="handleSureSub(item)">{{ item.label }}</div>
       </div>
     </div>
-    <el-dialog title="配置元素" :visible.sync="panelVisible" width="400px">
+    <el-dialog title="配置元素" :visible.sync="panelVisible" width="400px" :close-on-click-modal="false">
       <el-form size="mini">
         <el-form-item v-for="item in form.items" :key="item.prop" :label="item.label">
           <el-input v-model="item.value" v-if="item.type === fieldTypeEnum.text" />
@@ -50,7 +51,7 @@
         <el-button size="mini" type="primary" @click="handleSure">确定</el-button>
       </template>
     </el-dialog>
-    <el-dialog title="添加子元素" :visible.sync="subVisible" width="240px">
+    <el-dialog title="添加子元素" :visible.sync="subVisible" width="240px" :close-on-click-modal="false">
       <el-form size="mini">
         <el-form-item label="子元素类型">
           <el-select v-model="subIndex" style="width: 100%;">
@@ -124,7 +125,10 @@ export default {
 
     this.root.on("contextmenu", this.handleContextmenu);
 
-    this.data && structRender(this.root, this.data);
+    this.data &&
+      structRender(this.data, {
+        root: this.root
+      });
   },
   methods: {
     handleDragstart(type, platform) {
@@ -184,18 +188,10 @@ export default {
             item.unmount();
             this.style = null;
           }
-        },
-        {
-          name: "添加子元素",
-          handler: () => {
-            this.subVisible = true;
-            this.style = null;
-          }
         }
       ];
     },
-    handleSureSub() {
-      const item = this.subTypeOptions[this.subIndex];
+    handleSureSub(item) {
       const element = createElement({
         type: item.type,
         platform: item.platform,
@@ -204,6 +200,7 @@ export default {
       });
       this.curElement.addChild(element);
       this.subVisible = false;
+      this.style = null;
     }
   }
 };
@@ -211,9 +208,15 @@ export default {
 
 <style scoped lang="scss">
 .header {
-  height: 60px;
-  line-height: 60px;
-  border-bottom: 1px solid #999;
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px;
+  box-shadow: 0 2px 10px 0 rgba(82, 86, 108, 0.22);
+  background: #fff;
+  border-radius: 4px;
+  z-index: 99;
 }
 
 .bottom {
@@ -221,7 +224,7 @@ export default {
 }
 
 .root {
-  height: calc(100vh - 60px);
+  height: 100vh;
 }
 
 .contextmenu {

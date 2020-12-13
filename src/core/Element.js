@@ -38,6 +38,7 @@ Element.prototype = {
     this.root = root;
     root.add(this);
     this.isMounted = true;
+    root.renderContent?.(this);
   },
 
   attr(key, value) {

@@ -20,6 +20,13 @@ TextSvg.prototype = {
   create() {
     this.el = createSvgNode("text");
 
+    this.tspan = createSvgNode("tspan");
+
+    this.tspan.setAttribute("text-anchor", "middle");
+    this.tspan.setAttribute("dominant-baseline", "middle");
+
+    this.el.appendChild(this.tspan);
+
     this.mapToView();
   },
 
@@ -27,7 +34,7 @@ TextSvg.prototype = {
     const el = this.el;
     el.setAttribute("x", this.x);
     el.setAttribute("y", this.y);
-    el.textContent = this.text;
+    this.tspan.textContent = this.text;
     el.style.cursor = "pointer";
   },
 

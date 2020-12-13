@@ -6,11 +6,12 @@ import { HandlerProxy } from "./Handler";
 function Root(opts) {
   this.el = opts.el;
   this.oncontextmenu = opts.oncontextmenu;
+  this.renderContent = opts.renderContent;
   this.storage = new Storage();
   this.painter = new Painter(this.el);
   this.handlerProxy = new HandlerProxy(this.storage);
   this.root = this;
-  this.state = opts.state || rootStateEnum.rectMove;
+  this.state = opts.state || rootStateEnum.off;
   // 选中resize
   this.curResizeElement = null;
   // 画连接线

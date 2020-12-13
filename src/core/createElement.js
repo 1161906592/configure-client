@@ -23,8 +23,9 @@ const typeConstructorMap = makeMap(implList, (map, item) => {
   (map[item.type] || (map[item.type] = {}))[item.platform] = item;
 });
 
-export function structRender(root, structure) {
+export function structRender(structure, { root, preview }) {
   structure.elements.forEach(item => {
+    item.preview = preview;
     createElement(item).mount(root);
   });
   root.flushRectLineRelation();

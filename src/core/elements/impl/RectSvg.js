@@ -12,18 +12,31 @@ RectSvg.prototype = {
   platform: platformEnum.svg,
 
   create() {
-    this.el = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    this.el = createSvgNode("g");
     this.el.setAttribute("fill", "rgba(0,0,0,0)");
     this.el.setAttribute("stroke-width", 1);
     this.el.setAttribute("stroke", "rgb(0,0,0)");
     this.el.setAttribute("x", "rgb(0,0,0)");
     this.el.style.cursor = "pointer";
 
-    this.rectEl = createSvgNode("rect");
+    if (!this.preview) {
+      this.rectEl = createSvgNode("rect");
 
-    this.el.appendChild(this.rectEl);
+      this.el.appendChild(this.rectEl);
+    }
 
     this.toggleImage();
+
+    this.foreignObjectElement = createSvgNode("foreignObject");
+
+    this.el.insertBefore(this.foreignObjectElement, this.rectEl);
+
+    const div = document.createElement("div");
+    this.foreignObjectElement.appendChild(div);
+    div.style.height = "100%";
+    div.style.overflow = "auto";
+    this.domHost = document.createElement("div");
+    div.appendChild(this.domHost);
 
     this.mapToView();
   },
@@ -32,7 +45,8 @@ RectSvg.prototype = {
     this.toggleImage();
 
     setShape.call(this, this.rectEl);
-    this.imageEl && setShape.call(this, this.imageEl);
+    setShape.call(this, this.foreignObjectElement);
+    setShape.call(this, this.imageEl);
   },
 
   toggleImage() {
@@ -53,6 +67,7 @@ RectSvg.prototype = {
 extend(RectSvg, BaseRect);
 
 function setShape(el) {
+  if (!el) return;
   el.setAttribute("x", fixZrCoordinate(this.x + (this.width < 0 ? this.width : 0)));
   el.setAttribute("y", fixZrCoordinate(this.y + (this.height < 0 ? this.height : 0)));
   el.setAttribute("width", Math.abs(this.width));
