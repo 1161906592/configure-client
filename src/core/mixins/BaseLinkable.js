@@ -71,18 +71,21 @@ BaseLinkable.prototype = {
   makeLineVertexByAngle() {},
 
   removeLine(line) {
-    console.log(this);
+    // console.log(this);
     // todo fix 删除元素不能删除线的bug
+    console.log(this.lines.findIndex(d => d === line));
     this.lines.splice(
-      this.lines.findIndex(d => d.line === line),
+      this.lines.findIndex(d => d === line),
       1
     );
   },
 
   clearLine() {
+    console.log(this.lines.length);
     while (this.lines.length) {
       this.lines[0].unmount();
     }
+    console.log(this.lines.length);
   }
 };
 

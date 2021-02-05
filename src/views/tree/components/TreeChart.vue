@@ -5,30 +5,33 @@ export default {
     data: { type: Object },
     renderContent: { type: Function },
     direction: { type: String, default: "left" },
-    horizontalSpace: { type: Array, default: () => [20, 20] },
-    verticalSpace: { type: Array, default: () => [10, 20] },
+    horizontalSpace: { type: Array, default: () => [40, 30] },
+    verticalSpace: { type: Array, default: () => [0, 40] },
     lineOffset: { type: Number, default: 12 },
+    lineWidth: { type: Number, default: 2 },
     lineColor: { type: String, default: "#000" }
   },
 
   render(h) {
     const renderSlot = this.$scopedSlots.default;
     const renderTree = (data, isFirst, isLast) => {
-      const len = data.children.length;
       const nodeChildren = [
         h(
           "div",
           {
-            class: "content"
+            class: "content",
+            style: {
+              position: "relative"
+            }
           },
           [
             h("div", {
               style: {
                 position: "absolute",
-                height: "1px",
+                height: `${this.lineWidth}px`,
                 width: `${this.horizontalSpace[0]}px`,
-                left: 0,
-                top: isFirst ? `${this.lineOffset}px` : `${this.lineOffset + this.verticalSpace[1]}px`,
+                left: `-${this.horizontalSpace[0]}px`,
+                top: `${isFirst ? this.lineOffset : this.lineOffset + this.verticalSpace[0]}px`,
                 background: this.lineColor
               }
             }),
@@ -37,44 +40,59 @@ export default {
               {
                 class: "inner",
                 style: {
-                  padding: "8px 20px",
-                  border: "1px solid #eaeaea"
+                  // padding: "8px 20px",
+                  // border: "2px solid #000"
                 }
               },
               this.renderContent ? this.renderContent(data) : renderSlot ? renderSlot(data) : null
-            )
-          ]
+            ),
+            data.children.length &&
+              h("i", {
+                class: data.isCollapsed ? "el-icon-circle-plus" : "el-icon-remove",
+                style: {
+                  position: "absolute",
+                  right: "-15px",
+                  top: `${(isFirst ? this.lineOffset : this.lineOffset + this.verticalSpace[0]) + 1}px`,
+                  transform: "translateY(-50%)",
+                  cursor: "pointer",
+                  zIndex: 99,
+                  color: "#365BE4",
+                  fontSize: "16px"
+                },
+                on: {
+                  click: () => {
+                    this.$set(data, "isCollapsed", !data.isCollapsed);
+                  }
+                }
+              })
+          ].filter(Boolean)
         ),
-        len
+        data.children.length && !data.isCollapsed
           ? h(
               "div",
               {
                 class: "children",
                 style: {
                   position: "relative",
-                  padding: `0 ${this.horizontalSpace[0]}px 0 ${this.horizontalSpace[1]}px`
+                  padding: `0 0 0 ${this.horizontalSpace[1]}px`
                 }
               },
               [
                 h("div", {
                   style: {
                     position: "absolute",
-                    height: "1px",
+                    height: `${this.lineWidth}px`,
                     width: `${this.horizontalSpace[1]}px`,
-                    left: "0",
+                    left: "16px",
                     top: `${this.lineOffset}px`,
                     background: this.lineColor
                   }
                 }),
-                ...data.children.map((item, index) => renderTree(item, index === 0, index === len - 1))
+                ...data.children.map((item, index) => renderTree(item, index === 0, index === data.children.length - 1))
               ]
             )
           : null
       ];
-
-      if (this.direction === "right" || this.direction === "bottom") {
-        nodeChildren.reverse();
-      }
 
       return h(
         "div",
@@ -83,9 +101,9 @@ export default {
           style: {
             display: "flex",
             position: "relative",
-            padding: `${this.verticalSpace[1]}px ${this.horizontalSpace[1]}px ${this.verticalSpace[0]}px ${this.horizontalSpace[0]}px`,
-            paddingTop: isFirst ? "0px" : undefined,
-            paddingBottom: isLast ? "0px" : undefined
+            padding: `${this.verticalSpace[0]}px 0px ${this.verticalSpace[1]}px ${this.horizontalSpace[0]}px`,
+            paddingTop: isFirst ? 0 : `${this.verticalSpace[0]}px`,
+            paddingBottom: isLast ? 0 : `${this.verticalSpace[1]}px`
           }
         },
         [
@@ -93,8 +111,8 @@ export default {
             h("div", {
               style: {
                 position: "absolute",
-                width: "1px",
-                height: `${this.lineOffset + this.verticalSpace[1]}px`,
+                width: `${this.lineWidth}px`,
+                height: `${this.lineOffset + this.verticalSpace[0]}px`,
                 left: 0,
                 top: 0,
                 background: this.lineColor
@@ -105,7 +123,7 @@ export default {
             h("div", {
               style: {
                 position: "absolute",
-                width: "1px",
+                width: `${this.lineWidth}px`,
                 height: `calc(100% - ${this.lineOffset}px)`,
                 left: 0,
                 top: `${this.lineOffset}px`,
@@ -118,10 +136,21 @@ export default {
     return h(
       "div",
       {
-        class: this.direction
+        class: "root"
       },
-      [renderTree(this.data)]
+      [renderTree(this.data, true, true)]
     );
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.root {
+  > .node {
+    padding: 0 !important;
+    > .content > div:first-child {
+      display: none;
+    }
+  }
+}
+</style>

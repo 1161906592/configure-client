@@ -22,6 +22,11 @@ const routes = [
     path: "/tree",
     name: "tree",
     component: () => import("../views/tree/Index.vue")
+  },
+  {
+    path: "/target",
+    name: "target",
+    component: () => import("../views/target/Index.vue")
   }
 ];
 

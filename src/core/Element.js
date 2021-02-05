@@ -13,6 +13,7 @@ function Element(opts) {
   });
   this.id = opts.id || guid();
   this.create();
+  this.onCreated?.();
 }
 
 Element.prototype = {
@@ -26,7 +27,9 @@ Element.prototype = {
 
   el: null,
 
-  data: {},
+  extData: {},
+
+  customData: {},
 
   isMounted: false,
 
@@ -38,7 +41,8 @@ Element.prototype = {
     this.root = root;
     root.add(this);
     this.isMounted = true;
-    root.renderContent?.(this);
+
+    this.onMounted?.();
   },
 
   attr(key, value) {
@@ -59,9 +63,10 @@ Element.prototype = {
 
   unmount() {
     if (!this.isMounted) return;
-    this.parent?.removeChild(this);
     this.root.remove(this);
     this.isMounted = false;
+
+    this.onUnmount?.();
   },
 
   // Interface
@@ -74,7 +79,8 @@ Element.prototype = {
       id: this.id,
       x: this.x,
       y: this.y,
-      data: this.data
+      extData: this.extData,
+      customData: this.customData
     };
   }
 };

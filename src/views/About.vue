@@ -20,8 +20,10 @@ export default {
       renderContent: (host, node) => {
         console.log(host, node);
         if (host.domHost) {
+          const div = document.createElement("div");
+          host.domHost.appendChild(div);
           const Table = Vue.extend(ImcTable);
-          new Table().$mount(host.domHost);
+          new Table().$mount(div);
         }
       }
     });

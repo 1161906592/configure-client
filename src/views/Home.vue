@@ -86,7 +86,8 @@ export default {
       fieldTypeEnum: Object.freeze(fieldTypeEnum),
       subVisible: false,
       subTypeOptions: [
-        { label: "矩形", type: typeEnum.rect, platform: platformEnum.svg },
+        { label: "矩形", type: typeEnum.rect, platform: platformEnum.svg, isDialog: false },
+        { label: "弹窗", type: typeEnum.rect, platform: platformEnum.svg, isDialog: true },
         { label: "圆", type: typeEnum.circle, platform: platformEnum.svg },
         { label: "文字", type: typeEnum.text, platform: platformEnum.svg }
       ],
@@ -102,7 +103,6 @@ export default {
     document.addEventListener("click", () => {
       this.style = null;
     });
-
     this.root.on("click", item => {
       if (this.root.state !== rootStateEnum.off) return;
       this.panelVisible = true;
@@ -124,7 +124,6 @@ export default {
     });
 
     this.root.on("contextmenu", this.handleContextmenu);
-
     this.data &&
       structRender(this.data, {
         root: this.root
@@ -140,10 +139,18 @@ export default {
         type: this.type,
         platform: this.platform,
         x: e.offsetX,
-        y: e.offsetY
+        y: e.offsetY,
+        onCreated() {
+          console.log(this);
+        },
+        onMounted() {
+          console.log(this);
+        },
+        onUnmount() {
+          console.log(this);
+        }
       });
       element.mount(this.root);
-      // this.root.add(element);
     },
     handleStartDrawPolyLine() {
       this.root.startDrawPolyLine();
@@ -163,7 +170,6 @@ export default {
       localStorage.setItem("data", JSON.stringify(data));
     },
     handleSure() {
-      console.log(makeConfiguration(this.form.items));
       this.curElement.attr(makeConfiguration(this.form.items));
       this.curElement.data = makeMap(
         this.form.dataList.filter(d => d.key),
@@ -185,6 +191,7 @@ export default {
         {
           name: "删除",
           handler: () => {
+            item.parent?.removeChild(item);
             item.unmount();
             this.style = null;
           }
@@ -196,7 +203,8 @@ export default {
         type: item.type,
         platform: item.platform,
         x: this.curEvent.offsetX + 20,
-        y: this.curEvent.offsetY + 20
+        y: this.curEvent.offsetY + 20,
+        immediateMount: !item.isDialog
       });
       this.curElement.addChild(element);
       this.subVisible = false;

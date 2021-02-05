@@ -6,7 +6,6 @@ import { HandlerProxy } from "./Handler";
 function Root(opts) {
   this.el = opts.el;
   this.oncontextmenu = opts.oncontextmenu;
-  this.renderContent = opts.renderContent;
   this.storage = new Storage();
   this.painter = new Painter(this.el);
   this.handlerProxy = new HandlerProxy(this.storage);

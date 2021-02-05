@@ -35,8 +35,10 @@ RectSvg.prototype = {
     this.foreignObjectElement.appendChild(div);
     div.style.height = "100%";
     div.style.overflow = "auto";
-    this.domHost = document.createElement("div");
-    div.appendChild(this.domHost);
+    // this.domHost = document.createElement("div");
+    // div.appendChild(this.domHost);
+
+    this.domHost = div;
 
     this.mapToView();
   },

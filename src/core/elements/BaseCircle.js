@@ -3,11 +3,13 @@ import { typeEnum } from "../enums";
 import { extend, mixin } from "../helpers";
 import { Draggable } from "../mixins/Draggable";
 import { Container } from "../mixins/Container";
+import { Resizable } from "@/core/mixins/Resizable";
 
 function BaseCircle(opts) {
   Element.call(this, opts);
   Draggable.call(this, opts);
   Container.call(this, opts);
+  Resizable.call(this, opts);
 }
 
 BaseCircle.prototype = {
@@ -69,6 +71,7 @@ BaseCircle.prototype = {
 extend(BaseCircle, Element);
 mixin(BaseCircle, Draggable);
 mixin(BaseCircle, Container);
+mixin(BaseCircle, Resizable);
 
 function makeRectVertexes() {
   return [
