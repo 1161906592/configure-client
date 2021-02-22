@@ -20,7 +20,7 @@ LineLinkable.prototype = {
       point: [x, y],
       sin,
       cos
-    } = this.makeLineStartPoint(e);
+    } = this.makeLineStartPoint([e.offsetX, e.offsetY]);
     const line = createElement({
       type: typeEnum.line,
       platform: platformEnum.svg,

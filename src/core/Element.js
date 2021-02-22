@@ -1,6 +1,7 @@
 import { eachObj, guid, mixin } from "./helpers";
 import { Eventful } from "./Eventful";
 import { Child } from "./mixins/Child";
+import { Animatable } from "@/core/mixins/Animatable";
 /**
  * @description 所有元素的抽象类
  **/
@@ -8,6 +9,7 @@ import { Child } from "./mixins/Child";
 function Element(opts) {
   Eventful.call(this, opts);
   Child.call(this, opts);
+  Animatable.call(this, opts);
   eachObj(opts, (value, key) => {
     this[key] = value;
   });
@@ -87,5 +89,6 @@ Element.prototype = {
 
 mixin(Element, Eventful);
 mixin(Element, Child);
+mixin(Element, Animatable);
 
 export { Element };

@@ -72,8 +72,6 @@ BaseLinkable.prototype = {
 
   removeLine(line) {
     // console.log(this);
-    // todo fix 删除元素不能删除线的bug
-    console.log(this.lines.findIndex(d => d === line));
     this.lines.splice(
       this.lines.findIndex(d => d === line),
       1
@@ -81,11 +79,9 @@ BaseLinkable.prototype = {
   },
 
   clearLine() {
-    console.log(this.lines.length);
     while (this.lines.length) {
       this.lines[0].unmount();
     }
-    console.log(this.lines.length);
   }
 };
 
@@ -102,6 +98,7 @@ function clickToStart(e) {
   const root = this.root;
 
   line.el.silent = true;
+  line.isDrawing = true;
 
   line.mount(root);
 
@@ -134,6 +131,7 @@ function clickToEnd() {
   this.lines.push(line);
 
   line.el.silent = false;
+  line.isDrawing = false;
   root.curDrawLine = null;
 }
 

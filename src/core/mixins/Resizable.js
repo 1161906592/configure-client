@@ -31,14 +31,20 @@ Resizable.prototype = {
         y: point[1],
         index
       });
-      vertex.addToParent(this);
-      vertex.mount(this.root);
-      this.vertexes.push(vertex);
+      this.addVertex(vertex);
     });
   },
 
+  addVertex(vertex) {
+    vertex.addToParent(this);
+    vertex.mount(this.root);
+    this.vertexes.push(vertex);
+  },
+
   // Interface
-  makeRectVertexes() {},
+  makeRectVertexes() {
+    return [];
+  },
 
   removeVertexes() {
     this.vertexes.forEach(vertex => {

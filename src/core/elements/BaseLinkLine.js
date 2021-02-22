@@ -1,15 +1,19 @@
 import { Element } from "../Element";
-import { extend } from "../helpers";
+import { extend, lastItem, mixin } from "../helpers";
 import { typeEnum } from "../enums";
 import { createElement } from "../createElement";
+import { Resizable } from "@/core/mixins/Resizable";
 
 // 所有连接线的抽象类
 function BaseLinkLine(opts) {
   Element.call(this, opts);
+  Resizable.call(this, opts);
 }
 
 BaseLinkLine.prototype = {
   constructor: BaseLinkLine,
+
+  points: [],
 
   isLinkLine: true,
 
@@ -33,7 +37,11 @@ BaseLinkLine.prototype = {
 
   update() {
     Element.prototype.update.call(this);
+    Resizable.prototype.updateVertexes.call(this);
     this.useArrow ? this.addArrow() : this.removeArrow();
+    this.arrow?.asyncWithLine();
+    // 画线的时候不能更新拐点
+    !this.isDrawing && this.syncBreakPoints();
   },
 
   // Interface 返回表示线的方向的两个点
@@ -43,9 +51,6 @@ BaseLinkLine.prototype = {
     const points = this.points;
     points[this.isFollowStart ? 0 : points.length - 1] = newPoint;
 
-    this.syncBreakPoints();
-
-    this.arrow && this.arrow.asyncWithLine();
     this.update();
   },
 
@@ -76,6 +81,14 @@ BaseLinkLine.prototype = {
     this.arrow.unmount();
   },
 
+  makeRectVertexes() {
+    return [this.points[0], lastItem(this.points)];
+  },
+
+  updateShapeByVertex(vertex) {
+    resize.call(this, vertex);
+  },
+
   export() {
     return {
       ...Element.prototype.export.call(this),
@@ -93,9 +106,30 @@ BaseLinkLine.prototype = {
 };
 
 extend(BaseLinkLine, Element);
+mixin(BaseLinkLine, Resizable);
 
 function calcRotation(p1, p2) {
   return Math.atan2(p1[1] - p2[1], p2[0] - p1[0]) - Math.PI / 2;
+}
+
+function resize(vertex) {
+  this.isFollowStart = vertex.index === 0;
+  if (vertex.index === 0) {
+    // 起始点
+    const newStart = this.startElement.makeLineStartPoint([vertex.x, vertex.y]);
+    this.points[0] = newStart.point;
+    this.startSin = newStart.sin;
+    this.startCos = newStart.cos;
+  } else {
+    // 结束点
+    const newEnd = this.endElement.makeLineEndPoint(lastItem(this.points, 2), [vertex.x, vertex.y]);
+    if (newEnd) {
+      this.points[this.points.length - 1] = newEnd.point;
+      this.endSin = newEnd.sin;
+      this.endCos = newEnd.cos;
+    }
+  }
+  this.update();
 }
 
 export { BaseLinkLine };

@@ -2,6 +2,7 @@ import { Storage } from "./Storage";
 import { Painter } from "./Painter";
 import { rootStateEnum } from "./enums";
 import { HandlerProxy } from "./Handler";
+import { Animation } from "@/core/animation/Animation";
 
 function Root(opts) {
   this.el = opts.el;
@@ -16,6 +17,10 @@ function Root(opts) {
   // 画连接线
   this.curDrawLine = null;
   this.isNewPoint = false;
+
+  // 动画
+  this.animation = new Animation();
+  this.animation.start();
 }
 
 Root.prototype = {
@@ -33,6 +38,15 @@ Root.prototype = {
       case rootStateEnum.drawLine:
         element.addDrawPolyLine?.();
         break;
+    }
+
+    if (element.type === "rect") {
+      setInterval(() => {
+        element
+          .animate("", false)
+          .when(300, { x: element.x + 5 })
+          .start();
+      }, 300);
     }
   },
 

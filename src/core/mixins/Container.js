@@ -2,7 +2,7 @@ import { PolylineLinkable } from "./PolylineLinkable";
 import { mixin } from "../helpers";
 import { LineLinkable } from "./LineLinkable";
 
-// 容器的抽象类 混入此类的类可以添加children 可以添加连接线 可以缩放
+// 容器的抽象类 混入此类的类可以添加children 可以添加连接线
 function Container(opts) {
   PolylineLinkable.call(this, opts);
   LineLinkable.call(this, opts);
@@ -15,7 +15,6 @@ Container.prototype = {
   isContainer: true,
 
   update() {
-    this.updateVertexes();
     this.updateLines();
     this.children.forEach(child => {
       child.syncWithParent();

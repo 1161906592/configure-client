@@ -21,11 +21,8 @@ BaseVertex.prototype = {
 
   hasImage: false,
 
-  isUpdateByResize: false,
-
   update() {
     Element.prototype.update.call(this);
-    this.isUpdateByResize = false;
     this.parent.syncWidthVertex(this);
   },
 

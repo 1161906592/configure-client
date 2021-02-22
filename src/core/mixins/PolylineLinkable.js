@@ -16,7 +16,7 @@ PolylineLinkable.prototype = {
   },
 
   makeLinkLine(e) {
-    const { point, sin, cos } = this.makeLineStartPoint(e);
+    const { point, sin, cos } = this.makeLineStartPoint([e.offsetX, e.offsetY]);
     const line = createElement({
       type: typeEnum.polyline,
       platform: platformEnum.svg,

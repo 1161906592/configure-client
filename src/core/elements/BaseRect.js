@@ -33,6 +33,7 @@ BaseRect.prototype = {
   update() {
     Element.prototype.update.call(this);
     Container.prototype.update.call(this);
+    Resizable.prototype.updateVertexes.call(this);
   },
 
   unmount() {
@@ -50,8 +51,8 @@ BaseRect.prototype = {
     );
   },
 
-  makeLineStartPoint(e) {
-    return makeLineStartPoint.call(this, e);
+  makeLineStartPoint(point) {
+    return makeLineStartPoint.call(this, point);
   },
 
   makeLineEndPoint(point1, point2) {
@@ -114,13 +115,13 @@ function makeLineVertexByAngle(sin, cos) {
   return [x, y];
 }
 
-function makeLineStartPoint(e) {
+function makeLineStartPoint([x, y]) {
   const centerX = this.x + this.width / 2;
   const centerY = this.y + this.height / 2;
 
-  const er = Math.sqrt((e.offsetX - centerX) ** 2 + (e.offsetY - centerY) ** 2);
-  const sin = (e.offsetY - centerY) / er;
-  const cos = (e.offsetX - centerX) / er;
+  const er = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+  const sin = (y - centerY) / er;
+  const cos = (x - centerX) / er;
 
   return { point: makeLineVertexByAngle.call(this, sin, cos), sin, cos };
 }
@@ -128,6 +129,7 @@ function makeLineStartPoint(e) {
 function makeLineEndPoint(point1, point2) {
   const point = calcLineCross.call(this, point1, point2);
 
+  if (!point) return;
   const center = [this.x + this.width / 2, this.y + this.height / 2];
   const r = Math.sqrt((point[0] - center[0]) ** 2 + (point[1] - center[1]) ** 2);
 
