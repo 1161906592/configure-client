@@ -13,6 +13,7 @@ Resizable.prototype = {
       if (this.root.curResizeElement === this) return;
       this.root.curResizeElement?.removeVertexes();
       this.root.curResizeElement = this;
+      console.log(this.root.curResizeElement, 22222);
       this.addVertexes();
     };
     this.on("mousedown", mousedown);

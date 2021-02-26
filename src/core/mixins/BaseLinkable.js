@@ -89,11 +89,17 @@ BaseLinkable.prototype = {
 function clickToStart(e) {
   const { line, sin, cos } = this.makeLinkLine(e);
 
-  line.startElement = this;
+  if (this.makeBeforeBreakPoints) {
+    line.points.push(...this.makeBeforeBreakPoints([e.offsetX, e.offsetY]));
+    line.startElement = this.startElement;
+    this.startElement.lines.push(line);
+  } else {
+    line.startElement = this;
+    this.lines.push(line);
+  }
+
   line.startSin = sin;
   line.startCos = cos;
-
-  this.lines.push(line);
 
   const root = this.root;
 
@@ -116,6 +122,16 @@ function clickToEnd() {
 
   const { point, sin, cos } = this.makeLineEndPoint(last2, last);
 
+  if (this.makeAfterBreakPoints) {
+    line.points.pop();
+    line.points.push(...this.makeAfterBreakPoints(last));
+    line.endElement = this.endElement;
+    this.endElement.lines.push(line);
+  } else {
+    line.endElement = this;
+    this.lines.push(line);
+  }
+
   const points = line.points;
   points[points.length - 1] = point;
   line.attr({
@@ -124,11 +140,8 @@ function clickToEnd() {
   line.isStartVertical = points[0][1] !== points[1][1];
   line.isEndVertical = root.isCurLineVertical;
 
-  line.endElement = this;
   line.endSin = sin;
   line.endCos = cos;
-
-  this.lines.push(line);
 
   line.el.silent = false;
   line.isDrawing = false;

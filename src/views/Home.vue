@@ -96,9 +96,9 @@ export default {
   },
   mounted() {
     this.root = new Root({
-      el: this.$refs.root,
-      state: rootStateEnum.focus
+      el: this.$refs.root
     });
+    this.root.startFocus();
     this.root.el.addEventListener("drop", this.handleDrop);
     document.addEventListener("click", () => {
       this.style = null;

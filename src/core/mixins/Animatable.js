@@ -1,10 +1,6 @@
 import { Animator } from "../animation/Animator";
 import { hasOwnProperty } from "@/core/helpers";
 
-/**
- * @alias module:zrender/mixin/Animatable
- * @constructor
- */
 function Animatable() {
   this.animators = [];
 }

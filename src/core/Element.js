@@ -74,6 +74,23 @@ Element.prototype = {
   // Interface
   mapToView() {},
 
+  updateByKeydown(e) {
+    switch (e.key) {
+      case "ArrowLeft":
+        this.attr("x", this.x - 1);
+        break;
+      case "ArrowRight":
+        this.attr("x", this.x + 1);
+        break;
+      case "ArrowUp":
+        this.attr("y", this.y - 1);
+        break;
+      case "ArrowDown":
+        this.attr("y", this.y + 1);
+        break;
+    }
+  },
+
   export() {
     return {
       type: this.type,

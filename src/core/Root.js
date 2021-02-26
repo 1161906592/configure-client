@@ -11,7 +11,7 @@ function Root(opts) {
   this.painter = new Painter(this.el);
   this.handlerProxy = new HandlerProxy(this.storage);
   this.root = this;
-  this.state = opts.state || rootStateEnum.off;
+  this.state = rootStateEnum.off;
   // 选中resize
   this.curResizeElement = null;
   // 画连接线
@@ -29,25 +29,27 @@ Root.prototype = {
     this.painter.add(element);
     this.storage.add(element);
     this.handlerProxy.addElement(element);
-
     switch (this.state) {
       case rootStateEnum.focus:
         element.addDrag?.();
         element.addResize?.();
         break;
       case rootStateEnum.drawLine:
+        element.addDrawLine?.();
+        break;
+      case rootStateEnum.drawPolyLine:
         element.addDrawPolyLine?.();
         break;
     }
 
-    if (element.type === "rect") {
-      setInterval(() => {
-        element
-          .animate("", false)
-          .when(300, { x: element.x + 5 })
-          .start();
-      }, 300);
-    }
+    // if (element.type === "rect") {
+    //   setInterval(() => {
+    //     element
+    //       .animate("", false)
+    //       .when(300, { x: element.x + 5 })
+    //       .start();
+    //   }, 300);
+    // }
   },
 
   remove(element) {
@@ -73,6 +75,10 @@ Root.prototype = {
       element.addDrag?.();
       element.addResize?.();
     });
+    this.handleKeydown = e => {
+      this.curResizeElement?.updateByKeydown?.(e);
+    };
+    document.addEventListener("keydown", this.handleKeydown);
   },
 
   // 结束元素可选择
@@ -83,6 +89,8 @@ Root.prototype = {
       element.removeResize?.();
     });
     this.curResizeElement = null;
+
+    document.removeEventListener("keydown", this.handleKeydown);
   },
 
   // 画直线
