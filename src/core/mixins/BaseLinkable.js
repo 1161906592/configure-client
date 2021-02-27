@@ -1,4 +1,5 @@
 import { makeEventPacket } from "../Eventful";
+import { lastItem } from "@/core/helpers";
 
 // 可以添加连接线的类的混入类的抽象类 用于表示其公共部分 只用于混入 不能继承 继承无效
 function BaseLinkable() {
@@ -138,7 +139,7 @@ function clickToEnd() {
     points: points
   });
   line.isStartVertical = points[0][1] !== points[1][1];
-  line.isEndVertical = root.isCurLineVertical;
+  line.isEndVertical = lastItem(points)[1] !== lastItem(points, 2)[1];
 
   line.endSin = sin;
   line.endCos = cos;

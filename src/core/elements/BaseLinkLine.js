@@ -36,12 +36,12 @@ BaseLinkLine.prototype = {
   },
 
   update() {
+    // 画线的时候不能更新拐点
+    !this.isDrawing && this.syncBreakPoints();
     Element.prototype.update.call(this);
     Resizable.prototype.updateVertexes.call(this);
     this.useArrow ? this.addArrow() : this.removeArrow();
     this.arrow?.asyncWithLine();
-    // 画线的时候不能更新拐点
-    !this.isDrawing && this.syncBreakPoints();
   },
 
   // Interface 返回表示线的方向的两个点
