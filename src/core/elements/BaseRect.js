@@ -7,7 +7,6 @@ import { Resizable } from "@/core/mixins/Resizable";
 
 function BaseRect(opts) {
   Element.call(this, opts);
-  Draggable.call(this, opts);
   Container.call(this, opts);
   Resizable.call(this, opts);
 }
@@ -142,10 +141,11 @@ function makeLineEndPoint(point1, point2) {
 // 计算直线与矩形的交点
 function calcLineCross([x1, y1], [x2, y2]) {
   if (x1 === x2) {
+    const x = Math.min(Math.max(this.x, x1), this.x + this.width);
     if (y1 < this.y) {
-      return [x1, this.y];
+      return [x, this.y];
     } else {
-      return [x1, this.y + this.height];
+      return [x, this.y + this.height];
     }
   } else {
     // y = k * x + b

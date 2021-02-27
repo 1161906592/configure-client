@@ -1,11 +1,9 @@
 import { Element } from "../Element";
 import { typeEnum } from "../enums";
-import { extend, mixin } from "../helpers";
-import { Draggable } from "../mixins/Draggable";
+import { extend } from "../helpers";
 
 function BaseVertex(opts) {
   Element.call(this, opts);
-  Draggable.call(this, opts);
 }
 
 BaseVertex.prototype = {
@@ -21,15 +19,20 @@ BaseVertex.prototype = {
 
   hasImage: false,
 
+  index: 0,
+
   update() {
     Element.prototype.update.call(this);
     this.parent.syncWidthVertex(this);
+  },
+
+  ondragstart() {
+    this.parent.focusIndex = this.index;
   },
 
   export() {}
 };
 
 extend(BaseVertex, Element);
-mixin(BaseVertex, Draggable);
 
 export { BaseVertex };

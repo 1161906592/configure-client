@@ -1,11 +1,9 @@
 import { Element } from "../../Element";
-import { createSvgNode, extend, mixin } from "../../helpers";
+import { createSvgNode, extend } from "../../helpers";
 import { platformEnum, typeEnum } from "../../enums";
-import { Draggable } from "../../mixins/Draggable";
 
 function TextSvg(opts) {
   Element.call(this, opts);
-  Draggable.call(this, opts);
 }
 
 TextSvg.prototype = {
@@ -47,6 +45,5 @@ TextSvg.prototype = {
 };
 
 extend(TextSvg, Element);
-mixin(TextSvg, Draggable);
 
 export { TextSvg };

@@ -36,26 +36,14 @@ BaseLinkLine.prototype = {
   },
 
   update() {
-    // 画线的时候不能更新拐点
-    !this.isDrawing && this.syncBreakPoints();
     Element.prototype.update.call(this);
-    Resizable.prototype.updateVertexes.call(this);
+    this.updateVertexes();
     this.useArrow ? this.addArrow() : this.removeArrow();
     this.arrow?.asyncWithLine();
   },
 
   // Interface 返回表示线的方向的两个点
   makeDirectionPoints() {},
-
-  followVertexElement(newPoint) {
-    const points = this.points;
-    points[this.isFollowStart ? 0 : points.length - 1] = newPoint;
-
-    this.update();
-  },
-
-  // Interface 调整拐点
-  syncBreakPoints() {},
 
   addArrow() {
     if (this.arrow) return;
@@ -82,11 +70,16 @@ BaseLinkLine.prototype = {
   },
 
   makeRectVertexes() {
-    return [this.points[0], lastItem(this.points)];
+    return this.points;
   },
 
   updateShapeByVertex(vertex) {
-    resize.call(this, vertex);
+    this.updatePoint(vertex.index, [vertex.x, vertex.y]);
+  },
+
+  updatePoint(index, point) {
+    updatePoint.call(this, index, point);
+    this.update();
   },
 
   export() {
@@ -112,24 +105,24 @@ function calcRotation(p1, p2) {
   return Math.atan2(p1[1] - p2[1], p2[0] - p1[0]) - Math.PI / 2;
 }
 
-function resize(vertex) {
-  this.isFollowStart = vertex.index === 0;
-  if (vertex.index === 0) {
-    // 起始点
-    const newStart = this.startElement.makeLineStartPoint([vertex.x, vertex.y]);
+export function updatePoint(index, point) {
+  if (index === 0) {
+    // 起点
+    const newStart = this.startElement.makeLineStartPoint(point);
     this.points[0] = newStart.point;
     this.startSin = newStart.sin;
     this.startCos = newStart.cos;
-  } else {
-    // 结束点
-    const newEnd = this.endElement.makeLineEndPoint(lastItem(this.points, 2), [vertex.x, vertex.y]);
+  } else if (index === this.points.length - 1) {
+    // 终点
+    const newEnd = this.endElement.makeLineEndPoint(lastItem(this.points, 2), point);
     if (newEnd) {
       this.points[this.points.length - 1] = newEnd.point;
       this.endSin = newEnd.sin;
       this.endCos = newEnd.cos;
     }
+  } else {
+    this.points[index] = point;
   }
-  this.update();
 }
 
 export { BaseLinkLine };

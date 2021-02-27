@@ -9,11 +9,12 @@ Resizable.prototype = {
   constructor: Resizable,
 
   addResize() {
-    const mousedown = () => {
+    const mousedown = e => {
+      e.event.stopPropagation();
+      this.onfocus([e.offsetX, e.offsetY]);
       if (this.root.curResizeElement === this) return;
       this.root.curResizeElement?.removeVertexes();
       this.root.curResizeElement = this;
-      console.log(this.root.curResizeElement, 22222);
       this.addVertexes();
     };
     this.on("mousedown", mousedown);
@@ -46,6 +47,9 @@ Resizable.prototype = {
   makeRectVertexes() {
     return [];
   },
+
+  // Interface
+  onfocus() {},
 
   removeVertexes() {
     this.vertexes.forEach(vertex => {

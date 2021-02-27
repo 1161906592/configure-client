@@ -5,24 +5,20 @@ function Draggable() {}
 Draggable.prototype = {
   constructor: Draggable,
 
-  eventOffsetX: 0,
+  dragOffsetX: 0,
 
-  eventOffsetY: 0,
+  dragOffsetY: 0,
 
   addDrag() {
     const root = this.root;
     const mousedown = e => {
+      e.event.stopPropagation();
       if (e.event.button !== 0) return;
-
-      this.eventOffsetX = e.offsetX - this.x;
-      this.eventOffsetY = e.offsetY - this.y;
+      this.ondragstart([e.offsetX, e.offsetY]);
 
       const mousemove = e => {
         e = makeEventPacket(e);
-        this.attr({
-          x: e.offsetX - this.eventOffsetX,
-          y: e.offsetY - this.eventOffsetY
-        });
+        this.updateByDrag({ x: e.offsetX - this.dragOffsetX, y: e.offsetY - this.dragOffsetY });
       };
 
       const mouseup = () => {
@@ -37,6 +33,16 @@ Draggable.prototype = {
     this.removeMove = () => {
       this.off("mousedown", mousedown);
     };
+  },
+
+  // Interface
+  ondragstart([x, y]) {
+    this.dragOffsetX = x - this.x;
+    this.dragOffsetY = y - this.y;
+  },
+
+  updateByDrag({ x, y }) {
+    this.attr({ x, y });
   }
 };
 

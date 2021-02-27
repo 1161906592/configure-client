@@ -26,6 +26,8 @@ BaseArrow.prototype = {
     });
   },
 
+  updateByDrag() {},
+
   export() {}
 };
 

@@ -74,8 +74,26 @@ export function makeMap(list, fn) {
 
 export function fixZrCoordinate(n) {
   return ~~n + 0.5;
+  // return ~~n;
 }
 
 export function createSvgNode(qualifiedName) {
   return document.createElementNS("http://www.w3.org/2000/svg", qualifiedName);
+}
+
+export function handleArrowEvent(e, { up, right, down, left }) {
+  switch (e.key) {
+    case "ArrowLeft":
+      left();
+      break;
+    case "ArrowRight":
+      right();
+      break;
+    case "ArrowUp":
+      up();
+      break;
+    case "ArrowDown":
+      down();
+      break;
+  }
 }

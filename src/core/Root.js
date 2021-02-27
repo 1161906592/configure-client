@@ -31,8 +31,8 @@ Root.prototype = {
     this.handlerProxy.addElement(element);
     switch (this.state) {
       case rootStateEnum.focus:
-        element.addDrag?.();
         element.addResize?.();
+        element.addDrag?.();
         break;
       case rootStateEnum.drawLine:
         element.addDrawLine?.();
@@ -79,6 +79,12 @@ Root.prototype = {
       this.curResizeElement?.updateByKeydown?.(e);
     };
     document.addEventListener("keydown", this.handleKeydown);
+
+    this.handleCancelCurFocus = () => {
+      this.root.curResizeElement?.removeVertexes();
+      this.root.curResizeElement = null;
+    };
+    document.addEventListener("mousedown", this.handleCancelCurFocus);
   },
 
   // 结束元素可选择
@@ -91,6 +97,7 @@ Root.prototype = {
     this.curResizeElement = null;
 
     document.removeEventListener("keydown", this.handleKeydown);
+    document.removeEventListener("mousedown", this.handleCancelCurFocus);
   },
 
   // 画直线

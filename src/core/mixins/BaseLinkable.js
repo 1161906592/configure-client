@@ -16,6 +16,8 @@ BaseLinkable.prototype = {
       e.event.stopPropagation();
 
       if (root.curDrawLine) {
+        // 避免作用于正在画的线
+        if (root.curDrawLine === this) return;
         root.offCurDrawLine();
         clickToEnd.call(this, e);
       } else {
@@ -59,12 +61,21 @@ BaseLinkable.prototype = {
 
   updateLines() {
     this.lines.forEach(line => {
-      line.isFollowStart = line.startElement === this;
+      const isFollowStart = line.startElement === this;
+      const points = line.points;
+      line.focusIndex = isFollowStart ? 0 : points.length - 1;
 
-      const sin = line.isFollowStart ? line.startSin : line.endSin;
-      const cos = line.isFollowStart ? line.startCos : line.endCos;
+      const sin = isFollowStart ? line.startSin : line.endSin;
+      const cos = isFollowStart ? line.startCos : line.endCos;
 
-      line.followVertexElement(this.makeLineVertexByAngle(sin, cos));
+      if (isFollowStart) {
+        line.isRightVertical = points[0][0] === points[1][0];
+      } else {
+        line.isLeftVertical = lastItem(points)[0] === lastItem(points, 2)[0];
+      }
+
+      line.points[line.focusIndex] = this.makeLineVertexByAngle(sin, cos);
+      line.update();
     });
   },
 
@@ -104,7 +115,6 @@ function clickToStart(e) {
 
   const root = this.root;
 
-  line.el.silent = true;
   line.isDrawing = true;
 
   line.mount(root);
@@ -138,14 +148,10 @@ function clickToEnd() {
   line.attr({
     points: points
   });
-  line.isStartVertical = points[0][1] !== points[1][1];
-  line.isEndVertical = lastItem(points)[1] !== lastItem(points, 2)[1];
 
   line.endSin = sin;
   line.endCos = cos;
 
-  line.el.silent = false;
-  line.isDrawing = false;
   root.curDrawLine = null;
 }
 

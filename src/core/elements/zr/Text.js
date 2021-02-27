@@ -1,12 +1,10 @@
 import { Element } from "../../Element";
-import { extend, mixin } from "../../helpers";
+import { extend } from "../../helpers";
 import { Text as ZRText } from "zrender";
 import { platformEnum, typeEnum } from "../../enums";
-import { Draggable } from "../../mixins/Draggable";
 
 function Text(opts) {
   Element.call(this, opts);
-  Draggable.call(this, opts);
 }
 
 Text.prototype = {
@@ -45,6 +43,5 @@ Text.prototype = {
 };
 
 extend(Text, Element);
-mixin(Text, Draggable);
 
 export { Text };

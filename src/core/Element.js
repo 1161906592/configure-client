@@ -1,7 +1,8 @@
-import { eachObj, guid, mixin } from "./helpers";
+import { eachObj, guid, handleArrowEvent, mixin } from "./helpers";
 import { Eventful } from "./Eventful";
 import { Child } from "./mixins/Child";
 import { Animatable } from "@/core/mixins/Animatable";
+import { Draggable } from "@/core/mixins/Draggable";
 /**
  * @description 所有元素的抽象类
  **/
@@ -9,6 +10,7 @@ import { Animatable } from "@/core/mixins/Animatable";
 function Element(opts) {
   Eventful.call(this, opts);
   Child.call(this, opts);
+  Draggable.call(this, opts);
   Animatable.call(this, opts);
   eachObj(opts, (value, key) => {
     this[key] = value;
@@ -75,20 +77,7 @@ Element.prototype = {
   mapToView() {},
 
   updateByKeydown(e) {
-    switch (e.key) {
-      case "ArrowLeft":
-        this.attr("x", this.x - 1);
-        break;
-      case "ArrowRight":
-        this.attr("x", this.x + 1);
-        break;
-      case "ArrowUp":
-        this.attr("y", this.y - 1);
-        break;
-      case "ArrowDown":
-        this.attr("y", this.y + 1);
-        break;
-    }
+    updateByKeydown.call(this, e);
   },
 
   export() {
@@ -107,5 +96,23 @@ Element.prototype = {
 mixin(Element, Eventful);
 mixin(Element, Child);
 mixin(Element, Animatable);
+mixin(Element, Draggable);
+
+function updateByKeydown(e) {
+  handleArrowEvent(e, {
+    up: () => {
+      this.attr("y", this.y - 1);
+    },
+    right: () => {
+      this.attr("x", this.x + 1);
+    },
+    down: () => {
+      this.attr("y", this.y + 1);
+    },
+    left: () => {
+      this.attr("x", this.x - 1);
+    }
+  });
+}
 
 export { Element };
