@@ -11,36 +11,39 @@ Resizable.prototype = {
   addResize() {
     const mousedown = e => {
       e.event.stopPropagation();
+
+      if (this.root.curResizeElement !== this) {
+        this.root.curResizeElement?.onblur();
+        this.root.curResizeElement = this;
+        this.addVertexes();
+      }
+
       this.onfocus([e.offsetX, e.offsetY]);
-      if (this.root.curResizeElement === this) return;
-      this.root.curResizeElement?.removeVertexes();
-      this.root.curResizeElement = this;
-      this.addVertexes();
     };
     this.on("mousedown", mousedown);
     this.removeResize = () => {
       this.off("mousedown", mousedown);
-      this.removeVertexes();
+      this.onblur();
     };
   },
 
   addVertexes() {
     this.makeRectVertexes().forEach((point, index) => {
-      const vertex = createElement({
-        type: typeEnum.vertex,
-        platform: this.platform,
-        x: point[0],
-        y: point[1],
-        index
-      });
-      this.addVertex(vertex);
+      this.addVertex(point, index);
     });
   },
 
-  addVertex(vertex) {
+  addVertex(point, index) {
+    const vertex = createElement({
+      type: typeEnum.vertex,
+      platform: this.platform,
+      x: point[0],
+      y: point[1],
+      index
+    });
     vertex.addToParent(this);
     vertex.mount(this.root);
-    this.vertexes.push(vertex);
+    this.vertexes.splice(index, 0, vertex);
   },
 
   // Interface
@@ -51,12 +54,16 @@ Resizable.prototype = {
   // Interface
   onfocus() {},
 
-  removeVertexes() {
+  onblur() {
     this.vertexes.forEach(vertex => {
       vertex.removeFromParent();
       vertex.unmount();
     });
     this.vertexes = [];
+    // 失去焦点时调用关联元素的 onblur
+    this.lines?.forEach(line => {
+      line.onblur?.();
+    });
   },
 
   syncWidthVertex(vertex) {

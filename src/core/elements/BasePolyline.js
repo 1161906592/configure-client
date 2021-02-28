@@ -24,13 +24,8 @@ BasePolyline.prototype = {
 
   focusIndex: -1, // 动态属性
 
-  create() {
-    BaseLinkLine.prototype.create.call(this);
-  },
-
   update() {
-    // 画线的时候不能更新拐点
-    this.root.curDrawLine !== this && this.syncBreakPoints();
+    this.syncBreakPoints();
     BaseLinkLine.prototype.update.call(this);
   },
 
@@ -71,6 +66,17 @@ BasePolyline.prototype = {
     this.focusIndex = index;
   },
 
+  // 失去焦点时的逻辑处理
+  onblur() {
+    BaseLinkLine.prototype.onblur.call(this);
+    // 重置 focusIndex
+    this.focusIndex = -1;
+    // 合并拐点
+    mergeBreakPoints(this.points);
+    // 合并拐点不会产生副作用，只需要重新映射一次视图
+    this.mapToView();
+  },
+
   updateByKeydown(e) {
     updateByKeydown.call(this, e);
   },
@@ -89,19 +95,8 @@ BasePolyline.prototype = {
     this.dragOffsetY = y - curPoint[1];
   },
 
-  updateByDrag({ x, y }) {
+  ondrag({ x, y }) {
     updateSection.call(this, { x, y });
-  },
-
-  removeVertexes() {
-    BaseLinkLine.prototype.removeVertexes.call(this);
-    this.focusIndex = -1;
-    this.mergePoints();
-  },
-
-  // 合并拐点
-  mergePoints() {
-    mergePoints.call(this);
   }
 };
 
@@ -170,13 +165,30 @@ function lineAutoBreak() {
   if (this.isLeftVertical || this.isRightVertical) {
     if (points[0][0] !== points[1][0]) {
       let halfY = (points[1][1] - points[0][1]) / 2;
-      points.splice(1, 0, [points[0][0], ~~(points[0][1] + halfY) + 0.5], [points[1][0], ~~(points[0][1] + halfY) + 0.5]);
+      insertBreakPoints.call(this, 1, [points[0][0], ~~(points[0][1] + halfY) + 0.5], [points[1][0], ~~(points[0][1] + halfY) + 0.5]);
     }
   } else {
     if (points[0][1] !== points[1][1]) {
       let halfX = ~~((points[1][0] - points[0][0]) / 2);
-      points.splice(1, 0, [~~(points[0][0] + halfX) + 0.5, points[0][1]], [~~(points[0][0] + halfX) + 0.5, points[1][1]]);
+      insertBreakPoints.call(this, 1, [~~(points[0][0] + halfX) + 0.5, points[0][1]], [~~(points[0][0] + halfX) + 0.5, points[1][1]]);
     }
+  }
+}
+
+function insertBreakPoints(index, ...points) {
+  this.points.splice(index, 0, ...points);
+  if (this.vertexes.length) {
+    // 插入时需要调整原来顶点的下标
+    for (let i = index; i < this.vertexes.length; i++) {
+      this.vertexes[i].index += points.length;
+    }
+    points.forEach((point, i) => {
+      this.addVertex(point, index + i);
+    });
+  }
+  // 调整 focusIndex 的值
+  if (this.focusIndex !== -1 && this.focusIndex >= index) {
+    this.focusIndex += points.length;
   }
 }
 
@@ -265,6 +277,7 @@ function updateByKeydown(e) {
   this.updatePoint(this.focusIndex, [x, y]);
 }
 
+// 判断其中一段的方向
 function isSectionVertical(points, index) {
   if (index === points.length - 1) {
     index--;
@@ -274,8 +287,7 @@ function isSectionVertical(points, index) {
   return leftPoint[0] === rightPoint[0];
 }
 
-function mergePoints() {
-  const points = this.points;
+function mergeBreakPoints(points) {
   let curIndex = 1;
   let equalsCountX = 0;
   let equalsCountY = 0;
@@ -300,7 +312,7 @@ function mergePoints() {
     }
     if (equalsCountX === 3 || equalsCountY === 3) {
       points.splice(curIndex - 2, 2);
-      curIndex -= 3;
+      curIndex -= 2;
       equalsCountX = 0;
       equalsCountY = 0;
       x = points[curIndex][0];
@@ -309,7 +321,6 @@ function mergePoints() {
       curIndex++;
     }
   }
-  this.update();
 }
 
 export { BasePolyline };

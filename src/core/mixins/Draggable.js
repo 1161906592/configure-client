@@ -18,7 +18,7 @@ Draggable.prototype = {
 
       const mousemove = e => {
         e = makeEventPacket(e);
-        this.updateByDrag({ x: e.offsetX - this.dragOffsetX, y: e.offsetY - this.dragOffsetY });
+        this.ondrag({ x: e.offsetX - this.dragOffsetX, y: e.offsetY - this.dragOffsetY });
       };
 
       const mouseup = () => {
@@ -41,7 +41,7 @@ Draggable.prototype = {
     this.dragOffsetY = y - this.y;
   },
 
-  updateByDrag({ x, y }) {
+  ondrag({ x, y }) {
     this.attr({ x, y });
   }
 };

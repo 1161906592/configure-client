@@ -26,7 +26,7 @@ BaseArrow.prototype = {
     });
   },
 
-  updateByDrag() {},
+  ondrag() {},
 
   export() {}
 };

@@ -29,13 +29,22 @@ BaseLinkable.prototype = {
         const clickRoot = () => {
           root.isNewPoint = true;
         };
+        root.el.addEventListener("click", clickRoot);
+
+        // 键盘控制
+        const drawKeyDown = e => {
+          root.curDrawLine?.keyCtrlDrawing(e);
+        };
+        document.addEventListener("keydown", drawKeyDown);
 
         root.offCurDrawLine = () => {
-          root.el.removeEventListener("mousemove", mousemove);
+          document.removeEventListener("mousemove", mousemove);
+          document.removeEventListener("keydown", drawKeyDown);
           root.el.removeEventListener("click", clickRoot);
+          root.offCurDrawLine = null;
         };
-        root.el.addEventListener("mousemove", mousemove);
-        root.el.addEventListener("click", clickRoot);
+        document.addEventListener("mousemove", mousemove);
+
         clickToStart.call(this, e);
       }
     };
@@ -114,8 +123,6 @@ function clickToStart(e) {
   line.startCos = cos;
 
   const root = this.root;
-
-  line.isDrawing = true;
 
   line.mount(root);
 

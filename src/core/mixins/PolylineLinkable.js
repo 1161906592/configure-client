@@ -39,7 +39,7 @@ PolylineLinkable.prototype = {
       root.isCurLineVertical = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]);
       points[points.length - 1] = root.isCurLineVertical ? [last[0], e.offsetY - 1] : [e.offsetX - 1, last[1]];
     }
-    curDrawLine.update();
+    curDrawLine.mapToView();
   }
 };
 

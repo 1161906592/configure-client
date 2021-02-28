@@ -31,7 +31,8 @@ BaseLinkLine.prototype = {
   unmount() {
     Element.prototype.unmount.call(this);
     this.startElement.removeLine(this);
-    this.endElement.removeLine(this);
+    // 绘制过程中被移除时没有 endElement
+    this.endElement?.removeLine(this);
     this.removeArrow();
   },
 
@@ -80,6 +81,20 @@ BaseLinkLine.prototype = {
   updatePoint(index, point) {
     updatePoint.call(this, index, point);
     this.update();
+  },
+
+  // 绘制过程中键盘控制
+  keyCtrlDrawing(e) {
+    if (e.key === "z" && e.ctrlKey) {
+      this.root.isNewPoint = false;
+      if (this.points.length === 2) {
+        this.unmount();
+        this.root.curDrawLine = null;
+      } else {
+        this.points.pop();
+        this.mapToView();
+      }
+    }
   },
 
   export() {

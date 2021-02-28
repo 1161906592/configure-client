@@ -72,19 +72,19 @@ Root.prototype = {
     this.clearHandler();
     this.state = rootStateEnum.focus;
     this.storage.getElementList().forEach(element => {
-      element.addDrag?.();
       element.addResize?.();
+      element.addDrag?.();
     });
     this.handleKeydown = e => {
       this.curResizeElement?.updateByKeydown?.(e);
     };
     document.addEventListener("keydown", this.handleKeydown);
 
-    this.handleCancelCurFocus = () => {
-      this.root.curResizeElement?.removeVertexes();
-      this.root.curResizeElement = null;
+    this.handleBlur = () => {
+      this.curResizeElement?.onblur();
+      this.curResizeElement = null;
     };
-    document.addEventListener("mousedown", this.handleCancelCurFocus);
+    document.addEventListener("mousedown", this.handleBlur);
   },
 
   // 结束元素可选择
@@ -95,9 +95,8 @@ Root.prototype = {
       element.removeResize?.();
     });
     this.curResizeElement = null;
-
     document.removeEventListener("keydown", this.handleKeydown);
-    document.removeEventListener("mousedown", this.handleCancelCurFocus);
+    document.removeEventListener("mousedown", this.handleBlur);
   },
 
   // 画直线
