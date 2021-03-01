@@ -29,11 +29,12 @@ Resizable.prototype = {
 
   addVertexes() {
     this.makeRectVertexes().forEach((point, index) => {
-      this.addVertex(point, index);
+      this.insertVertex(index, point);
     });
   },
 
-  addVertex(point, index) {
+  // 插入顶点 Vertex 元素 不是插入points
+  insertVertex(index, point) {
     const vertex = createElement({
       type: typeEnum.vertex,
       platform: this.platform,
@@ -42,7 +43,6 @@ Resizable.prototype = {
       index
     });
     vertex.addToParent(this);
-    vertex.mount(this.root);
     this.vertexes.splice(index, 0, vertex);
   },
 
@@ -56,7 +56,6 @@ Resizable.prototype = {
 
   onblur() {
     this.vertexes.forEach(vertex => {
-      vertex.removeFromParent();
       vertex.unmount();
     });
     this.vertexes = [];

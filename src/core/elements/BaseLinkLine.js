@@ -1,5 +1,5 @@
 import { Element } from "../Element";
-import { extend, lastItem, mixin } from "../helpers";
+import { extend, handleKeyEvent, lastItem, mixin } from "../helpers";
 import { typeEnum } from "../enums";
 import { createElement } from "../createElement";
 import { Resizable } from "@/core/mixins/Resizable";
@@ -85,16 +85,24 @@ BaseLinkLine.prototype = {
 
   // 绘制过程中键盘控制
   keyCtrlDrawing(e) {
-    if (e.key === "z" && e.ctrlKey) {
-      this.root.isNewPoint = false;
-      if (this.points.length === 2) {
-        this.unmount();
-        this.root.curDrawLine = null;
-      } else {
-        this.points.pop();
-        this.mapToView();
+    handleKeyEvent(e, {
+      // ctrl + z
+      z: {
+        handler: () => {
+          this.root.isNewPoint = false;
+          if (this.points.length === 2) {
+            this.unmount();
+            this.root.curDrawLine = null;
+          } else {
+            this.points.pop();
+            this.mapToView();
+          }
+        },
+        modifier: {
+          ctrl: true
+        }
       }
-    }
+    });
   },
 
   export() {

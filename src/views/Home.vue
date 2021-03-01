@@ -191,7 +191,6 @@ export default {
         {
           name: "删除",
           handler: () => {
-            item.parent?.removeChild(item);
             item.unmount();
             this.style = null;
           }

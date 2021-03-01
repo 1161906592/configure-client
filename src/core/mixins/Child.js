@@ -18,6 +18,7 @@ Child.prototype = {
   },
 
   removeFromParent() {
+    this.parent?.removeChild?.(this);
     this.parent = null;
   },
 

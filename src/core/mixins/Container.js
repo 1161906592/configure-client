@@ -31,7 +31,6 @@ Container.prototype = {
     if (idx !== -1) {
       this.children.splice(idx, 1);
     }
-    child.removeFromParent(this);
   },
 
   mount(root) {

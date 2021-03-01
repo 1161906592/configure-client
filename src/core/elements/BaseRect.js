@@ -104,11 +104,11 @@ function makeLineVertexByAngle(sin, cos) {
   let x;
   let y;
   if (r1 > r2) {
-    x = ~~(centerX + r2 * cos) + 0.5;
-    y = ~~(centerY + r2 * sin) + 0.5;
+    x = centerX + r2 * cos;
+    y = centerY + r2 * sin;
   } else {
-    x = ~~(centerX + r1 * cos) + 0.5;
-    y = ~~(centerY + r1 * sin) + 0.5;
+    x = centerX + r1 * cos;
+    y = centerY + r1 * sin;
   }
 
   return [x, y];

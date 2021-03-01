@@ -1,5 +1,5 @@
 import { typeEnum } from "../enums";
-import { extend, handleArrowEvent, lastItem, mixin } from "../helpers";
+import { extend, handleKeyEvent, lastItem, mixin } from "../helpers";
 import { BaseLinkLine, updatePoint } from "./BaseLinkLine";
 import { PolylineLinkable } from "@/core/mixins/PolylineLinkable";
 
@@ -25,21 +25,13 @@ BasePolyline.prototype = {
   focusIndex: -1, // 动态属性
 
   update() {
-    this.syncBreakPoints();
+    nextVertexFollow.call(this);
     BaseLinkLine.prototype.update.call(this);
   },
 
   makeDirectionPoints() {
     const points = this.points;
     return [lastItem(points, 2), lastItem(points)];
-  },
-
-  syncBreakPoints() {
-    if (this.points.length > 2) {
-      nextVertexFollow.call(this);
-    } else {
-      lineAutoBreak.call(this);
-    }
   },
 
   makeLineStartPoint() {
@@ -79,9 +71,17 @@ BasePolyline.prototype = {
 
   updateByKeydown(e) {
     updateByKeydown.call(this, e);
+    BaseLinkLine.prototype.updateByKeydown.call(this, e);
   },
 
   updatePoint(index, point) {
+    if (this.points.length === 2) {
+      // 自动增加拐点
+      breakSection.call(this, this.focusIndex);
+      if (index === 1) {
+        index += 2;
+      }
+    }
     const focusIndex = this.focusIndex;
     const points = this.points;
     this.isRightVertical = points[focusIndex][0] === points[focusIndex + 1]?.[0];
@@ -158,24 +158,21 @@ function nextVertexFollow() {
   }
 }
 
-// 线自动转折
-function lineAutoBreak() {
+// 折断线段的某一小段
+function breakSection(index) {
   const points = this.points;
-
-  if (this.isLeftVertical || this.isRightVertical) {
-    if (points[0][0] !== points[1][0]) {
-      let halfY = (points[1][1] - points[0][1]) / 2;
-      insertBreakPoints.call(this, 1, [points[0][0], ~~(points[0][1] + halfY) + 0.5], [points[1][0], ~~(points[0][1] + halfY) + 0.5]);
-    }
+  const curIndex = index === points.length - 1 ? index - 1 : index;
+  if (isSectionVertical(points, this.focusIndex)) {
+    const halfY = (points[curIndex][1] + points[curIndex + 1][1]) / 2;
+    insertPoints.call(this, curIndex + 1, [points[curIndex][0], halfY], [points[curIndex][0], halfY]);
   } else {
-    if (points[0][1] !== points[1][1]) {
-      let halfX = ~~((points[1][0] - points[0][0]) / 2);
-      insertBreakPoints.call(this, 1, [~~(points[0][0] + halfX) + 0.5, points[0][1]], [~~(points[0][0] + halfX) + 0.5, points[1][1]]);
-    }
+    const halfX = (points[curIndex][0] + points[curIndex + 1][0]) / 2;
+    insertPoints.call(this, curIndex + 1, [halfX, points[curIndex][1]], [halfX, points[curIndex][1]]);
   }
 }
 
-function insertBreakPoints(index, ...points) {
+// 插入点
+function insertPoints(index, ...points) {
   this.points.splice(index, 0, ...points);
   if (this.vertexes.length) {
     // 插入时需要调整原来顶点的下标
@@ -183,7 +180,7 @@ function insertBreakPoints(index, ...points) {
       this.vertexes[i].index += points.length;
     }
     points.forEach((point, i) => {
-      this.addVertex(point, index + i);
+      this.insertVertex(index + i, point);
     });
   }
   // 调整 focusIndex 的值
@@ -254,27 +251,41 @@ function updateSection({ x, y }) {
 }
 
 function updateByKeydown(e) {
-  let [x, y] = this.points[this.focusIndex];
-  const isVertical = isSectionVertical(this.points, this.focusIndex);
-  handleArrowEvent(e, {
-    up: () => {
-      if (isVertical) return;
-      y--;
+  const { focusIndex, points } = this;
+  let [x, y] = points[focusIndex];
+  const isVertical = isSectionVertical(points, focusIndex);
+  handleKeyEvent(
+    e,
+    {
+      ArrowUp: () => {
+        if (isVertical) return;
+        y--;
+      },
+      ArrowRight: () => {
+        if (!isVertical) return;
+        x++;
+      },
+      ArrowDown: () => {
+        if (isVertical) return;
+        y++;
+      },
+      ArrowLeft: () => {
+        if (!isVertical) return;
+        x--;
+      },
+      b: {
+        handler: () => {
+          breakSection.call(this, focusIndex);
+        },
+        modifiers: {
+          ctrl: true
+        }
+      }
     },
-    right: () => {
-      if (!isVertical) return;
-      x++;
-    },
-    down: () => {
-      if (isVertical) return;
-      y++;
-    },
-    left: () => {
-      if (!isVertical) return;
-      x--;
+    () => {
+      this.updatePoint(focusIndex, [x, y]);
     }
-  });
-  this.updatePoint(this.focusIndex, [x, y]);
+  );
 }
 
 // 判断其中一段的方向

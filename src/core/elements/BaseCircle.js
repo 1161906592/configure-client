@@ -80,10 +80,11 @@ function makeRectVertexes() {
   ];
 }
 
+// 通过角度确定线在连接元素上的交点
 function makeLineVertexByAngle(sin, cos) {
   const r = Math.abs(this.r);
-  const x = ~~(this.x + r * cos) + 0.5;
-  const y = ~~(this.y + r * sin) + 0.5;
+  const x = this.x + r * cos;
+  const y = this.y + r * sin;
   return [x, y];
 }
 

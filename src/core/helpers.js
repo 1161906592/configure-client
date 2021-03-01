@@ -81,19 +81,25 @@ export function createSvgNode(qualifiedName) {
   return document.createElementNS("http://www.w3.org/2000/svg", qualifiedName);
 }
 
-export function handleArrowEvent(e, { up, right, down, left }) {
-  switch (e.key) {
-    case "ArrowLeft":
-      left();
-      break;
-    case "ArrowRight":
-      right();
-      break;
-    case "ArrowUp":
-      up();
-      break;
-    case "ArrowDown":
-      down();
-      break;
+// 按键
+export function handleKeyEvent(e, handles, cb) {
+  const curHandler = handles[e.key];
+  if (curHandler) {
+    if (isFunction(curHandler)) {
+      if (!e.ctrlKey && !e.altKey) {
+        curHandler();
+        cb?.();
+      }
+    } else {
+      const { modifiers, handler } = curHandler;
+      if (!modifiers || ((modifiers.ctrl ? e.ctrlKey : true) && (modifiers.alt ? e.altKey : true))) {
+        handler();
+        cb?.();
+      }
+    }
   }
+}
+
+export function isFunction(target) {
+  return target && typeof target === "function";
 }

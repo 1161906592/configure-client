@@ -1,5 +1,4 @@
 import { makeEventPacket } from "../Eventful";
-import { lastItem } from "@/core/helpers";
 
 // 可以添加连接线的类的混入类的抽象类 用于表示其公共部分 只用于混入 不能继承 继承无效
 function BaseLinkable() {
@@ -77,14 +76,7 @@ BaseLinkable.prototype = {
       const sin = isFollowStart ? line.startSin : line.endSin;
       const cos = isFollowStart ? line.startCos : line.endCos;
 
-      if (isFollowStart) {
-        line.isRightVertical = points[0][0] === points[1][0];
-      } else {
-        line.isLeftVertical = lastItem(points)[0] === lastItem(points, 2)[0];
-      }
-
-      line.points[line.focusIndex] = this.makeLineVertexByAngle(sin, cos);
-      line.update();
+      line.updatePoint(line.focusIndex, this.makeLineVertexByAngle(sin, cos));
     });
   },
 
@@ -92,7 +84,6 @@ BaseLinkable.prototype = {
   makeLineVertexByAngle() {},
 
   removeLine(line) {
-    // console.log(this);
     this.lines.splice(
       this.lines.findIndex(d => d === line),
       1

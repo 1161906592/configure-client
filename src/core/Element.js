@@ -1,4 +1,4 @@
-import { eachObj, guid, handleArrowEvent, mixin } from "./helpers";
+import { eachObj, guid, handleKeyEvent, mixin } from "./helpers";
 import { Eventful } from "./Eventful";
 import { Child } from "./mixins/Child";
 import { Animatable } from "@/core/mixins/Animatable";
@@ -67,6 +67,7 @@ Element.prototype = {
 
   unmount() {
     if (!this.isMounted) return;
+    this.removeFromParent();
     this.root.remove(this);
     this.isMounted = false;
 
@@ -99,18 +100,21 @@ mixin(Element, Animatable);
 mixin(Element, Draggable);
 
 function updateByKeydown(e) {
-  handleArrowEvent(e, {
-    up: () => {
+  handleKeyEvent(e, {
+    ArrowUp: () => {
       this.attr("y", this.y - 1);
     },
-    right: () => {
+    ArrowRight: () => {
       this.attr("x", this.x + 1);
     },
-    down: () => {
+    ArrowDown: () => {
       this.attr("y", this.y + 1);
     },
-    left: () => {
+    ArrowLeft: () => {
       this.attr("x", this.x - 1);
+    },
+    Delete: () => {
+      this.unmount();
     }
   });
 }
