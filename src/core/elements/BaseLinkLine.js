@@ -8,6 +8,7 @@ import { Resizable } from "@/core/mixins/Resizable";
 function BaseLinkLine(opts) {
   Element.call(this, opts);
   Resizable.call(this, opts);
+  this.zIndex = opts.zIndex || 0;
 }
 
 BaseLinkLine.prototype = {

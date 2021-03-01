@@ -37,6 +37,8 @@ Element.prototype = {
 
   isMounted: false,
 
+  zIndex: 1,
+
   // Interface
   create() {},
 

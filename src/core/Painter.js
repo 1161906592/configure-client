@@ -12,6 +12,9 @@ function Painter(root) {
   svg.style.cssText = "position: absolute;left: 0;top:0;";
 
   this.svgRoot = svg;
+
+  this.svgZIndexMap = {};
+  this.svgZIndex = [];
 }
 
 Painter.prototype = {
@@ -26,7 +29,19 @@ Painter.prototype = {
         this.zrRoot.add(element.el);
         break;
       case platformEnum.svg:
-        this.svgRoot.appendChild(element.el);
+        if (!this.svgZIndexMap[element.zIndex]) {
+          const g = createSvgNode("g");
+          g.setAttribute("z-index", element.zIndex);
+          this.svgZIndexMap[element.zIndex] = g;
+          let preZIndex = this.svgZIndex.find(d => d < element.zIndex);
+          if (!preZIndex) {
+            preZIndex = this.svgZIndex[0];
+          }
+          this.svgRoot.insertBefore(g, this.svgZIndexMap[preZIndex]);
+          this.svgZIndex.push(element.zIndex);
+          this.svgZIndex.sort();
+        }
+        this.svgZIndexMap[element.zIndex].appendChild(element.el);
         break;
     }
   },
@@ -40,7 +55,7 @@ Painter.prototype = {
         this.zrRoot.remove(element.el);
         break;
       case platformEnum.svg:
-        this.svgRoot.removeChild(element.el);
+        this.svgZIndexMap[element.zIndex].removeChild(element.el);
         break;
     }
   }
