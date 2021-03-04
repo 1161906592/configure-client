@@ -23,6 +23,7 @@ BasePolyline.prototype = {
   useArrow: false,
 
   focusIndex: -1, // 动态属性
+  focusPoint: null, // 触发获取焦点的坐标
 
   update() {
     nextVertexFollow.call(this);
@@ -54,8 +55,7 @@ BasePolyline.prototype = {
   },
 
   onfocus(p) {
-    const { index } = calcCrossIndex.call(this, p);
-    this.focusIndex = index;
+    focusPoint.call(this, p);
   },
 
   // 失去焦点时的逻辑处理
@@ -63,6 +63,7 @@ BasePolyline.prototype = {
     BaseLinkLine.prototype.onblur.call(this);
     // 重置 focusIndex
     this.focusIndex = -1;
+    this.focusPoint = null;
     // 合并拐点
     mergeBreakPoints(this.points);
     // 合并拐点不会产生副作用，只需要重新映射一次视图
@@ -74,18 +75,36 @@ BasePolyline.prototype = {
     BaseLinkLine.prototype.updateByKeydown.call(this, e);
   },
 
+  updateShapeByVertex(vertex) {
+    this.focusIndex = vertex.index;
+    // 通过顶点更新 focusIndex 时需要重置 focusPoint
+    this.focusPoint = null;
+    BaseLinkLine.prototype.updateShapeByVertex.call(this, vertex);
+  },
+
   updatePoint(index, point) {
     if (this.points.length === 2) {
       // 自动增加拐点
-      breakSection.call(this, this.focusIndex);
+      breakSection.call(this, 0);
       if (index === 1) {
         index += 2;
       }
     }
     const focusIndex = this.focusIndex;
     const points = this.points;
-    this.isRightVertical = points[focusIndex][0] === points[focusIndex + 1]?.[0];
-    this.isLeftVertical = points[focusIndex][0] === points[focusIndex - 1]?.[0];
+    let isLeftVertical = points[focusIndex][0] === points[focusIndex - 1]?.[0];
+    let isRightVertical = points[focusIndex][0] === points[focusIndex + 1]?.[0];
+    // 重合时
+    if (isLeftVertical && isRightVertical) {
+      if (isLeftVertical && points[focusIndex][1] === points[focusIndex - 1]?.[1]) {
+        isLeftVertical = false;
+      }
+      if (isRightVertical && points[focusIndex][1] === points[focusIndex + 1]?.[1]) {
+        isRightVertical = false;
+      }
+    }
+    this.isRightVertical = isRightVertical;
+    this.isLeftVertical = isLeftVertical;
     BaseLinkLine.prototype.updatePoint.call(this, index, point);
   },
 
@@ -162,13 +181,15 @@ function nextVertexFollow() {
 function breakSection(index) {
   const points = this.points;
   const curIndex = index === points.length - 1 ? index - 1 : index;
-  if (isSectionVertical(points, this.focusIndex)) {
+  if (isSectionVertical(points, curIndex)) {
     const halfY = (points[curIndex][1] + points[curIndex + 1][1]) / 2;
     insertPoints.call(this, curIndex + 1, [points[curIndex][0], halfY], [points[curIndex][0], halfY]);
   } else {
     const halfX = (points[curIndex][0] + points[curIndex + 1][0]) / 2;
     insertPoints.call(this, curIndex + 1, [halfX, points[curIndex][1]], [halfX, points[curIndex][1]]);
   }
+  // 如果有focusPoint, 根据focusPoint调整 focusIndex 的值
+  this.focusPoint && focusPoint.call(this, this.focusPoint);
 }
 
 // 插入点
@@ -212,10 +233,10 @@ function calcDistance(a, b, p) {
   const vBP = [p[0] - b[0], p[1] - b[1]];
   const dotAB_AP = vAB[0] * vAP[0] + vAB[1] * vAP[1];
   const dotAB_BP = vAB[0] * vBP[0] + vAB[1] * vBP[1];
-  if (dotAB_AP < 0) {
+  if (dotAB_AP <= 0) {
     // AP
     return { distance: d(a, p), point: a };
-  } else if (dotAB_BP > 0) {
+  } else if (dotAB_BP >= 0) {
     // BP
     return { distance: d(b, p), point: b };
   } else {
@@ -240,6 +261,12 @@ function calcDistance(a, b, p) {
   }
 }
 
+function focusPoint(p) {
+  const { index } = calcCrossIndex.call(this, p);
+  this.focusIndex = index;
+  this.focusPoint = p;
+}
+
 function updateSection({ x, y }) {
   const leftPoint = this.points[this.focusIndex];
   // 判断是垂直还是水平
@@ -254,38 +281,36 @@ function updateByKeydown(e) {
   const { focusIndex, points } = this;
   let [x, y] = points[focusIndex];
   const isVertical = isSectionVertical(points, focusIndex);
-  handleKeyEvent(
-    e,
-    {
-      ArrowUp: () => {
-        if (isVertical) return;
-        y--;
-      },
-      ArrowRight: () => {
-        if (!isVertical) return;
-        x++;
-      },
-      ArrowDown: () => {
-        if (isVertical) return;
-        y++;
-      },
-      ArrowLeft: () => {
-        if (!isVertical) return;
-        x--;
-      },
-      b: {
-        handler: () => {
-          breakSection.call(this, focusIndex);
-        },
-        modifiers: {
-          ctrl: true
-        }
-      }
-    },
-    () => {
+  handleKeyEvent(e, {
+    ArrowUp: () => {
+      if (isVertical) return;
+      y--;
       this.updatePoint(focusIndex, [x, y]);
+    },
+    ArrowRight: () => {
+      if (!isVertical) return;
+      x++;
+      this.updatePoint(focusIndex, [x, y]);
+    },
+    ArrowDown: () => {
+      if (isVertical) return;
+      y++;
+      this.updatePoint(focusIndex, [x, y]);
+    },
+    ArrowLeft: () => {
+      if (!isVertical) return;
+      x--;
+      this.updatePoint(focusIndex, [x, y]);
+    },
+    b: {
+      handler: () => {
+        breakSection.call(this, focusIndex);
+      },
+      modifiers: {
+        ctrl: true
+      }
     }
-  );
+  });
 }
 
 // 判断其中一段的方向

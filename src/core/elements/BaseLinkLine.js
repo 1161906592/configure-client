@@ -93,7 +93,7 @@ BaseLinkLine.prototype = {
           this.root.isNewPoint = false;
           if (this.points.length === 2) {
             this.unmount();
-            this.root.curDrawLine = null;
+            this.root.offCurDrawLine();
           } else {
             this.points.pop();
             this.mapToView();

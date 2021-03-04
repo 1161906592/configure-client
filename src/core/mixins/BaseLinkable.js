@@ -17,7 +17,6 @@ BaseLinkable.prototype = {
       if (root.curDrawLine) {
         // 避免作用于正在画的线
         if (root.curDrawLine === this) return;
-        root.offCurDrawLine();
         clickToEnd.call(this, e);
       } else {
         // 鼠标移动绘制线段
@@ -41,6 +40,7 @@ BaseLinkable.prototype = {
           document.removeEventListener("keydown", drawKeyDown);
           root.el.removeEventListener("click", clickRoot);
           root.offCurDrawLine = null;
+          root.curDrawLine = null;
         };
         document.addEventListener("mousemove", mousemove);
 
@@ -129,7 +129,13 @@ function clickToEnd() {
   const line = root.curDrawLine;
   const [last2, last] = line.makeDirectionPoints();
 
-  const { point, sin, cos } = this.makeLineEndPoint(last2, last);
+  const endPoint = this.makeLineEndPoint(last2, last);
+
+  if (!endPoint) return;
+
+  root.offCurDrawLine();
+
+  const { point, sin, cos } = endPoint;
 
   if (this.makeAfterBreakPoints) {
     line.points.pop();
@@ -149,8 +155,6 @@ function clickToEnd() {
 
   line.endSin = sin;
   line.endCos = cos;
-
-  root.curDrawLine = null;
 }
 
 export { BaseLinkable };

@@ -26,10 +26,6 @@ BaseVertex.prototype = {
     this.parent.syncWidthVertex(this);
   },
 
-  ondragstart() {
-    this.parent.focusIndex = this.index;
-  },
-
   export() {}
 };
 
