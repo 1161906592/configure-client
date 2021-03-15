@@ -40,7 +40,8 @@ Resizable.prototype = {
       platform: this.platform,
       x: point[0],
       y: point[1],
-      index
+      index,
+      zIndex: this.zIndex // 顶点使用和宿主元素一样的层级
     });
     vertex.addToParent(this);
     this.vertexes.splice(index, 0, vertex);

@@ -2,19 +2,21 @@ import { platformEnum } from "./enums";
 import { createSvgNode } from "./helpers";
 
 function Painter(root) {
+  this.root = root;
   const svg = createSvgNode("svg");
+  const rootEl = root.el;
 
-  root.appendChild(svg);
+  rootEl.appendChild(svg);
 
-  svg.setAttribute("width", root.clientWidth);
-  svg.setAttribute("height", root.clientHeight);
+  svg.setAttribute("width", rootEl.clientWidth);
+  svg.setAttribute("height", rootEl.clientHeight);
 
   svg.style.cssText = "position: absolute;left: 0;top:0;";
 
   this.svgRoot = svg;
 
-  this.svgZIndexMap = {};
-  this.svgZIndex = [];
+  this.zIndexStartMap = {};
+  this.zIndexList = [];
 }
 
 Painter.prototype = {
@@ -29,19 +31,7 @@ Painter.prototype = {
         this.zrRoot.add(element.el);
         break;
       case platformEnum.svg:
-        if (!this.svgZIndexMap[element.zIndex]) {
-          const g = createSvgNode("g");
-          g.setAttribute("z-index", element.zIndex);
-          this.svgZIndexMap[element.zIndex] = g;
-          let preZIndex = this.svgZIndex.find(d => d < element.zIndex);
-          if (!preZIndex) {
-            preZIndex = this.svgZIndex[0];
-          }
-          this.svgRoot.insertBefore(g, this.svgZIndexMap[preZIndex]);
-          this.svgZIndex.push(element.zIndex);
-          this.svgZIndex.sort();
-        }
-        this.svgZIndexMap[element.zIndex].appendChild(element.el);
+        insertSvgNode.call(this, element);
         break;
     }
   },
@@ -55,10 +45,31 @@ Painter.prototype = {
         this.zrRoot.remove(element.el);
         break;
       case platformEnum.svg:
-        this.svgZIndexMap[element.zIndex].removeChild(element.el);
+        this.svgRoot.removeChild(element.el);
         break;
+    }
+  },
+
+  updateElement(element) {
+    if (element.prevZIndex !== element.zIndex) {
+      insertSvgNode.call(this, element);
     }
   }
 };
+
+function insertSvgNode(element) {
+  let nextLevel = this.zIndexList.find(d => d > element.zIndex);
+  this.svgRoot.insertBefore(element.el, this.zIndexStartMap[nextLevel]?.el);
+  if (!this.zIndexStartMap[element.zIndex]) {
+    this.zIndexStartMap[element.zIndex] = element;
+    this.zIndexList.push(element.zIndex);
+    this.zIndexList.sort((a, b) => a - b);
+  }
+  // 如果改变的是之前作为某个层级的起始元素，则需要重新选取该层级的起始元素
+  if (this.zIndexStartMap[element.prevZIndex] === element) {
+    this.zIndexStartMap[element.prevZIndex] = this.root.storage.getElementList().find(d => d.zIndex === element.prevZIndex);
+  }
+  element.prevZIndex = element.zIndex;
+}
 
 export { Painter };

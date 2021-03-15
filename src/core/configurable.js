@@ -10,6 +10,7 @@ const rectBaseItems = [
   ...elementBaseItems,
   { prop: "width", label: "宽度", type: fieldTypeEnum.number },
   { prop: "height", label: "高度", type: fieldTypeEnum.number },
+  { prop: "zIndex", label: "层级", type: fieldTypeEnum.number },
   { prop: "image", label: "背景图片", type: fieldTypeEnum.text }
 ];
 

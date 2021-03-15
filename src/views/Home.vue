@@ -70,6 +70,7 @@
 <script>
 import { Root, createElement, structRender, rootStateEnum, configurableMap, fieldTypeEnum, makeConfiguration, typeEnum, platformEnum } from "../core";
 import { eachObj, makeMap } from "../core/helpers";
+import { Element } from "@/core/Element";
 
 export default {
   name: "Home",
@@ -150,6 +151,7 @@ export default {
           console.log(this);
         }
       });
+      console.log(element, element instanceof Element);
       element.mount(this.root);
     },
     handleStartDrawPolyLine() {

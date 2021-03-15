@@ -8,7 +8,7 @@ function Root(opts) {
   this.el = opts.el;
   this.oncontextmenu = opts.oncontextmenu;
   this.storage = new Storage();
-  this.painter = new Painter(this.el);
+  this.painter = new Painter(this);
   this.handlerProxy = new HandlerProxy(this.storage);
   this.root = this;
   this.state = rootStateEnum.off;

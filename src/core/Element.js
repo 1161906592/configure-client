@@ -65,6 +65,7 @@ Element.prototype = {
   update() {
     this.mapToView();
     this.updateOffset();
+    this.root.painter.updateElement(this);
   },
 
   unmount() {
@@ -90,6 +91,7 @@ Element.prototype = {
       id: this.id,
       x: this.x,
       y: this.y,
+      zIndex: this.zIndex,
       extData: this.extData,
       customData: this.customData
     };
