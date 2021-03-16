@@ -44,6 +44,7 @@ Painter.prototype = {
         this.zrRoot.remove(element.el);
         break;
       case platformEnum.svg:
+        removeSvgNode.call(this, element);
         this.svgRoot.removeChild(element.el);
         break;
     }
@@ -57,9 +58,37 @@ Painter.prototype = {
 };
 
 function insertSvgNode(element) {
-  // 如果改变的是之前作为某个层级的链表head，则需要重新选取该层级的head元素
+  if (element.zIndexNode) {
+    removeSvgNode.call(this, element);
+  } else {
+    element.zIndexNode = new LinkNode(element);
+  }
+
+  const curNode = element.zIndexNode;
+
+  const nextLevel = Object.keys(this.zIndexMap)
+    .sort((a, b) => a - b)
+    .find(d => d > element.zIndex);
+  this.svgRoot.insertBefore(element.el, this.zIndexMap[nextLevel]?.head.data.el);
+
+  if (this.zIndexMap[element.zIndex]) {
+    const item = this.zIndexMap[element.zIndex];
+    item.end.next = curNode;
+    curNode.prev = item.end;
+    item.end = curNode;
+  } else {
+    this.zIndexMap[element.zIndex] = {
+      head: curNode,
+      end: curNode
+    };
+  }
+  element.prevZIndex = element.zIndex;
+}
+
+function removeSvgNode(element) {
+  // 如果移除的是之前作为某个层级的链表head，则需要重新选取该层级的head元素
   const prevHead = this.zIndexMap[element.prevZIndex]?.head;
-  const curNode = element.zIndexNode || (element.zIndexNode = new LinkNode(element));
+  const curNode = element.zIndexNode;
   if (prevHead === curNode) {
     const nextNode = prevHead.next;
     if (nextNode) {
@@ -80,24 +109,6 @@ function insertSvgNode(element) {
 
   curNode.prev = null;
   curNode.next = null;
-
-  const nextLevel = Object.keys(this.zIndexMap)
-    .sort((a, b) => a - b)
-    .find(d => d > element.zIndex);
-  this.svgRoot.insertBefore(element.el, this.zIndexMap[nextLevel]?.head.data.el);
-
-  if (this.zIndexMap[element.zIndex]) {
-    const item = this.zIndexMap[element.zIndex];
-    item.end.next = curNode;
-    curNode.prev = item.end;
-    item.end = curNode;
-  } else {
-    this.zIndexMap[element.zIndex] = {
-      head: curNode,
-      end: curNode
-    };
-  }
-  element.prevZIndex = element.zIndex;
 }
 
 export { Painter };
