@@ -103,3 +103,9 @@ export function handleKeyEvent(e, handles, cb) {
 export function isFunction(target) {
   return target && typeof target === "function";
 }
+
+export function LinkNode(data) {
+  this.prev = null;
+  this.next = null;
+  this.data = data;
+}

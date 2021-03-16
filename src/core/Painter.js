@@ -1,5 +1,5 @@
 import { platformEnum } from "./enums";
-import { createSvgNode } from "./helpers";
+import { createSvgNode, LinkNode } from "./helpers";
 
 function Painter(root) {
   this.root = root;
@@ -15,8 +15,7 @@ function Painter(root) {
 
   this.svgRoot = svg;
 
-  this.zIndexStartMap = {};
-  this.zIndexList = [];
+  this.zIndexMap = {}; // 按层级分别存储一个双向链表结构用于快速查找新节点的插入位置
 }
 
 Painter.prototype = {
@@ -58,16 +57,45 @@ Painter.prototype = {
 };
 
 function insertSvgNode(element) {
-  let nextLevel = this.zIndexList.find(d => d > element.zIndex);
-  this.svgRoot.insertBefore(element.el, this.zIndexStartMap[nextLevel]?.el);
-  if (!this.zIndexStartMap[element.zIndex]) {
-    this.zIndexStartMap[element.zIndex] = element;
-    this.zIndexList.push(element.zIndex);
-    this.zIndexList.sort((a, b) => a - b);
+  // 如果改变的是之前作为某个层级的链表head，则需要重新选取该层级的head元素
+  const prevHead = this.zIndexMap[element.prevZIndex]?.head;
+  const curNode = element.zIndexNode || (element.zIndexNode = new LinkNode(element));
+  if (prevHead === curNode) {
+    const nextNode = prevHead.next;
+    if (nextNode) {
+      nextNode.prev = null;
+      this.zIndexMap[element.prevZIndex].head = prevHead.next;
+    } else {
+      delete this.zIndexMap[element.prevZIndex];
+    }
   }
-  // 如果改变的是之前作为某个层级的起始元素，则需要重新选取该层级的起始元素
-  if (this.zIndexStartMap[element.prevZIndex] === element) {
-    this.zIndexStartMap[element.prevZIndex] = this.root.storage.getElementList().find(d => d.zIndex === element.prevZIndex);
+
+  // 原链表中删除当前元素
+  if (curNode.prev) {
+    curNode.prev.next = curNode.next;
+  }
+  if (curNode.next) {
+    curNode.next.prev = curNode.prev;
+  }
+
+  curNode.prev = null;
+  curNode.next = null;
+
+  const nextLevel = Object.keys(this.zIndexMap)
+    .sort((a, b) => a - b)
+    .find(d => d > element.zIndex);
+  this.svgRoot.insertBefore(element.el, this.zIndexMap[nextLevel]?.head.data.el);
+
+  if (this.zIndexMap[element.zIndex]) {
+    const item = this.zIndexMap[element.zIndex];
+    item.end.next = curNode;
+    curNode.prev = item.end;
+    item.end = curNode;
+  } else {
+    this.zIndexMap[element.zIndex] = {
+      head: curNode,
+      end: curNode
+    };
   }
   element.prevZIndex = element.zIndex;
 }
