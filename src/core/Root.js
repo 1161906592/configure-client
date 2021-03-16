@@ -84,7 +84,7 @@ Root.prototype = {
       this.curResizeElement?.onblur();
       this.curResizeElement = null;
     };
-    document.addEventListener("mousedown", this.handleBlur);
+    this.el.addEventListener("mousedown", this.handleBlur);
   },
 
   // 结束元素可选择
@@ -96,7 +96,7 @@ Root.prototype = {
     });
     this.curResizeElement = null;
     document.removeEventListener("keydown", this.handleKeydown);
-    document.removeEventListener("mousedown", this.handleBlur);
+    this.el.removeEventListener("mousedown", this.handleBlur);
   },
 
   // 画直线
