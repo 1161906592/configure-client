@@ -40,9 +40,9 @@ Container.prototype = {
   },
 
   unmount() {
-    this.children.forEach(element => {
-      element.unmount();
-    });
+    while (this.children.length) {
+      this.children[0].unmount();
+    }
     this.clearLine();
   },
 
