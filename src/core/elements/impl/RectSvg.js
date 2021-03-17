@@ -19,11 +19,9 @@ RectSvg.prototype = {
     this.el.setAttribute("x", "rgb(0,0,0)");
     this.el.style.cursor = "pointer";
 
-    if (!this.preview) {
-      this.rectEl = createSvgNode("rect");
+    this.rectEl = createSvgNode("rect");
 
-      this.el.appendChild(this.rectEl);
-    }
+    this.el.appendChild(this.rectEl);
 
     this.toggleImage();
 

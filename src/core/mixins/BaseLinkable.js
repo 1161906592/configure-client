@@ -9,6 +9,7 @@ BaseLinkable.prototype = {
   constructor: BaseLinkable,
 
   addDrawLinkLine() {
+    console.log(this);
     const root = this.root;
 
     const click = e => {

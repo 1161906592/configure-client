@@ -11,7 +11,7 @@
       <el-button type="primary" size="small" @click="handleStartDrawPolyLine">折线</el-button>
       <el-button type="primary" size="small" @click="handleStartDrawLine">直线</el-button>
       <el-button type="primary" size="small" @click="handleStartFocus">选择</el-button>
-      <el-button type="primary" size="small" @click="handleClearHandler">配置</el-button>
+      <el-button type="primary" size="small" @click="isSelectPath = false">退出轨迹绑定</el-button>
       <el-button type="primary" size="small" @click="handleSave">保存</el-button>
     </div>
     <div class="bottom">
@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import { Root, createElement, structRender, rootStateEnum, configurableMap, fieldTypeEnum, makeConfiguration, typeEnum, platformEnum } from "../core";
+import { Root, createElement, structRender, configurableMap, fieldTypeEnum, makeConfiguration, typeEnum, platformEnum } from "../core";
 import { eachObj, makeMap } from "../core/helpers";
 import { Element } from "@/core/Element";
 
@@ -105,23 +105,17 @@ export default {
       this.style = null;
     });
     this.root.on("click", item => {
-      if (this.root.state !== rootStateEnum.off) return;
-      this.panelVisible = true;
-      this.curElement = item;
-      const dataList = [];
-      eachObj(item.data, (value, key) => {
-        dataList.push({ key, value });
-      });
-
-      this.form = {
-        dataList: dataList,
-        items: configurableMap[item.type][item.platform].items.map(d => {
-          return {
-            ...d,
-            value: item[d.prop]
-          };
-        })
-      };
+      // if (this.root.state !== rootStateEnum.off) return;
+      if (this.isSelectPath && item.isLinkLine) {
+        this.$confirm("确认绑定该轨迹?", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "info"
+        }).then(() => {
+          this.curElement.extData.tranformPathId = item.id;
+          this.isSelectPath = false;
+        });
+      }
     });
 
     this.root.on("contextmenu", this.handleContextmenu);
@@ -163,15 +157,13 @@ export default {
     handleStartFocus() {
       this.root.startFocus();
     },
-    handleClearHandler() {
-      this.root.clearHandler();
-    },
     handleSave() {
       const data = this.root.export();
       console.log(data);
       localStorage.setItem("data", JSON.stringify(data));
     },
     handleSure() {
+      console.log(this.curElement, makeConfiguration(this.form.items));
       this.curElement.attr(makeConfiguration(this.form.items));
       this.curElement.data = makeMap(
         this.form.dataList.filter(d => d.key),
@@ -183,6 +175,7 @@ export default {
     },
     handleContextmenu(item, e) {
       e.event.preventDefault();
+      if (this.root.curResizeElement !== item) return;
       this.style = {
         left: e.offsetX + "px",
         top: e.offsetY + "px"
@@ -196,7 +189,44 @@ export default {
             item.unmount();
             this.style = null;
           }
-        }
+        },
+        {
+          name: "配置",
+          handler: () => {
+            this.panelVisible = true;
+            const dataList = [];
+            eachObj(item.data, (value, key) => {
+              dataList.push({ key, value });
+            });
+
+            this.form = {
+              dataList: dataList,
+              items: configurableMap[item.type][item.platform].items.map(d => {
+                return {
+                  ...d,
+                  value: item[d.prop]
+                };
+              })
+            };
+            this.style = null;
+          }
+        },
+        item.extData.tranformPathId
+          ? {
+              name: "解绑轨迹",
+              handler: () => {
+                delete item.extData.tranformPathId;
+                this.style = null;
+              }
+            }
+          : {
+              name: "绑定轨迹",
+              handler: () => {
+                this.style = null;
+                this.isSelectPath = true;
+                // item.unmount();
+              }
+            }
       ];
     },
     handleSureSub(item) {
@@ -234,6 +264,7 @@ export default {
 
 .root {
   height: 100vh;
+  position: relative;
 }
 
 .contextmenu {

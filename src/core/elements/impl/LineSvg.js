@@ -18,7 +18,7 @@ LineSvg.prototype = {
     this.el = createSvgNode("g");
     this.el.style.cursor = "pointer";
 
-    this.lineEl = createSvgNode("line");
+    this.lineEl = createSvgNode("polyline");
 
     this.el.appendChild(this.lineEl);
 
@@ -29,14 +29,17 @@ LineSvg.prototype = {
   },
 
   mapToView() {
-    const [[x1, y1], [x2, y2]] = this.points;
+    const [x1, y1] = this.points[0];
 
-    this.lineEl.setAttribute("x1", fixZrCoordinate(x1));
-    this.lineEl.setAttribute("y1", fixZrCoordinate(y1));
-    this.lineEl.setAttribute("x2", fixZrCoordinate(x2));
-    this.lineEl.setAttribute("y2", fixZrCoordinate(y2));
+    this.lineEl.setAttribute(
+      "points",
+      fixCoordinate(this.points)
+        .map(d => d.join(","))
+        .join(" ")
+    );
     this.lineEl.setAttribute("stroke", this.color);
     this.lineEl.setAttribute("stroke-width", 1);
+    this.lineEl.setAttribute("fill", "none");
 
     this.animateNode.setAttribute("cx", x1);
     this.animateNode.setAttribute("cy", y1);
@@ -45,5 +48,11 @@ LineSvg.prototype = {
 };
 
 extend(LineSvg, BaseLine);
+
+function fixCoordinate(points) {
+  return points.map(([x, y]) => {
+    return [fixZrCoordinate(x), fixZrCoordinate(y)];
+  });
+}
 
 export { LineSvg };

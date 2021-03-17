@@ -10,24 +10,17 @@ LineLinkable.prototype = {
   constructor: LineLinkable,
 
   addDrawLine() {
-    BaseLinkable.prototype.addDrawLinkLine.call(this);
+    this.addDrawLinkLine();
     this.makeLinkLine = LineLinkable.prototype.makeLinkLine;
     this.lineDrawing = LineLinkable.prototype.lineDrawing;
   },
 
   makeLinkLine(e) {
-    const {
-      point: [x, y],
-      sin,
-      cos
-    } = this.makeLineStartPoint([e.offsetX, e.offsetY]);
+    const { point, sin, cos } = this.makeLineStartPoint([e.offsetX, e.offsetY]);
     const line = createElement({
       type: typeEnum.line,
       platform: platformEnum.svg,
-      points: [
-        [x, y],
-        [x, y]
-      ]
+      points: [point]
     });
     return { line, sin, cos };
   },
@@ -38,10 +31,13 @@ LineLinkable.prototype = {
     const curDrawLine = root.curDrawLine;
     if (!curDrawLine) return;
     const points = curDrawLine.points;
-    points[1] = [e.offsetX - 1, e.offsetY - 1];
-    curDrawLine.attr({
-      points
-    });
+    if (root.isNewPoint) {
+      root.isNewPoint = false;
+      points.push([e.offsetX, e.offsetY]);
+    } else {
+      points[points.length - 1] = [e.offsetX, e.offsetY];
+    }
+    curDrawLine.mapToView();
   }
 };
 

@@ -11,6 +11,7 @@ Resizable.prototype = {
   addResize() {
     const mousedown = e => {
       e.event.stopPropagation();
+      if (e.event.button !== 0) return;
 
       if (this.root.curResizeElement !== this) {
         this.root.curResizeElement?.onblur();

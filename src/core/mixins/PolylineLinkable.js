@@ -10,7 +10,7 @@ PolylineLinkable.prototype = {
   constructor: PolylineLinkable,
 
   addDrawPolyLine() {
-    BaseLinkable.prototype.addDrawLinkLine.call(this);
+    this.addDrawLinkLine();
     this.makeLinkLine = PolylineLinkable.prototype.makeLinkLine;
     this.lineDrawing = PolylineLinkable.prototype.lineDrawing;
   },
@@ -36,8 +36,7 @@ PolylineLinkable.prototype = {
       points.push([e.offsetX, e.offsetY]);
     } else {
       const last = lastItem(points, 2);
-      root.isCurLineVertical = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]);
-      points[points.length - 1] = root.isCurLineVertical ? [last[0], e.offsetY - 1] : [e.offsetX - 1, last[1]];
+      points[points.length - 1] = Math.abs(e.offsetY - last[1]) > Math.abs(e.offsetX - last[0]) ? [last[0], e.offsetY] : [e.offsetX, last[1]];
     }
     curDrawLine.mapToView();
   }
